@@ -1,9 +1,9 @@
 /* =========================================================
-   components.css – STATUS, TEXTAREA, BADGES (REFINED)
+   components.css – DOM SAFE VERSION (NO JS DEPENDENCIES)
    ========================================================= */
 
 /* ======================
-   TEXT INPUTS
+   TEXT INPUTS (FIXED)
    ====================== */
 
 input[type="text"],
@@ -18,26 +18,27 @@ textarea {
   background: #ffffff;
 }
 
-/* główne pola pracy audytora */
-.col-issue textarea,
-.col-expected textarea {
+/* zamiast .col-issue / .col-expected → target po kolejności kolumn */
+.audit-table td:nth-child(5) textarea {
   min-height: 140px;
   background: #faf9ff;
 }
 
-/* pola kodu */
-.col-code textarea {
+.audit-table td:nth-child(6) textarea {
+  min-height: 140px;
+  background: #faf9ff;
+}
+
+/* kod (HTML current / expected) */
+.audit-table td:nth-child(7) textarea,
+.audit-table td:nth-child(8) textarea {
   min-height: 160px;
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 0.8rem;
   background: #f6f4ff;
 }
 
-/* textarea wypełnia wysokość komórki */
-.audit-table td {
-  vertical-align: top;
-}
-
+/* textarea fill cell */
 .audit-table td textarea {
   height: 100%;
 }
@@ -50,19 +51,18 @@ textarea:focus {
 }
 
 /* ======================
-   STATUS – JEDEN SWITCHER (PIONOWO)
+   STATUS (FIX: brak wrappera)
    ====================== */
 
-.status-radios.vertical {
+/* radio group w jednej komórce */
+.audit-table td:nth-child(4) {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  width: 100%;
 }
 
-/* KAŻDA opcja = TEN SAM SLOT */
-.status-radios label {
-  position: relative;
+/* label jako „slot UI” */
+.audit-table td:nth-child(4) label {
   display: flex;
   align-items: center;
   height: 36px;
@@ -74,67 +74,64 @@ textarea:focus {
   color: var(--violet-900);
 }
 
-/* ukrywamy natywne radio */
-.status-radios input {
+/* ukrycie radio */
+.audit-table td:nth-child(4) input[type="radio"] {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
 
-/* zaznaczenie – ZAWSZE CAŁY SLOT */
-.status-radios label:has(input:checked) {
+/* zaznaczenie */
+.audit-table td:nth-child(4) label:has(input:checked) {
   background: #ffffff;
   box-shadow: 0 2px 6px rgba(123, 92, 214, 0.25);
 }
 
-/* treść */
-.status-radios span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
 /* ======================
-   FAILURE DETAIL – DRUGI POZIOM (STABILNY)
+   FAILURE DETAIL (DOM fallback)
    ====================== */
 
-/* zawsze rezerwujemy miejsce – brak skakania */
-.failure-detail {
+/* 4 kolumna + brak fail UI */
+.audit-table td:nth-child(4) div {
   margin-top: 6px;
   padding-left: 8px;
   border-left: 2px solid #e6e2f3;
-  min-height: 88px;
+  font-size: 0.75rem;
 }
 
-.failure-detail.hidden {
-  visibility: hidden;
-}
+/* ======================
+   CHECKBOX GROUP (NOWY DOM)
+   ====================== */
 
-/* radio ❌ jako logiczny pod-blok */
-.failure-detail-radios {
+.checkbox-group {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.failure-detail-radios label {
-  display: flex;
-  align-items: center;
-  height: 28px;
-  padding: 0 8px;
-  font-size: 0.75rem;
-  border-radius: 8px;
-  cursor: pointer;
-  background: #f7f6fb;
-  color: #3b2b5f;
+/* area / priority cell fallback */
+.audit-table td:nth-child(9),
+.audit-table td:nth-child(10) {
+  font-size: 0.8rem;
 }
 
-.failure-detail-radios input {
-  margin-right: 6px;
+/* checkbox style */
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+/* focus */
+.checkbox-group input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 /* ======================
-   BADGES
+   BADGES (fallback = NO JS CHANGE NEEDED)
    ====================== */
 
 .badge {
@@ -146,22 +143,28 @@ textarea:focus {
   font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
-  text-transform: capitalize; /* ✅ sentence case */
+  text-transform: capitalize;
 }
 
-/* obszar */
-.area-dev { background: #e3f2fd; color: #0d47a1; }
+/* jeśli JS nie używa badge – stylizujemy fallback tekst w komórkach */
+.audit-table td:nth-child(9),
+.audit-table td:nth-child(10) {
+  font-weight: 500;
+}
+
+/* area */
+.area-development { background: #e3f2fd; color: #0d47a1; }
 .area-content { background: #e8f5e9; color: #1b5e20; }
 .area-design { background: #f3e5f5; color: #4a148c; }
 .area-mixed { background: #ede7f6; color: #4527a0; }
 
-/* priorytet */
+/* priority */
 .priority-critical { background: #fdecea; color: #b00020; }
 .priority-high { background: #fff4e5; color: #e65100; }
 .priority-medium { background: #fffde7; color: #9e7700; }
 
 /* ======================
-   BUTTONS
+   BUTTONS (UNCHANGED LOGIC SAFE)
    ====================== */
 
 button {
@@ -172,11 +175,7 @@ button {
   padding: 0 16px;
   border-radius: 999px;
   border: none;
-  background: linear-gradient(
-    135deg,
-    #7b5cd6 0%,
-    #b084f5 100%
-  );
+  background: linear-gradient(135deg, #7b5cd6 0%, #b084f5 100%);
   color: #ffffff;
   font-size: 0.8rem;
   cursor: pointer;
@@ -191,55 +190,16 @@ button:focus {
   outline-offset: 2px;
 }
 
-/* główna akcja */
-.audit-meta #save-version-btn {
-  background: linear-gradient(
-    135deg,
-    #5b3fa3 0%,
-    #7b5cd6 100%
-  );
-  font-weight: 600;
-}
-
-/* eksporty */
-.global-actions button {
-  background: #ffffff;
-  color: var(--violet-900);
-  box-shadow: 0 6px 18px rgba(91, 63, 163, 0.25);
-}
-
-.global-actions button:hover {
-  background: #f7f4ff;
-}
-
-/* zapis wiersza */
+/* save row */
 .save-row {
   height: 34px;
   padding: 0 14px;
   font-size: 0.75rem;
 }
 
-.row-date {
-  margin-top: 4px;
-  font-size: 0.7rem;
-  color: #666666;
-  text-align: center;
-}
-
-/* =========================================================
-   CRITERION DESCRIPTION (ADD-ON)
-   ========================================================= */
-
-.col-name .criterion-desc {
-  margin-top: 4px;
-  font-size: 0.75rem;
-  line-height: 1.4;
-  color: #666666;
-}
-
-/* =========================================================
-   GLOBAL FILTERS (ADD-ON)
-   ========================================================= */
+/* ======================
+   FILTERS (UNCHANGED STRUCTURE SAFE)
+   ====================== */
 
 .audit-filters {
   margin: 2rem 0;
@@ -249,205 +209,41 @@ button:focus {
   box-shadow: 0 8px 24px rgba(91, 63, 163, 0.1);
 }
 
-.audit-filters h2 {
-  margin-bottom: 1rem;
-  color: var(--violet-900);
-}
-
-/* grid filtrów */
-
 .filters-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.25rem;
 }
 
-/* grupa filtrów */
-
 .filter-group {
   border: 1px solid var(--border-soft);
   border-radius: 14px;
-  padding: 0.75rem 0.75rem 0.5rem;
+  padding: 0.75rem;
   background: #faf9ff;
 }
-
-.filter-group legend {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--violet-900);
-  padding: 0 6px;
-}
-
-/* checkboxy TYLKO w filtrach */
 
 .filter-group label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 0.8rem;
-  cursor: pointer;
-  margin: 0.35rem 0;
-  color: #1e1e2f;
 }
 
-.filter-group input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-
-.filter-group input[type="checkbox"]:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
-
-/* =========================================================
-   VIEW‑ONLY
-   ========================================================= */
+/* ======================
+   VIEW MODE SAFE
+   ====================== */
 
 .readonly {
   padding: 6px 8px;
   background: #f7f6fb;
   border-radius: 8px;
   font-size: 0.8rem;
-  line-height: 1.4;
-  color: #333333;
   white-space: pre-wrap;
 }
 
-.status-readonly {
-  font-weight: 600;
-  font-size: 0.8rem;
-}
-
-/* =========================================================
-   STATUS (RADIOS)
-   ========================================================= */
-
-.status-radios.vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.status-radios label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
-  cursor: pointer;
-}
-
-/* =========================================================
-   FAILURE DETAIL
-   ========================================================= */
-
-.failure-detail {
-  margin-top: 6px;
-  padding-left: 8px;
-  border-left: 2px solid #e6e2f3;
-}
-
-.failure-detail.hidden {
-  display: none;
-}
-
-.failure-detail-radios {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 0.7rem;
-}
-
-/* =========================================================
-   BADGES (AREA / PRIORITY)
-   ========================================================= */
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  background: #ede8ff;
-  color: #3b2b5f;
-}
-
-.badge:hover {
-  background: #e0d9ff;
-}
-
-/* area */
-
-.area-development { background: #e3f2fd; color: #0d47a1; }
-.area-content     { background: #e8f5e9; color: #1b5e20; }
-.area-design      { background: #f3e5f5; color: #4a148c; }
-.area-mixed       { background: #ede7f6; color: #4527a0; }
-
-/* priority */
-
-.priority-critical { background: #fdecea; color: #b00020; }
-.priority-high     { background: #fff4e5; color: #e65100; }
-.priority-medium   { background: #fffde7; color: #9e7700; }
-
-/* =========================================================
-   BADGE POPUP
-   ========================================================= */
-
-.badge-popup {
-  position: absolute;
-  z-index: 1000;
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 12px;
-  box-shadow: 0 8px 24px rgba(91,63,163,0.25);
-  min-width: 180px;
-}
-
-.badge-popup label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
-  margin-bottom: 6px;
-  cursor: pointer;
-}
-
-.badge-popup button {
-  margin-top: 8px;
-  width: 100%;
-  height: 32px;
-  border-radius: 999px;
-  border: none;
-  background: linear-gradient(135deg, #7b5cd6, #b084f5);
-  color: #ffffff;
-  font-size: 0.75rem;
-  cursor: pointer;
-}
-
-/* =========================================================
-   FILTERS – VISUAL STATES
-   ========================================================= */
-
-.filter-include {
-  background: #e8f5e9;
-  border-radius: 6px;
-}
-
-.filter-exclude {
-  background: #fdecea;
-  border-radius: 6px;
-  text-decoration: line-through;
-}
-
-/* =========================================================
-   SAVE FEEDBACK
-   ========================================================= */
+/* ======================
+   STATES
+   ====================== */
 
 tr.saving {
   opacity: 0.5;
@@ -458,6 +254,7 @@ tr.saved {
 }
 
 @keyframes savedFlash {
-  0%   { background: #e8f5e9; }
+  0% { background: #e8f5e9; }
   100% { background: transparent; }
 }
+

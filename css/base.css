@@ -1,9 +1,11 @@
 /* =========================================================
-   base.css – foundation (clean & stable)
+   base.css – foundation V2 (audit dashboard upgrade)
    ========================================================= */
 
 :root {
-  --violet-900: #3b2b5f;
+  /* CORE THEME */
+  --violet-900: #2f2350;
+  --violet-800: #3b2b5f;
   --violet-700: #5b3fa3;
   --violet-500: #7b5cd6;
   --violet-300: #cbbcff;
@@ -11,11 +13,28 @@
   --pink-200: #f6c1e8;
   --mint-200: #c7f0ea;
 
-  --bg-main: #f7f6fb;
+  /* BACKGROUNDS */
+  --bg-main: #f6f5fb;
   --bg-card: #ffffff;
+  --bg-soft: #f0eef9;
 
-  --border-soft: #e6e2f3;
+  /* BORDERS */
+  --border-soft: #e4e0f2;
+  --border-strong: #cfc7ea;
+
+  /* TEXT */
+  --text: #1d1d2b;
+  --text-muted: #5a5a73;
+
+  /* STATE COLORS */
+  --ok: #2e7d32;
+  --fail: #c62828;
+  --warn: #b26a00;
+  --neutral: #6b6b7a;
+
+  /* UX */
   --focus-ring: #ffbf47;
+  --radius: 10px;
 }
 
 *,
@@ -27,23 +46,39 @@
 body {
   margin: 0;
   font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  background: linear-gradient(180deg, #f5f2ff 0%, #f7f6fb 100%);
-  color: #1e1e2f;
+  background: linear-gradient(180deg, #f4f2ff 0%, var(--bg-main) 100%);
+  color: var(--text);
   line-height: 1.5;
 }
 
+/* HEADINGS */
 h1, h2, h3 {
   margin: 0;
   color: var(--violet-900);
+  letter-spacing: -0.02em;
 }
 
+h1 {
+  font-size: 1.6rem;
+}
+
+h2 {
+  font-size: 1.2rem;
+}
+
+h3 {
+  font-size: 1rem;
+  color: var(--violet-700);
+}
+
+/* LABELS */
 label {
   font-weight: 600;
   font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
-/* FORM NORMALIZATION */
-
+/* FORM ELEMENTS */
 input,
 select,
 textarea,
@@ -51,19 +86,55 @@ button {
   font-family: inherit;
   font-size: 0.9rem;
   line-height: 1.3;
+  border-radius: 6px;
 }
 
 input,
 select {
   height: 36px;
+  border: 1px solid var(--border-soft);
+  padding: 0 8px;
+  background: white;
 }
 
 textarea {
-  min-height: 64px;
+  min-height: 72px;
+  border: 1px solid var(--border-soft);
+  padding: 8px;
+  resize: vertical;
 }
 
-/* ACCESSIBILITY */
+/* FOCUS STATE (IMPORTANT FOR ACCESSIBILITY APP) */
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
 
+/* BUTTON BASE */
+button {
+  cursor: pointer;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card);
+  padding: 6px 10px;
+  transition: all 0.15s ease;
+}
+
+button:hover {
+  border-color: var(--violet-500);
+}
+
+/* CARD STYLE (used implicitly across UI blocks) */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+/* VISUALLY HIDDEN */
 .visually-hidden {
   position: absolute !important;
   height: 1px;
@@ -71,4 +142,47 @@ textarea {
   overflow: hidden;
   clip: rect(1px, 1px, 1px, 1px);
   white-space: nowrap;
+}
+
+/* TABLE BASE IMPROVEMENT (IMPORTANT FOR YOUR APP) */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+th {
+  background: var(--bg-soft);
+  text-align: left;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 8px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+td {
+  padding: 8px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+
+tr:hover {
+  background: #faf9ff;
+}
+
+/* STATUS COLORS (spójne z summary.js i exportem) */
+.ok { color: var(--ok); font-weight: 600; }
+.fail { color: var(--fail); font-weight: 600; }
+.na { color: var(--neutral); }
+.nt { color: #999; }
+
+/* MODE HELPERS */
+.is-web .web-only {
+  display: table-cell;
+}
+
+.is-app .web-only {
+  display: none;
 }

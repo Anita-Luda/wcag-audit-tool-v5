@@ -1,6 +1,5 @@
 /* =========================================================
-   layout.css – structure, table layout, spacing
-   (WERSJA BEZ colgroup, STABILNA DLA WEB / APP)
+   layout.css – structure, table layout, spacing (DOM SAFE)
    ========================================================= */
 
 /* ======================
@@ -8,12 +7,7 @@
    ====================== */
 
 .app-header {
-  background: linear-gradient(
-    135deg,
-    #7b5cd6 0%,
-    #b084f5 50%,
-    #f6c1e8 100%
-  );
+  background: linear-gradient(135deg, #7b5cd6 0%, #b084f5 50%, #f6c1e8 100%);
   padding: 2.5rem 2rem 3rem;
   color: #ffffff;
 }
@@ -72,11 +66,7 @@ main {
 
 .wcag-group {
   margin-bottom: 3rem;
-  background: linear-gradient(
-    180deg,
-    #ffffff 0%,
-    #f9f7ff 100%
-  );
+  background: linear-gradient(180deg, #ffffff 0%, #f9f7ff 100%);
   border-radius: 22px;
   padding: 1.5rem;
   box-shadow: 0 8px 24px rgba(91, 63, 163, 0.08);
@@ -88,7 +78,7 @@ main {
 }
 
 /* ======================
-   AUDIT TABLE – BASE
+   TABLE BASE
    ====================== */
 
 .audit-table {
@@ -96,99 +86,120 @@ main {
   border-collapse: collapse;
   background: #ffffff;
   border-radius: 14px;
+  overflow: hidden;
 }
 
 /* ======================
-   TABLE HEADER
+   HEADER CELLS
    ====================== */
 
 .audit-table thead th {
-  background: linear-gradient(
-    180deg,
-    #f0ebff 0%,
-    #e9e3ff 100%
-  );
+  background: linear-gradient(180deg, #f0ebff 0%, #e9e3ff 100%);
   color: var(--violet-900);
   font-weight: 600;
   font-size: 0.85rem;
   text-align: left;
   padding: 0.6rem;
   border-bottom: 1px solid var(--border-soft);
-  border-right: 1px solid var(--border-soft);
   vertical-align: top;
 }
 
-.audit-table thead th:last-child {
-  border-right: none;
-}
-
 /* ======================
-   TABLE BODY
+   BODY CELLS
    ====================== */
 
 .audit-table tbody td {
   padding: 0.6rem;
   font-size: 0.85rem;
   border-bottom: 1px solid var(--border-soft);
-  border-right: 1px solid var(--border-soft);
   vertical-align: top;
 }
 
-.audit-table tbody td:last-child {
-  border-right: none;
-}
-
 /* ======================
-   COLUMN WIDTHS & ALIGNMENT
+   COLUMN SYSTEM (SAFE VERSION)
    ====================== */
 
-.audit-table .col-nr {
+/* NR */
+.audit-table thead th:nth-child(1),
+.audit-table tbody td:nth-child(1) {
   width: 60px;
   text-align: center;
   font-weight: 600;
-  color: #555555;
+  color: #555;
 }
 
-.audit-table .col-level {
+/* NAME / DESCRIPTION */
+.audit-table thead th:nth-child(2),
+.audit-table tbody td:nth-child(2) {
+  min-width: 280px;
+}
+
+/* LEVEL */
+.audit-table thead th:nth-child(3),
+.audit-table tbody td:nth-child(3) {
   width: 80px;
   text-align: center;
   font-weight: 600;
 }
 
-.audit-table .col-status {
+/* STATUS */
+.audit-table thead th:nth-child(4),
+.audit-table tbody td:nth-child(4) {
   width: 180px;
 }
 
-.audit-table .col-issue,
-.audit-table .col-expected {
+/* ISSUE */
+.audit-table thead th:nth-child(5),
+.audit-table tbody td:nth-child(5) {
   min-width: 260px;
-  line-height: 1.5;
 }
 
-.audit-table .col-code {
+/* EXPECTED */
+.audit-table thead th:nth-child(6),
+.audit-table tbody td:nth-child(6) {
+  min-width: 260px;
+}
+
+/* CODE CURRENT */
+.audit-table thead th:nth-child(7),
+.audit-table tbody td:nth-child(7) {
   min-width: 260px;
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 0.8rem;
 }
 
-.audit-table .col-area {
+/* CODE EXPECTED */
+.audit-table thead th:nth-child(8),
+.audit-table tbody td:nth-child(8) {
+  min-width: 260px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.8rem;
+}
+
+/* AREA */
+.audit-table thead th:nth-child(9),
+.audit-table tbody td:nth-child(9) {
   width: 90px;
   text-align: center;
 }
 
-.audit-table .col-priority {
+/* PRIORITY */
+.audit-table thead th:nth-child(10),
+.audit-table tbody td:nth-child(10) {
   width: 120px;
   text-align: center;
 }
 
-.audit-table .col-action {
+/* ACTION */
+.audit-table thead th:nth-child(11),
+.audit-table tbody td:nth-child(11) {
   width: 140px;
   text-align: center;
   white-space: nowrap;
 }
 
 /* ======================
-   WEB / APP
+   WEB / APP TOGGLE
    ====================== */
 
 .audit-table.is-app .web-only {
@@ -204,11 +215,7 @@ main {
    ====================== */
 
 .audit-summary {
-  background: linear-gradient(
-    135deg,
-    #ede8ff 0%,
-    #f7f6fb 100%
-  );
+  background: linear-gradient(135deg, #ede8ff 0%, #f7f6fb 100%);
   padding: 2rem;
   border-top: 2px solid var(--violet-300);
 }

@@ -1,35 +1,120 @@
 /* =========================================================
-   print.css – clean report, no unicorns 🖨️
+   print.css – clean report, DOM SAFE VERSION
    ========================================================= */
 
 @media print {
 
   body {
-    background: #ffffff;
+    background: #ffffff !important;
+    color: #000000;
   }
+
+  /* ======================
+     UKRYJ UI INTERAKCYJNE
+     ====================== */
 
   .global-actions,
   button,
   input,
   textarea,
-  select {
+  select,
+  .audit-filters {
     display: none !important;
   }
 
+  /* ======================
+     SEKCJE
+     ====================== */
+
   .wcag-group {
-    box-shadow: none;
-    background: #ffffff;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    page-break-inside: avoid;
+    margin-bottom: 24px;
+  }
+
+  /* ======================
+     TABLE RESET
+     ====================== */
+
+  .audit-table {
+    border: 1px solid #ccc;
+    border-collapse: collapse;
   }
 
   .audit-table th {
     background: #eeeeee !important;
     color: #000000 !important;
+    border: 1px solid #ccc;
+    font-size: 10px;
   }
 
-  tr.pass,
-  tr.fail,
-  tr.not-applicable,
-  tr.not-tested {
-    background: #ffffff !important;
+  .audit-table td {
+    border: 1px solid #ddd;
+    font-size: 10px;
+    vertical-align: top;
+  }
+
+  /* ======================
+     STATUS (REAL DOM FIX)
+     ====================== */
+
+  /* zamiast tr.pass / tr.fail */
+  .audit-table td:nth-child(4) {
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* PASS / FAIL visual override (based on dataset if ever needed later) */
+  .audit-table tr[data-status="pass"] td:nth-child(4) {
+    color: #2e7d32;
+  }
+
+  .audit-table tr[data-status="fail"] td:nth-child(4) {
+    color: #c62828;
+  }
+
+  .audit-table tr[data-status="not-applicable"] td:nth-child(4) {
+    color: #666666;
+  }
+
+  .audit-table tr[data-status="not-tested"] td:nth-child(4) {
+    color: #999999;
+  }
+
+  /* ======================
+     TEXTAREAS → PRINT AS TEXT
+     ====================== */
+
+  textarea {
+    display: none !important;
+  }
+
+  /* jeśli kiedyś renderujesz div fallback */
+  td div {
+    white-space: pre-wrap;
+  }
+
+  /* ======================
+     CODE CELLS
+     ====================== */
+
+  .audit-table td:nth-child(7),
+  .audit-table td:nth-child(8) {
+    font-family: monospace;
+    font-size: 9px;
+    white-space: pre-wrap;
+  }
+
+  /* ======================
+     PAGE BREAK CONTROL
+     ====================== */
+
+  tr {
+    page-break-inside: avoid;
+  }
+
+  h2 {
+    page-break-after: avoid;
   }
 }
