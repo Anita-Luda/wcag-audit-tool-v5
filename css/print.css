@@ -1,0 +1,35 @@
+/* =========================================================
+   print.css – clean report, no unicorns 🖨️
+   ========================================================= */
+
+@media print {
+
+  body {
+    background: #ffffff;
+  }
+
+  .global-actions,
+  button,
+  input,
+  textarea,
+  select {
+    display: none !important;
+  }
+
+  .wcag-group {
+    box-shadow: none;
+    background: #ffffff;
+  }
+
+  .audit-table th {
+    background: #eeeeee !important;
+    color: #000000 !important;
+  }
+
+  tr.pass,
+  tr.fail,
+  tr.not-applicable,
+  tr.not-tested {
+    background: #ffffff !important;
+  }
+}

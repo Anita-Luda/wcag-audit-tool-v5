@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Audyt dostępności – WCAG 2.2 / EN</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/print.css" media="print" />
+</head>
+
+<body>
+
+
+<header class="app-header">
+  <h1>Audyt dostępności – WCAG 2.2 / EN 301 549</h1>
+
+  <!-- METADANE + KONTEKST -->
+  <section class="audit-meta" aria-labelledby="meta-heading">
+    <h2 id="meta-heading">Informacje o audycie</h2>
+
+    <div class="meta-grid">
+
+      <!-- WYBÓR AUDYTU -->
+      <div class="meta-field">
+        <label for="audit-selector">Audyt</label>
+        <select id="audit-selector">
+          <!-- wypełniane przez JS -->
+        </select>
+      </div>
+
+      <!-- WYBÓR WERSJI -->
+      <div class="meta-field">
+        <label for="version-selector">Wersja</label>
+        <select id="version-selector">
+          <!-- draft / v1 / v2 ... -->
+        </select>
+      </div>
+
+      <!-- TRYB PRACY -->
+      <div class="meta-field">
+        <fieldset>
+          <legend>Tryb</legend>
+          <label>
+            <input type="radio" name="audit-mode" value="edit" checked />
+            Edycja
+          </label>
+          <label>
+            <input type="radio" name="audit-mode" value="view" />
+            Tylko podgląd
+          </label>
+        </fieldset>
+      </div>
+
+      <!-- NAZWA APLIKACJI -->
+      <div class="meta-field">
+        <label for="app-name">Audytowana aplikacja</label>
+        <input
+          id="app-name"
+          type="text"
+          placeholder="Nazwa systemu / aplikacji"
+        />
+      </div>
+
+      <!-- STANDARD -->
+      <div class="meta-field">
+        <label>Standard</label>
+        <output>WCAG 2.2 + EN 301 549</output>
+      </div>
+
+      <!-- DATA STARTU -->
+      <div class="meta-field">
+        <label>Data rozpoczęcia</label>
+        <output id="audit-start-date">—</output>
+      </div>
+
+      <!-- DATA MODYFIKACJI -->
+      <div class="meta-field">
+        <label>Ostatnia modyfikacja</label>
+        <output id="audit-last-modified">—</output>
+      </div>
+
+      <!-- TYP PRODUKTU -->
+      <div class="meta-field">
+        <fieldset>
+          <legend>Typ produktu</legend>
+          <label>
+            <input type="radio" name="product-type" value="web" checked />
+            Web
+          </label>
+          <label>
+            <input type="radio" name="product-type" value="app" />
+            App
+          </label>
+        </fieldset>
+      </div>
+
+      <!-- ZAPIS WERSJI -->
+      <div class="meta-field">
+        <button id="save-version-btn" type="button">
+          💾 Zapisz wersję audytu
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- EKSPORTY -->
+  <section class="global-actions">
+    <button id="export-html-btn" type="button">📄 Eksport HTML</button>
+    <button id="export-csv-btn" type="button">📊 Eksport CSV</button>
+    <button id="export-pdf-btn" type="button">🖨️ Eksport PDF</button>
+  </section>
+</header>
+
+
+<main id="audit-content">
+
+  
+<!-- GLOBALNE FILTRY -->
+  <section class="audit-filters" aria-labelledby="filters-heading">
+    <h2 id="filters-heading">Filtry globalne</h2>
+
+    <div class="filters-grid">
+
+      <fieldset class="filter-group">
+        <legend>Poziom</legend>
+        <label><input type="checkbox" name="filter-level" value="A"> A</label>
+        <label><input type="checkbox" name="filter-level" value="AA"> AA</label>
+        <label><input type="checkbox" name="filter-level" value="AAA"> AAA</label>
+        <label><input type="checkbox" name="filter-level" value="EN"> EN</label>
+      </fieldset>
+
+      <fieldset class="filter-group">
+        <legend>Status</legend>
+        <label><input type="checkbox" name="filter-status" value="pass"> OK</label>
+        <label><input type="checkbox" name="filter-status" value="fail"> Nie OK</label>
+        <label><input type="checkbox" name="filter-status" value="not-applicable"> ND</label>
+        <label><input type="checkbox" name="filter-status" value="not-tested"> NS</label>
+      </fieldset>
+
+      <fieldset class="filter-group">
+        <legend>Doszczegółowienie (Nie OK)</legend>
+        <label><input type="checkbox" name="filter-failure" value="full"> Brak</label>
+        <label><input type="checkbox" name="filter-failure" value="partial"> Częściowo</label>
+        <label><input type="checkbox" name="filter-failure" value="accepted"> Świadomie</label>
+      </fieldset>
+
+      <fieldset class="filter-group">
+        <legend>Obszar</legend>
+        <label><input type="checkbox" name="filter-area" value="development"> Dev</label>
+        <label><input type="checkbox" name="filter-area" value="content"> Content</label>
+        <label><input type="checkbox" name="filter-area" value="design"> Design</label>
+      </fieldset>
+
+      <fieldset class="filter-group">
+        <legend>Priorytet</legend>
+        <label><input type="checkbox" name="filter-priority" value="critical"> Krytyczny</label>
+        <label><input type="checkbox" name="filter-priority" value="high"> Wysoki</label>
+        <label><input type="checkbox" name="filter-priority" value="medium"> Średni</label>
+      </fieldset>
+
+    </div>
+  </section>
+
+
+  <!-- ===== GRUPY ===== -->
+
+  <!-- 1 -->
+  <section class="wcag-group" aria-labelledby="group-1-heading">
+    <h2 id="group-1-heading">1. Postrzegalność (Perceivable)</h2>
+    <table class="audit-table">
+      <thead>
+        <tr>
+          <th class="col-nr">Nr</th>
+          <th>Kryterium</th>
+          <th class="col-level">Poziom</th>
+          <th class="col-status">Status</th>
+          <th>Co jest nie tak</th>
+          <th>Jak powinno być</th>
+          <th class="web-only">Kod – teraz</th>
+          <th class="web-only">Kod – poprawnie</th>
+          <th class="col-area">Obszar</th>
+          <th class="col-priority">Priorytet</th>
+          <th class="col-action">Zapis</th>
+        </tr>
+      </thead>
+      <tbody id="group-1-body"></tbody>
+    </table>
+  </section>
+
+  <!-- 2 -->
+  <section class="wcag-group" aria-labelledby="group-2-heading">
+    <h2 id="group-2-heading">2. Funkcjonalność (Operable)</h2>
+    <table class="audit-table">
+      <thead>
+        <tr>
+          <th class="col-nr">Nr</th>
+          <th>Kryterium</th>
+          <th class="col-level">Poziom</th>
+          <th class="col-status">Status</th>
+          <th>Co jest nie tak</th>
+          <th>Jak powinno być</th>
+          <th class="web-only">Kod – teraz</th>
+          <th class="web-only">Kod – poprawnie</th>
+          <th class="col-area">Obszar</th>
+          <th class="col-priority">Priorytet</th>
+          <th class="col-action">Zapis</th>
+        </tr>
+      </thead>
+      <tbody id="group-2-body"></tbody>
+    </table>
+  </section>
+
+  <!-- 3 -->
+  <section class="wcag-group" aria-labelledby="group-3-heading">
+    <h2 id="group-3-heading">3. Zrozumiałość (Understandable)</h2>
+    <table class="audit-table">
+      <thead>
+        <tr>
+          <th class="col-nr">Nr</th>
+          <th>Kryterium</th>
+          <th class="col-level">Poziom</th>
+          <th class="col-status">Status</th>
+          <th>Co jest nie tak</th>
+          <th>Jak powinno być</th>
+          <th class="web-only">Kod – teraz</th>
+          <th class="web-only">Kod – poprawnie</th>
+          <th class="col-area">Obszar</th>
+          <th class="col-priority">Priorytet</th>
+          <th class="col-action">Zapis</th>
+        </tr>
+      </thead>
+      <tbody id="group-3-body"></tbody>
+    </table>
+  </section>
+
+  <!-- 4 -->
+  <section class="wcag-group" aria-labelledby="group-4-heading">
+    <h2 id="group-4-heading">4. Solidność (Robust)</h2>
+    <table class="audit-table">
+      <thead>
+        <tr>
+          <th class="col-nr">Nr</th>
+          <th>Kryterium</th>
+          <th class="col-level">Poziom</th>
+          <th class="col-status">Status</th>
+          <th>Co jest nie tak</th>
+          <th>Jak powinno być</th>
+          <th class="web-only">Kod – teraz</th>
+          <th class="web-only">Kod – poprawnie</th>
+          <th class="col-area">Obszar</th>
+          <th class="col-priority">Priorytet</th>
+          <th class="col-action">Zapis</th>
+        </tr>
+      </thead>
+      <tbody id="group-4-body"></tbody>
+    </table>
+  </section>
+
+  <!-- 5 EN -->
+  <section class="wcag-group" aria-labelledby="group-5-heading">
+    <h2 id="group-5-heading">5. Wymagania normy EN (poza WCAG)</h2>
+    <table class="audit-table">
+      <thead>
+        <tr>
+          <th class="col-nr">Nr</th>
+          <th>Kryterium</th>
+          <th class="col-level">Poziom</th>
+          <th class="col-status">Status</th>
+          <th>Co jest nie tak</th>
+          <th>Jak powinno być</th>
+          <th class="web-only">Kod – teraz</th>
+          <th class="web-only">Kod – poprawnie</th>
+          <th class="col-area">Obszar</th>
+          <th class="col-priority">Priorytet</th>
+          <th class="col-action">Zapis</th>
+        </tr>
+      </thead>
+      <tbody id="group-5-body"></tbody>
+    </table>
+  </section>
+
+</main>
+
+
+<footer class="audit-summary" aria-labelledby="summary-heading">
+  <h2 id="summary-heading">Podsumowanie audytu</h2>
+
+  <section class="summary-section">
+    <h3>A + AA</h3>
+    <div id="summary-aa"></div>
+  </section>
+
+  <section class="summary-section">
+    <h3>AAA</h3>
+    <div id="summary-aaa"></div>
+  </section>
+
+  <section class="summary-section">
+    <h3>Wymagania EN</h3>
+    <div id="summary-en"></div>
+  </section>
+
+  <section class="summary-section">
+    <h3>Podział wg obszarów</h3>
+    <div id="summary-teams"></div>
+  </section>
+</footer>
+
+<script src="js/app.js"></script>
+<script src="js/data-loader.js"></script>
+<script src="js/audit-state.js"></script>
+<script src="js/ui-render.js"></script>
+<script src="js/ui-filters.js"></script>
+<script src="js/ui-interactions-lifecycle.js"></script>
+<script src="js/ui-interactions-rows.js"></script>
+<script src="js/summary.js"></script>
+<script src="js/export.js"></script>
+
+
+</body>
+</html>

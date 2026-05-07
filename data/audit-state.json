@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "auditedApplication": "Portal klienta",
+    "standard": "WCAG 2.2",
+    "productType": "web",
+    "auditStartedAt": "2026-05-01T09:12:00Z",
+    "auditLastModifiedAt": "2026-05-05T13:47:22Z"
+  },
+  "criteria": {
+    "wcag-1-1-1": {
+      "status": "fail",
+      "failureDetail": "partial",
+      "issueDescription": "Brak poprawnych tekstów alternatywnych.",
+      "expectedBehavior": "Obrazy powinny mieć adekwatne teksty alternatywne.",
+      "htmlCurrent": "<img src=\"hero.jpg\">",
+      "htmlExpected": "<img src=\"hero.jpg\" alt=\"Opis\">",
+      "rowLastModifiedAt": "2026-05-05T13:47:22Z"
+    }
+  }
+}

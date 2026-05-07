@@ -1,0 +1,1063 @@
+{
+  "meta": {
+    "standard": "WCAG + EN",
+    "version": "WCAG 2.2 / EN 301 549",
+    "language": "pl",
+    "source": "https://www.w3.org/TR/WCAG22/",
+    "lastUpdated": "2026-05-05"
+  },
+  "groups": [
+    {
+      "id": "1",
+      "number": "1",
+      "name": "Postrzegalność",
+      "name_en": "Perceivable"
+    },
+    {
+      "id": "2",
+      "number": "2",
+      "name": "Funkcjonalność",
+      "name_en": "Operable"
+    },
+    {
+      "id": "3",
+      "number": "3",
+      "name": "Zrozumiałość",
+      "name_en": "Understandable"
+    },
+    {
+      "id": "4",
+      "number": "4",
+      "name": "Solidność",
+      "name_en": "Robust"
+    },
+    {
+      "id": "5",
+      "number": "5",
+      "name": "Wymagania normy EN (poza WCAG)",
+      "name_en": "EN requirements"
+    }
+  ],
+  "criteria": [
+    {
+"id": "wcag-1-1-1",
+"group": "1",
+"number": "1.1.1",
+"name": "Treści nietekstowe",
+"description": "Obrazy, ikony, wykresy i inne elementy wizualne powinny mieć tekstowe odpowiedniki. Dzięki temu osoby niewidome lub korzystające z czytników ekranu rozumieją, co przedstawia dany element. Bez tego część informacji po prostu znika.",
+"level": "A",
+"priority": "critical",
+"team": "content"
+},
+{
+"id": "wcag-1-2-1",
+"group": "1",
+"number": "1.2.1",
+"name": "Audio‑only i wideo‑only (nagrania)",
+"description": "Jeśli materiał jest tylko dźwiękiem albo tylko obrazem, potrzebne jest proste wyjaśnienie w tekście. Osoby niesłyszące lub niewidome inaczej nie dowiedzą się, co znajduje się w nagraniu.",
+"level": "A",
+"priority": "high",
+"team": "content"
+},
+{
+"id": "wcag-1-2-2",
+"group": "1",
+"number": "1.2.2",
+"name": "Napisy do nagrań wideo",
+"description": "Filmy z dźwiękiem powinny mieć napisy, aby osoby niesłyszące lub oglądające bez dźwięku mogły zrozumieć treść. Bez napisów wideo staje się nieczytelne dla dużej części użytkowników.",
+"level": "A",
+"priority": "critical",
+"team": "content"
+},
+{
+"id": "wcag-1-2-3",
+"group": "1",
+"number": "1.2.3",
+"name": "Audiodeskrypcja lub alternatywa",
+"description": "Gdy w filmie ważne informacje są pokazane tylko obrazem, potrzebne jest ich opisanie słowami. Dzięki temu osoby niewidome wiedzą, co się dzieje i nie tracą sensu przekazu.",
+"level": "A",
+"priority": "high",
+"team": "content"
+},
+{
+"id": "wcag-1-2-4",
+"group": "1",
+"number": "1.2.4",
+"name": "Napisy do transmisji na żywo",
+"description": "Relacje na żywo z dźwiękiem powinny mieć napisy w czasie rzeczywistym. Bez nich osoby niesłyszące są całkowicie wykluczone z udziału w wydarzeniu.",
+"level": "AA",
+"priority": "high",
+"team": "content"
+},
+{
+"id": "wcag-1-2-5",
+"group": "1",
+"number": "1.2.5",
+"name": "Audiodeskrypcja do nagrań wideo",
+"description": "W nagraniach wideo, gdzie obraz niesie ważne informacje, potrzebny jest opis tego, co widać. Dzięki temu osoby niewidome rozumieją kontekst i sens filmu, a nie tylko słyszą dialogi.",
+"level": "AA",
+"priority": "high",
+"team": "content"
+},
+{
+"id": "wcag-1-2-6",
+"group": "1",
+"number": "1.2.6",
+"name": "Język migowy (nagrania)",
+"description": "Dla części osób niesłyszących napisy nie są wystarczające, bo ich pierwszym językiem jest język migowy. Wideo z kluczową treścią powinno więc mieć wersję z tłumaczem migowym, inaczej przekaz pozostaje nie w pełni zrozumiały.",
+"level": "AAA",
+"priority": "medium",
+"team": "content"
+},
+{
+"id": "wcag-1-2-7",
+"group": "1",
+"number": "1.2.7",
+"name": "Rozszerzona audiodeskrypcja",
+"description": "Gdy standardowa audiodeskrypcja nie mieści się w przerwach dialogowych, potrzebna jest wersja rozszerzona. Bez niej osoby niewidome nie dostają wszystkich informacji wizualnych istotnych dla zrozumienia materiału.",
+"level": "AAA",
+"priority": "medium",
+"team": "content"
+},
+{
+"id": "wcag-1-2-8",
+"group": "1",
+"number": "1.2.8",
+"name": "Alternatywa tekstowa dla multimediów",
+"description": "Pełna treść nagrania wideo powinna być dostępna także w formie tekstu. Dzięki temu osoby, które nie mogą korzystać z dźwięku ani obrazu, nadal mają dostęp do wszystkich informacji.",
+"level": "AAA",
+"priority": "medium",
+"team": "content"
+},
+{
+"id": "wcag-1-2-9",
+"group": "1",
+"number": "1.2.9",
+"name": "Audio‑only (na żywo)",
+"description": "Transmisje na żywo oparte wyłącznie na dźwięku powinny mieć tekstową alternatywę. Bez niej osoby niesłyszące są całkowicie wykluczone z odbioru takiego wydarzenia.",
+"level": "AAA",
+"priority": "medium",
+"team": "content"
+},
+{
+"id": "wcag-1-3-1",
+"group": "1",
+"number": "1.3.1",
+"name": "Informacje i relacje",
+"description": "Struktura treści powinna być czytelna także poza wyglądem wizualnym. Nagłówki, listy czy powiązania między polami formularza muszą być zrozumiałe dla technologii wspomagających, inaczej użytkownicy gubią sens strony.",
+"level": "A",
+"priority": "critical",
+"team": "development"
+},
+{
+"id": "wcag-1-3-2",
+"group": "1",
+"number": "1.3.2",
+"name": "Logiczna kolejność treści",
+"description": "Treść powinna być odbierana w logicznej kolejności, niezależnie od tego, jak jest ułożona wizualnie. Gdy kolejność jest zaburzona, osoby korzystające z czytników ekranu mogą nie zrozumieć przekazu.",
+"level": "A",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-1-3-3",
+"group": "1",
+"number": "1.3.3",
+"name": "Cechy sensoryczne",
+"description": "Instrukcje nie powinny opierać się wyłącznie na kolorze, kształcie czy położeniu elementu. Gdy mówimy tylko „kliknij czerwony przycisk po prawej”, część użytkowników nie będzie wiedziała, o co chodzi.",
+"level": "A",
+"priority": "medium",
+"team": "content"
+},
+{
+"id": "wcag-1-3-4",
+"group": "1",
+"number": "1.3.4",
+"name": "Orientacja",
+"description": "Treść powinna być dostępna zarówno w orientacji pionowej, jak i poziomej. Jeśli strona działa tylko w jednym układzie ekranu, osoby korzystające z urządzeń mobilnych lub zamocowanych na stałe mogą nie być w stanie z niej skorzystać.",
+"level": "AA",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-1-3-5",
+"group": "1",
+"number": "1.3.5",
+"name": "Określenie celu pól formularza",
+"description": "Pola formularzy, takie jak imię, adres e‑mail czy numer telefonu, powinny mieć jasno określony cel także „pod spodem”, nie tylko wizualnie. Dzięki temu technologie wspomagające i autouzupełnianie działają poprawnie, a użytkownik popełnia mniej błędów.",
+"level": "AA",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-1-3-6",
+"group": "1",
+"number": "1.3.6",
+"name": "Określenie celu elementów",
+"description": "Różne elementy interfejsu, takie jak sekcje, regiony czy typowe komponenty, powinny mieć możliwy do rozpoznania cel. Ułatwia to orientację osobom korzystającym z technologii wspomagających i pozwala szybciej zrozumieć strukturę strony.",
+"level": "AAA",
+"priority": "medium",
+"team": "development"
+},
+{
+"id": "wcag-1-4-1",
+"group": "1",
+"number": "1.4.1",
+"name": "Użycie koloru",
+"description": "Kolor nie powinien być jedynym sposobem przekazywania informacji. Osoby z zaburzeniami widzenia barw mogą nie zauważyć różnic, co prowadzi do pomyłek lub braku dostępu do kluczowych informacji.",
+"level": "A",
+"priority": "high",
+"team": "design"
+},
+{
+"id": "wcag-1-4-2",
+"group": "1",
+"number": "1.4.2",
+"name": "Kontrola dźwięku",
+"description": "Jeśli na stronie automatycznie odtwarza się dźwięk, użytkownik powinien móc go łatwo zatrzymać lub wyciszyć. Dla osób korzystających z czytników ekranu lub mających trudności z koncentracją taki dźwięk potrafi całkowicie uniemożliwić korzystanie z treści.",
+"level": "A",
+"priority": "critical",
+"team": "development"
+},
+{
+"id": "wcag-1-4-3",
+"group": "1",
+"number": "1.4.3",
+"name": "Kontrast (minimalny)",
+"description": "Tekst powinien wyraźnie odcinać się od tła. Gdy kontrast jest zbyt niski, osoby słabowidzące lub korzystające z ekranu w trudnych warunkach po prostu nie są w stanie przeczytać treści.",
+"level": "AA",
+"priority": "critical",
+"team": "design"
+},
+{
+"id": "wcag-1-4-4",
+"group": "1",
+"number": "1.4.4",
+"name": "Zmiana rozmiaru tekstu",
+"description": "Tekst powinien dać się powiększyć bez psucia układu strony i bez utraty informacji. Osoby z problemami ze wzrokiem często muszą powiększać treść, aby móc z niej komfortowo korzystać.",
+"level": "AA",
+"priority": "high",
+"team": "design"
+},
+{
+"id": "wcag-1-4-5",
+"group": "1",
+"number": "1.4.5",
+"name": "Tekst jako obraz",
+"description": "Informacje tekstowe nie powinny być przekazywane wyłącznie w formie obrazów. Tekst zapisany jako grafika jest trudniejszy do odczytania, powiększenia i przetworzenia przez technologie wspomagające.",
+"level": "AA",
+"priority": "high",
+"team": "design"
+},
+{
+"id": "wcag-1-4-6",
+"group": "1",
+"number": "1.4.6",
+"name": "Kontrast (wysoki)",
+"description": "Bardzo wysoki kontrast tekstu do tła znacząco poprawia czytelność dla osób z poważnymi problemami wzroku. Przy niskim kontraście takie osoby mogą w ogóle nie być w stanie odczytać treści.",
+"level": "AAA",
+"priority": "medium",
+"team": "design"
+},
+{
+"id": "wcag-1-4-7",
+"group": "1",
+"number": "1.4.7",
+"name": "Niski poziom dźwięku w tle",
+"description": "Gdy w nagraniu słychać mowę, dźwięki w tle nie powinny jej zagłuszać. Osoby z ubytkiem słuchu albo problemami z koncentracją mogą nie być w stanie zrozumieć treści, jeśli głos zlewa się z muzyką lub hałasem.",
+"level": "AAA",
+"priority": "medium",
+"team": "content"
+},
+{
+"id": "wcag-1-4-8",
+"group": "1",
+"number": "1.4.8",
+"name": "Czytelna prezentacja tekstu",
+"description": "Użytkownik powinien mieć możliwość wygodnego czytania tekstu, np. przez zmianę odstępów czy szerokości kolumny. Przy zbitym, przeładowanym tekście osoby słabowidzące lub z dysleksją szybciej się męczą i tracą zrozumienie treści.",
+"level": "AAA",
+"priority": "medium",
+"team": "design"
+},
+{
+"id": "wcag-1-4-9",
+"group": "1",
+"number": "1.4.9",
+"name": "Tekst jako obraz (bez wyjątków)",
+"description": "Tekst nie powinien być zamieniany na grafikę tylko dla wyglądu. Obrazy z tekstem są trudne do skalowania i odczytu przez technologie wspomagające, co wyklucza część użytkowników.",
+"level": "AAA",
+"priority": "medium",
+"team": "design"
+},
+{
+"id": "wcag-1-4-10",
+"group": "1",
+"number": "1.4.10",
+"name": "Dopasowanie do ekranu (reflow)",
+"description": "Treść powinna dobrze układać się na małych ekranach i przy dużym powiększeniu, bez konieczności przewijania w poziomie. Gdy układ się „rozsypuje”, korzystanie ze strony staje się bardzo frustrujące lub niemożliwe.",
+"level": "AA",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-1-4-11",
+"group": "1",
+"number": "1.4.11",
+"name": "Kontrast elementów nietekstowych",
+"description": "Ikony, obramowania pól, przyciski czy wskaźniki stanu muszą być wyraźnie widoczne na tle. Przy niskim kontraście użytkownik może nie zauważyć, gdzie kliknąć lub w jakim stanie jest dany element.",
+"level": "AA",
+"priority": "high",
+"team": "design"
+},
+{
+"id": "wcag-1-4-12",
+"group": "1",
+"number": "1.4.12",
+"name": "Odstępy w tekście",
+"description": "Użytkownicy powinni móc zwiększyć odstępy między liniami, akapitami i literami bez utraty treści. Dla osób z dysleksją lub słabym wzrokiem zbyt zbity tekst szybko staje się nieczytelny.",
+"level": "AA",
+"priority": "high",
+"team": "design"
+},
+{
+"id": "wcag-1-4-13",
+"group": "1",
+"number": "1.4.13",
+"name": "Treść po najechaniu lub focusie",
+"description": "Dodatkowe informacje pokazywane po najechaniu myszą lub po wejściu fokusem powinny być łatwe do odczytania i zamknięcia. Gdy znikają zbyt szybko lub zasłaniają inne elementy, użytkownik traci kontrolę nad interfejsem.",
+"level": "AA",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-2-1-1",
+"group": "2",
+"number": "2.1.1",
+"name": "Klawiatura",
+"description": "Cała funkcjonalność powinna być dostępna z klawiatury. Osoby, które nie mogą używać myszy, inaczej nie będą w stanie wykonać podstawowych działań, takich jak wypełnienie formularza czy przejście dalej.",
+"level": "A",
+"priority": "critical",
+"team": "development"
+},
+{
+"id": "wcag-2-1-2",
+"group": "2",
+"number": "2.1.2",
+"name": "Brak pułapki klawiaturowej",
+"description": "Po wejściu do elementu za pomocą klawiatury użytkownik musi móc z niego wyjść. Gdy fokus zostaje „uwięziony”, dalsze korzystanie ze strony staje się niemożliwe.",
+"level": "A",
+"priority": "critical",
+"team": "development"
+},
+{
+"id": "wcag-2-1-3",
+"group": "2",
+"number": "2.1.3",
+"name": "Klawiatura (bez wyjątków)",
+"description": "Wszystkie interakcje powinny działać z klawiatury, bez specjalnych skrótów czy obejść. To szczególnie ważne dla użytkowników korzystających z alternatywnych urządzeń sterujących.",
+"level": "AAA",
+"priority": "medium",
+"team": "development"
+},
+{
+"id": "wcag-2-1-4",
+"group": "2",
+"number": "2.1.4",
+"name": "Skróty klawiszowe znakowe",
+"description": "Skróty klawiszowe uruchamiane pojedynczym znakiem mogą powodować przypadkowe akcje, np. podczas pisania lub korzystania z czytnika ekranu. Użytkownik powinien móc je wyłączyć, zmienić lub używać tylko wtedy, gdy są naprawdę potrzebne.",
+"level": "A",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-2-2-1",
+"group": "2",
+"number": "2.2.1",
+"name": "Możliwość dostosowania limitu czasu",
+"description": "Jeśli wykonanie zadania jest ograniczone czasowo, użytkownik powinien mieć szansę na jego wydłużenie lub wyłączenie. Osoby wolniej czytające, z trudnościami poznawczymi lub ruchowymi mogą inaczej nie zdążyć wykonać czynności.",
+"level": "A",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-2-2-2",
+"group": "2",
+"number": "2.2.2",
+"name": "Pauza, zatrzymanie, ukrycie",
+"description": "Ruchome, migające lub automatycznie zmieniające się treści powinny dawać się zatrzymać. Bez tej kontroli rozpraszają uwagę, utrudniają czytanie, a dla części osób mogą całkowicie uniemożliwić skupienie się na stronie.",
+"level": "A",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-2-2-3",
+"group": "2",
+"number": "2.2.3",
+"name": "Brak limitu czasu",
+"description": "Najlepiej, gdy użytkownik może korzystać z treści bez presji czasu. Sztywne ograniczenia sprawiają, że osoby potrzebujące więcej czasu czują stres i mogą nie ukończyć zadania.",
+"level": "AAA",
+"priority": "medium",
+"team": "development"
+},
+{
+"id": "wcag-2-2-4",
+"group": "2",
+"number": "2.2.4",
+"name": "Przerywanie",
+"description": "Użytkownik powinien móc dokończyć rozpoczętą czynność bez nagłych przerwań, takich jak wyskakujące komunikaty czy automatyczne zmiany widoku. Częste przerwania powodują dezorientację i frustrację.",
+"level": "AAA",
+"priority": "medium",
+"team": "development"
+},
+{
+"id": "wcag-2-2-5",
+"group": "2",
+"number": "2.2.5",
+"name": "Ponowne uwierzytelnianie",
+"description": "Jeśli sesja wygasa i trzeba zalogować się ponownie, użytkownik nie powinien tracić wprowadzonych danych. Utrata pracy jest szczególnie dotkliwa dla osób, które potrzebują więcej czasu na wypełnianie formularzy.",
+"level": "AAA",
+"priority": "medium",
+"team": "development"
+},
+{
+"id": "wcag-2-2-6",
+"group": "2",
+"number": "2.2.6",
+"name": "Limity czasu (bez wyjątków)",
+"description": "Gdy na stronie obowiązuje limit czasu, użytkownik powinien być o tym jasno poinformowany i mieć realną możliwość jego przedłużenia. Bez takiej kontroli osoby wolniej czytające, z niepełnosprawnościami poznawczymi lub ruchowymi mogą zostać nagle przerwane i stracić efekty swojej pracy.",
+"level": "AA",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-2-3-1",
+"group": "2",
+"number": "2.3.1",
+"name": "Trzy błyski lub mniej",
+"description": "Treści nie powinny migać w sposób intensywny. Szybkie, powtarzające się błyski mogą wywołać ataki u osób z padaczką fotogenną i sprawić, że korzystanie ze strony stanie się niebezpieczne.",
+"level": "A",
+"priority": "critical",
+"team": "design"
+},
+{
+"id": "wcag-2-3-2",
+"group": "2",
+"number": "2.3.2",
+"name": "Brak intensywnych błysków",
+"description": "Należy unikać wszelkich efektów świetlnych, które mogą być drażniące lub ryzykowne dla zdrowia. Nawet jeśli miganie jest krótkie, może powodować dyskomfort, dezorientację lub zagrożenie.",
+"level": "AAA",
+"priority": "medium",
+"team": "design"
+},
+{
+"id": "wcag-2-3-3",
+"group": "2",
+"number": "2.3.3",
+"name": "Animacje wywołane interakcją",
+"description": "Animacje uruchamiane przez użytkownika powinny dawać się wyłączyć. Dla osób z nadwrażliwością sensoryczną lub problemami z koncentracją ruchome elementy mogą być bardzo męczące.",
+"level": "AAA",
+"priority": "medium",
+"team": "development"
+},
+{
+"id": "wcag-2-4-1",
+"group": "2",
+"number": "2.4.1",
+"name": "Możliwość pominięcia bloków",
+"description": "Użytkownik powinien móc szybko pominąć powtarzalne elementy, takie jak menu czy nagłówki. Bez tego osoby korzystające z klawiatury muszą za każdym razem przechodzić przez te same fragmenty, co jest bardzo uciążliwe.",
+"level": "A",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-2-4-2",
+"group": "2",
+"number": "2.4.2",
+"name": "Tytuł strony",
+"description": "Każda strona powinna mieć jasny i sensowny tytuł, który mówi, gdzie użytkownik się znajduje. Bez tego osoby korzystające z czytników ekranu lub wielu kart jednocześnie łatwo się gubią.",
+"level": "A",
+"priority": "high",
+"team": "content"
+},
+{
+"id": "wcag-2-4-3",
+"group": "2",
+"number": "2.4.3",
+"name": "Kolejność fokusu",
+"description": "Podczas poruszania się po stronie klawiaturą fokus powinien przechodzić między elementami w logicznej kolejności. Gdy skacze chaotycznie, użytkownik traci orientację i nie rozumie, gdzie aktualnie się znajduje.",
+"level": "A",
+"priority": "critical",
+"team": "development"
+},
+{
+"id": "wcag-2-4-4",
+"group": "2",
+"number": "2.4.4",
+"name": "Cel linku (w kontekście)",
+"description": "Z samego tekstu linku powinno wynikać, dokąd on prowadzi. Linki typu „kliknij tutaj” są mylące, szczególnie dla osób korzystających z czytników ekranu, które często przeglądają listę samych linków.",
+"level": "A",
+"priority": "high",
+"team": "content"
+},
+{
+"id": "wcag-2-4-5",
+"group": "2",
+"number": "2.4.5",
+"name": "Wiele sposobów dotarcia",
+"description": "Do kluczowych treści powinno dać się dotrzeć na więcej niż jeden sposób, na przykład przez menu, wyszukiwarkę lub mapę strony. Dzięki temu użytkownicy mogą wybrać ścieżkę, która jest dla nich najwygodniejsza.",
+"level": "AA",
+"priority": "medium",
+"team": "design"
+},
+{
+"id": "wcag-2-4-6",
+"group": "2",
+"number": "2.4.6",
+"name": "Nagłówki i etykiety",
+"description": "Nagłówki i etykiety powinny jasno opisywać, czego dotyczy dana sekcja lub pole. Gdy są niejasne albo mylące, użytkownik musi zgadywać, co się pod nimi kryje, co utrudnia korzystanie ze strony.",
+"level": "AA",
+"priority": "high",
+"team": "content"
+},
+{
+"id": "wcag-2-4-7",
+"group": "2",
+"number": "2.4.7",
+"name": "Widoczny fokus",
+"description": "Element aktualnie wybrany klawiaturą powinien być wyraźnie widoczny. Bez czytelnego fokusu użytkownik nie wie, gdzie jest na stronie i może przypadkowo wykonać niechcianą akcję.",
+"level": "AA",
+"priority": "critical",
+"team": "design"
+},
+{
+"id": "wcag-2-4-8",
+"group": "2",
+"number": "2.4.8",
+"name": "Lokalizacja",
+"description": "Użytkownik powinien łatwo zorientować się, gdzie aktualnie znajduje się w strukturze serwisu. Bez tej informacji osoby korzystające z czytników ekranu lub mające trudności z koncentracją mogą czuć się zagubione.",
+"level": "AAA",
+"priority": "medium",
+"team": "design"
+},
+{
+"id": "wcag-2-4-9",
+"group": "2",
+"number": "2.4.9",
+"name": "Cel linku (samodzielny)",
+"description": "Tekst linku powinien być zrozumiały bez dodatkowego kontekstu. Gdy link nie mówi jasno, dokąd prowadzi, użytkownicy technologii wspomagających muszą zgadywać jego znaczenie.",
+"level": "AAA",
+"priority": "medium",
+"team": "content"
+},
+{
+"id": "wcag-2-4-10",
+"group": "2",
+"number": "2.4.10",
+"name": "Nagłówki sekcji",
+"description": "Sekcje treści powinny być jasno opisane nagłówkami. Dzięki temu użytkownicy mogą szybciej znaleźć interesujące ich informacje i lepiej zrozumieć strukturę strony.",
+"level": "AAA",
+"priority": "medium",
+"team": "content"
+},
+{
+"id": "wcag-2-4-11",
+"group": "2",
+"number": "2.4.11",
+"name": "Wygląd fokusu (minimum)",
+"description": "Element zaznaczony klawiaturą powinien być wyraźnie widoczny dzięki obramowaniu lub innemu czytelnemu wyróżnieniu. Jeśli fokus jest ledwo zauważalny, użytkownik nie wie, gdzie znajduje się na stronie i łatwo popełnia błędy.",
+"level": "AA",
+"priority": "critical",
+"team": "design"
+},
+{
+"id": "wcag-2-4-12",
+"group": "2",
+"number": "2.4.12",
+"name": "Fokus niezasłonięty (minimum)",
+"description": "Element, na którym znajduje się fokus, nie powinien być zasłonięty przez inne części interfejsu, takie jak przyklejone nagłówki czy wyskakujące panele. Gdy fokus znika spod warstwy interfejsu, użytkownik traci kontrolę nad nawigacją.",
+"level": "AA",
+"priority": "critical",
+"team": "development"
+},
+{
+"id": "wcag-2-4-13",
+"group": "2",
+"number": "2.4.13",
+"name": "Fokus niezasłonięty (rozszerzony)",
+"description": "Fokus powinien być w pełni widoczny i nie nachodzić na inne elementy interfejsu w żadnej sytuacji. Zapewnia to maksymalny komfort i pewność nawigacji osobom korzystającym wyłącznie z klawiatury.",
+"level": "AAA",
+"priority": "medium",
+"team": "development"
+},
+{
+"id": "wcag-2-5-1",
+"group": "2",
+"number": "2.5.1",
+"name": "Gesty punktowe",
+"description": "Funkcje wymagające złożonych gestów, takich jak przesunięcia kilkoma palcami, powinny mieć prostsze alternatywy. Osoby z ograniczoną sprawnością ruchową mogą nie być w stanie wykonać skomplikowanych gestów.",
+"level": "A",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-2-5-2",
+"group": "2",
+"number": "2.5.2",
+"name": "Rezygnacja z gestu",
+"description": "Akcje uruchamiane gestem powinny dawać się łatwo anulować lub cofnąć. Bez tej możliwości użytkownik może przypadkowo wykonać niechciane działanie i nie wiedzieć, jak je odwrócić.",
+"level": "A",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-2-5-3",
+"group": "2",
+"number": "2.5.3",
+"name": "Etykieta w nazwie",
+"description": "Jeśli przycisk lub pole ma widoczną etykietę, ta sama treść powinna być rozpoznawalna także dla technologii wspomagających. Gdy nazwa „wewnętrzna” różni się od tego, co widać na ekranie, użytkownicy sterujący głosem lub czytnikiem ekranu mogą nie być w stanie użyć elementu.",
+"level": "A",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-2-5-4",
+"group": "2",
+"number": "2.5.4",
+"name": "Akcje wywoływane ruchem",
+"description": "Funkcje uruchamiane ruchem urządzenia, np. potrząśnięciem lub obrotem, powinny mieć prostą alternatywę. Osoby z ograniczoną sprawnością ruchową lub korzystające z urządzeń zamocowanych na stałe nie będą w stanie wykonać takich gestów.",
+"level": "A",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-2-5-5",
+"group": "2",
+"number": "2.5.5",
+"name": "Rozmiar celu",
+"description": "Elementy interaktywne powinny być na tyle duże, aby łatwo było w nie trafić palcem lub wskaźnikiem. Zbyt małe przyciski powodują częste pomyłki i frustrację, szczególnie u osób z drżeniem rąk lub obniżoną precyzją ruchów.",
+"level": "AAA",
+"priority": "medium",
+"team": "design"
+},
+{
+"id": "wcag-2-5-6",
+"group": "2",
+"number": "2.5.6",
+"name": "Równoczesne metody wejścia",
+"description": "Strona powinna poprawnie działać niezależnie od tego, czy użytkownik korzysta z myszy, klawiatury, dotyku czy ich kombinacji. Problemy pojawiają się, gdy system „gubi się” przy zmianie sposobu sterowania.",
+"level": "AAA",
+"priority": "medium",
+"team": "development"
+},
+{
+"id": "wcag-2-5-7",
+"group": "2",
+"number": "2.5.7",
+"name": "Przeciąganie",
+"description": "Jeśli wykonanie akcji wymaga przeciągania elementów, powinna istnieć prostsza alternatywa, np. przyciski lub wybór z listy. Dla wielu osób precyzyjne przeciąganie jest trudne lub niemożliwe.",
+"level": "AA",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-2-5-8",
+"group": "2",
+"number": "2.5.8",
+"name": "Rozmiar celu (minimum)",
+"description": "Klikalne elementy, takie jak przyciski czy linki, powinny mieć minimalny rozmiar zapewniający wygodne trafienie palcem lub kursorem. Zbyt małe cele powodują pomyłki i frustrację, szczególnie u osób z ograniczoną sprawnością ruchową.",
+"level": "AA",
+"priority": "high",
+"team": "design"
+},
+{
+"id": "wcag-3-1-1",
+"group": "3",
+"number": "3.1.1",
+"name": "Język strony",
+"description": "Język strony powinien być jasno określony, aby technologie wspomagające wiedziały, jak poprawnie czytać treść. Bez tego osoby korzystające z czytników ekranu słyszą tekst w zniekształcony lub niezrozumiały sposób.",
+"level": "A",
+"priority": "critical",
+"team": "development"
+},
+{
+"id": "wcag-3-1-2",
+"group": "3",
+"number": "3.1.2",
+"name": "Język fragmentów",
+"description": "Jeśli na stronie pojawiają się fragmenty w innym języku, powinny być one odpowiednio oznaczone. Dzięki temu osoby korzystające z czytników ekranu rozumieją tekst, zamiast słuchać go w błędnej wymowie.",
+"level": "AA",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-3-1-3",
+"group": "3",
+"number": "3.1.3",
+"name": "Nietypowe słowa",
+"description": "Słowa rzadko używane, techniczne lub mające inne znaczenie w danym kontekście powinny być wyjaśnione. Bez tego osoby uczące się języka, z trudnościami poznawczymi lub neuroatypowe mogą nie zrozumieć treści.",
+"level": "AAA",
+"priority": "medium",
+"team": "content"
+},
+{
+"id": "wcag-3-1-4",
+"group": "3",
+"number": "3.1.4",
+"name": "Skróty",
+"description": "Skróty i akronimy powinny być rozwinięte lub wyjaśnione przy pierwszym użyciu. Bez tego użytkownik może nie zrozumieć sensu zdania lub całego komunikatu.",
+"level": "AAA",
+"priority": "medium",
+"team": "content"
+},
+{
+"id": "wcag-3-1-5",
+"group": "3",
+"number": "3.1.5",
+"name": "Poziom czytania",
+"description": "Teksty powinny być napisane możliwie prostym językiem, a jeśli są bardziej złożone — warto dodać prostsze wyjaśnienie. Zbyt skomplikowany język wyklucza osoby z trudnościami poznawczymi lub o niższym poziomie biegłości językowej.",
+"level": "AAA",
+"priority": "medium",
+"team": "content"
+},
+{
+"id": "wcag-3-1-6",
+"group": "3",
+"number": "3.1.6",
+"name": "Wymowa",
+"description": "Jeśli znaczenie słowa zależy od jego wymowy, powinna ona być jasno wskazana. Bez tej informacji osoby korzystające z czytników ekranu mogą błędnie zrozumieć treść.",
+"level": "AAA",
+"priority": "medium",
+"team": "content"
+},
+{
+"id": "wcag-3-2-1",
+"group": "3",
+"number": "3.2.1",
+"name": "Zmiana fokusu",
+"description": "Przejście fokusu na inny element nie powinno samo w sobie powodować niespodziewanych zmian, takich jak przeładowanie strony. Nagłe reakcje interfejsu dezorientują użytkownika i utrudniają zrozumienie, co się właśnie wydarzyło.",
+"level": "A",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-3-2-2",
+"group": "3",
+"number": "3.2.2",
+"name": "Zmiana po wprowadzeniu danych",
+"description": "Zmiana ustawień lub wpisanie danych nie powinno automatycznie uruchamiać ważnych akcji bez ostrzeżenia. Gdy strona reaguje nieoczekiwanie, użytkownik może stracić kontrolę i popełnić błąd.",
+"level": "A",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-3-2-3",
+"group": "3",
+"number": "3.2.3",
+"name": "Spójna nawigacja",
+"description": "Elementy nawigacji powinny działać i wyglądać podobnie na wszystkich podstronach. Gdy menu lub linki zmieniają swoje miejsce albo zachowanie, użytkownik musi uczyć się strony od nowa i łatwo się gubi.",
+"level": "A",
+"priority": "high",
+"team": "design"
+},
+{
+"id": "wcag-3-2-4",
+"group": "3",
+"number": "3.2.4",
+"name": "Spójna identyfikacja",
+"description": "Te same elementy interfejsu powinny być oznaczane w ten sam sposób w całym serwisie. Jeśli raz coś jest nazwane lub przedstawione inaczej, użytkownik może nie zorientować się, że chodzi o tę samą funkcję.",
+"level": "AA",
+"priority": "high",
+"team": "design"
+},
+{
+"id": "wcag-3-2-5",
+"group": "3",
+"number": "3.2.5",
+"name": "Zmiany na żądanie",
+"description": "Poważniejsze zmiany, takie jak przejście na inną stronę lub wysłanie formularza, powinny następować tylko wtedy, gdy użytkownik świadomie je wywoła. Automatyczne reakcje mogą prowadzić do błędów i frustracji.",
+"level": "AAA",
+"priority": "medium",
+"team": "development"
+},
+{
+"id": "wcag-3-2-6",
+"group": "3",
+"number": "3.2.6",
+"name": "Spójna pomoc",
+"description": "Mechanizmy pomocy, takie jak link do kontaktu, czat czy sekcja wsparcia, powinny być dostępne w tym samym miejscu na wszystkich podstronach. Gdy pomoc „wędruje”, użytkownik musi jej szukać od nowa i łatwo się zniechęca.",
+"level": "A",
+"priority": "high",
+"team": "design"
+},
+{
+"id": "wcag-3-3-1",
+"group": "3",
+"number": "3.3.1",
+"name": "Identyfikacja błędów",
+"description": "Gdy użytkownik popełni błąd, powinien dostać jasną informację, co poszło nie tak. Bez takiego komunikatu trudno zrozumieć, dlaczego zadanie nie zostało wykonane poprawnie.",
+"level": "A",
+"priority": "critical",
+"team": "content"
+},
+{
+"id": "wcag-3-3-2",
+"group": "3",
+"number": "3.3.2",
+"name": "Etykiety i instrukcje",
+"description": "Pola formularzy i interakcje powinny mieć czytelne etykiety oraz proste wskazówki. Gdy brakuje jasnych instrukcji, użytkownik może nie wiedzieć, co wpisać lub jak poprawnie wykonać zadanie.",
+"level": "A",
+"priority": "high",
+"team": "content"
+},
+{
+"id": "wcag-3-3-3",
+"group": "3",
+"number": "3.3.3",
+"name": "Sugestie korekty błędów",
+"description": "Gdy użytkownik popełni błąd, warto podpowiedzieć, jak go poprawić. Proste wskazówki zmniejszają frustrację i pomagają szybciej zakończyć zadanie, zwłaszcza osobom z trudnościami poznawczymi lub uczącym się.",
+"level": "AA",
+"priority": "high",
+"team": "content"
+},
+{
+"id": "wcag-3-3-4",
+"group": "3",
+"number": "3.3.4",
+"name": "Zapobieganie błędom (dane, finanse, prawo)",
+"description": "Przy ważnych działaniach, takich jak płatności czy wysyłanie danych, użytkownik powinien mieć możliwość sprawdzenia i poprawienia informacji przed ich zatwierdzeniem. Bez tego łatwo o kosztowne lub trudne do odwrócenia pomyłki.",
+"level": "AA",
+"priority": "critical",
+"team": "development"
+},
+{
+"id": "wcag-3-3-5",
+"group": "3",
+"number": "3.3.5",
+"name": "Pomoc",
+"description": "Użytkownik powinien mieć łatwy dostęp do pomocy, gdy utknie lub czegoś nie rozumie. Brak wsparcia sprawia, że osoby z trudnościami poznawczymi lub nowi użytkownicy mogą zrezygnować z dalszego korzystania.",
+"level": "AA",
+"priority": "medium",
+"team": "content"
+},
+{
+"id": "wcag-3-3-6",
+"group": "3",
+"number": "3.3.6",
+"name": "Zapobieganie błędom (wszystkie)",
+"description": "Przy wykonywaniu ważnych działań użytkownik powinien mieć realną szansę sprawdzić, poprawić lub cofnąć swoje decyzje. Bez takiego zabezpieczenia łatwo o poważne pomyłki, które są stresujące lub trudne do odwrócenia.",
+"level": "AAA",
+"priority": "medium",
+"team": "development"
+},
+{
+"id": "wcag-3-3-7",
+"group": "3",
+"number": "3.3.7",
+"name": "Brak zbędnego powtarzania danych",
+"description": "Użytkownik nie powinien być zmuszany do ponownego wpisywania tych samych informacji, które już podał. Dla osób z trudnościami poznawczymi lub ruchowymi powtarzalne wypełnianie pól jest męczące i zwiększa ryzyko błędów.",
+"level": "A",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-3-3-8",
+"group": "3",
+"number": "3.3.8",
+"name": "Dostępne uwierzytelnianie",
+"description": "Logowanie nie powinno opierać się wyłącznie na zapamiętywaniu, przepisywaniu lub rozwiązywaniu zagadek. Takie bariery wykluczają osoby z problemami z pamięcią, koncentracją lub wzrokiem.",
+"level": "AA",
+"priority": "critical",
+"team": "development"
+},
+{
+"id": "wcag-3-3-9",
+"group": "3",
+"number": "3.3.9",
+"name": "Dostępne uwierzytelnianie (bez wyjątków)",
+"description": "Proces logowania powinien być możliwy bez barier poznawczych w każdej sytuacji. Gdy nie ma alternatywy dla trudnych mechanizmów, część użytkowników jest całkowicie odcięta od usługi.",
+"level": "AAA",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-4-1-1",
+"group": "4",
+"number": "4.1.1",
+"name": "Poprawna struktura kodu",
+"description": "Kod strony powinien być uporządkowany i wolny od błędów, które mogą dezorientować technologie wspomagające. Gdy struktura jest chaotyczna, czytniki ekranu mogą pomijać treści lub odczytywać je w niezrozumiały sposób.",
+"level": "A",
+"priority": "high",
+"team": "development"
+},
+{
+"id": "wcag-4-1-2",
+"group": "4",
+"number": "4.1.2",
+"name": "Nazwa, rola, wartość",
+"description": "Elementy interaktywne muszą być poprawnie rozpoznawane przez technologie wspomagające. Jeśli czytnik ekranu nie wie, czym jest dany element i w jakim jest stanie, użytkownik nie będzie w stanie z niego skorzystać.",
+"level": "A",
+"priority": "critical",
+"team": "development"
+},
+{
+"id": "wcag-4-1-3",
+"group": "4",
+"number": "4.1.3",
+"name": "Komunikaty o stanie",
+"description": "Zmiany stanu, takie jak potwierdzenie zapisu czy błąd formularza, powinny być przekazywane także osobom niewidomym. Bez jasnych komunikatów użytkownik może nie wiedzieć, czy jego działanie przyniosło efekt.",
+"level": "AA",
+"priority": "high",
+"team": "development"
+},
+{
+  "id": "en-7-1-4",
+  "group": "5",
+  "number": "EN 7.1.4",
+  "name": "Napisy mówione",
+  "description": "Napisy do materiałów wideo mogą być odczytywane na głos jako osobna ścieżka dźwiękowa. Dzięki temu osoby, które nie mogą czytać napisów wzrokiem, ale korzystają z dźwięku, nadal mają dostęp do treści.",
+  "level": "—",
+  "priority": "medium",
+  "team": "development"
+},
+{
+  "id": "en-7-1-5",
+  "group": "5",
+  "number": "EN 7.1.5",
+  "name": "Sterowanie napisami i audiodeskrypcją",
+  "description": "Użytkownik powinien mieć możliwość samodzielnego włączania i wyłączania napisów oraz audiodeskrypcji. Brak kontroli nad tymi funkcjami sprawia, że część osób nie może komfortowo korzystać z multimediów.",
+  "level": "—",
+  "priority": "high",
+  "team": "development"
+},
+{
+  "id": "en-10-1",
+  "group": "5",
+  "number": "EN 10.1",
+  "name": "Dokumentacja użytkownika",
+  "description": "Dokumentacja wyjaśniająca działanie produktu powinna być dostępna dla wszystkich użytkowników. Jeśli instrukcje są niedostępne lub trudne do odczytania, część osób nie jest w stanie samodzielnie nauczyć się korzystania z produktu.",
+  "level": "—",
+  "priority": "high",
+  "team": "content"
+},
+{
+  "id": "en-10-2",
+  "group": "5",
+  "number": "EN 10.2",
+  "name": "Instrukcje użytkowania i materiały pomocnicze",
+  "description": "Instrukcje krok po kroku i materiały wyjaśniające sposób wykonania zadań powinny być zrozumiałe i możliwe do odebrania różnymi sposobami. Gdy są niejasne lub niedostępne, użytkownik łatwo się gubi i popełnia błędy.",
+  "level": "—",
+  "priority": "high",
+  "team": "content"
+},
+{
+  "id": "en-10-3",
+  "group": "5",
+  "number": "EN 10.3",
+  "name": "Informacje o dostępności dokumentów",
+  "description": "Użytkownik powinien wiedzieć, czy dokumenty i materiały pomocnicze są dostępne oraz jakie mogą mieć ograniczenia. Brak takiej informacji powoduje niepewność i utrudnia podjęcie decyzji o skorzystaniu z produktu.",
+  "level": "—",
+  "priority": "medium",
+  "team": "content"
+},
+{
+  "id": "en-11-7",
+  "group": "5",
+  "number": "EN 11.7",
+  "name": "Preferencje użytkownika",
+  "description": "Produkt powinien respektować ustawienia dostępności wybrane przez użytkownika na poziomie systemu lub aplikacji, takie jak tryb wysokiego kontrastu, tryb ciemny czy preferowane jednostki. Gdy te ustawienia są ignorowane, interfejs może stać się trudny lub niemożliwy do użycia.",
+  "level": "—",
+  "priority": "high",
+  "team": "development"
+},
+{
+  "id": "en-11-8",
+  "group": "5",
+  "number": "EN 11.8",
+  "name": "Dostępne mechanizmy bezpieczeństwa",
+  "description": "Procesy związane z bezpieczeństwem, takie jak logowanie, potwierdzenia czy zabezpieczenia przed nadużyciami, powinny być możliwe do przejścia przez osoby z różnymi niepełnosprawnościami. Niedostępne zabezpieczenia mogą całkowicie zablokować dostęp do usługi.",
+  "level": "—",
+  "priority": "critical",
+  "team": "development"
+},
+{
+  "id": "en-12-1",
+  "group": "5",
+  "number": "EN 12.1",
+  "name": "Dokumentacja pomocy",
+  "description": "Materiały pomocy, takie jak FAQ czy artykuły wsparcia, powinny być dostępne i czytelne dla wszystkich użytkowników. Jeśli pomoc jest niedostępna, użytkownik może nie być w stanie rozwiązać problemu podczas korzystania z produktu.",
+  "level": "—",
+  "priority": "high",
+  "team": "content"
+},
+{
+  "id": "en-12-2",
+  "group": "5",
+  "number": "EN 12.2",
+  "name": "Kanały wsparcia",
+  "description": "Użytkownik powinien mieć możliwość skontaktowania się ze wsparciem za pomocą dostępnych kanałów, takich jak formularz, e‑mail czy czat. Gdy kanał kontaktu jest niedostępny, osoba z niepełnosprawnością zostaje bez realnej pomocy.",
+  "level": "—",
+  "priority": "high",
+  "team": "content"
+},
+{
+  "id": "en-12-3",
+  "group": "5",
+  "number": "EN 12.3",
+  "name": "Informacje o dostępności wsparcia",
+  "description": "Powinno być jasno wskazane, jakie formy wsparcia są dostępne i w jaki sposób można z nich skorzystać. Brak przejrzystych informacji powoduje niepewność i utrudnia skuteczne uzyskanie pomocy.",
+  "level": "—",
+  "priority": "medium",
+  "team": "content"
+},
+{
+  "id": "en-13-1",
+  "group": "5",
+  "number": "EN 13.1",
+  "name": "Dostępność usług wsparcia",
+  "description": "Usługi wsparcia, takie jak infolinia, czat czy system zgłoszeń, powinny być dostępne dla osób z różnymi niepełnosprawnościami. Jeśli kontakt wymaga np. słyszenia, mówienia lub bardzo precyzyjnej obsługi interfejsu, część użytkowników nie będzie w stanie uzyskać pomocy.",
+  "level": "—",
+  "priority": "high",
+  "team": "content"
+},
+{
+  "id": "en-13-2",
+  "group": "5",
+  "number": "EN 13.2",
+  "name": "Alternatywne formy kontaktu",
+  "description": "Powinno istnieć więcej niż jedno rozwiązanie kontaktu z organizacją, na przykład obok telefonu także e‑mail lub formularz. Gdy dostępny jest tylko jeden kanał, osoby z określonymi ograniczeniami mogą zostać całkowicie wykluczone.",
+  "level": "—",
+  "priority": "medium",
+  "team": "content"
+},
+{
+  "id": "en-13-3",
+  "group": "5",
+  "number": "EN 13.3",
+  "name": "Informacje o usługach wsparcia",
+  "description": "Użytkownik powinien łatwo znaleźć informacje o tym, jak uzyskać wsparcie i w jakiej formie jest ono dostępne. Brak jasnych informacji powoduje dezorientację i utrudnia skuteczne rozwiązanie problemu.",
+  "level": "—",
+  "priority": "medium",
+  "team": "content"
+},
+{
+  "id": "en-13-4",
+  "group": "5",
+  "number": "EN 13.4",
+  "name": "Spójność obsługi klienta",
+  "description": "Sposób udzielania pomocy powinien być spójny i przewidywalny niezależnie od kanału kontaktu. Niespójne odpowiedzi lub różne procedury wprowadzają chaos i zwiększają frustrację użytkowników.",
+  "level": "—",
+  "priority": "medium",
+  "team": "content"
+},
+{
+  "id": "en-13-5",
+  "group": "5",
+  "number": "EN 13.5",
+  "name": "Kompetencje personelu w zakresie dostępności",
+  "description": "Osoby udzielające wsparcia powinny rozumieć podstawowe potrzeby użytkowników z niepełnosprawnościami. Bez tej wiedzy nawet technicznie dostępny produkt może być w praktyce niedostępny.",
+  "level": "—",
+  "priority": "high",
+  "team": "content"
+}
+  ]
+}
