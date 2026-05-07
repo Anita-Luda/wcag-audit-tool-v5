@@ -3,38 +3,46 @@
    ========================================================= */
 
 :root {
-  /* CORE THEME */
-  --violet-900: #2f2350;
-  --violet-800: #3b2b5f;
-  --violet-700: #5b3fa3;
-  --violet-500: #7b5cd6;
-  --violet-300: #cbbcff;
+  /* CORE THEME - KAWAII VIOLET */
+  --violet-900: #4a3b7a;
+  --violet-800: #6a5ba0;
+  --violet-700: #8a7bc0;
+  --violet-500: #a797ff;
+  --violet-300: #d4ccff;
+  --violet-100: #f0edff;
 
-  --pink-200: #f6c1e8;
-  --mint-200: #c7f0ea;
+  --pink-500: #ff97d5;
+  --pink-300: #ffc2e8;
+  --pink-100: #fff0f9;
+
+  --mint-500: #97ffd4;
+  --mint-100: #f0fff9;
 
   /* BACKGROUNDS */
-  --bg-main: #f6f5fb;
+  --bg-main: #fdfbff;
   --bg-card: #ffffff;
-  --bg-soft: #f0eef9;
+  --bg-soft: #f8f6ff;
 
   /* BORDERS */
-  --border-soft: #e4e0f2;
-  --border-strong: #cfc7ea;
+  --border-soft: #e9e5f5;
+  --border-strong: #d4ccff;
 
   /* TEXT */
-  --text: #1d1d2b;
-  --text-muted: #5a5a73;
+  --text: #4a4a6a;
+  --text-muted: #8a8a9a;
 
   /* STATE COLORS */
-  --ok: #2e7d32;
-  --fail: #c62828;
-  --warn: #b26a00;
-  --neutral: #6b6b7a;
+  --ok: #66bb6a;
+  --fail: #ef5350;
+  --warn: #ffa726;
+  --neutral: #bdbdbd;
 
   /* UX */
-  --focus-ring: #ffbf47;
-  --radius: 10px;
+  --focus-ring: #ffc2e8;
+  --radius: 20px;
+  --radius-sm: 12px;
+
+  --shadow: 0 8px 30px rgba(167, 151, 255, 0.15);
 }
 
 *,
@@ -45,10 +53,12 @@
 
 body {
   margin: 0;
-  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  background: linear-gradient(180deg, #f4f2ff 0%, var(--bg-main) 100%);
+  font-family: "Quicksand", "Inter", system-ui, -apple-system, sans-serif;
+  background: radial-gradient(circle at top right, var(--pink-100), transparent),
+              radial-gradient(circle at bottom left, var(--violet-100), transparent),
+              var(--bg-main);
   color: var(--text);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* HEADINGS */
