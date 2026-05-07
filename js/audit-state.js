@@ -1,138 +1,104 @@
-/* =========================================================/* ========================================================= */
-
 (function () {
   'use strict';
 
-  /* =====================================================
-     PUBLIC API
-     ===================================================== */
+  /* =========================================================
+     WCAG DEFINITIONS (OK – zostaje)
+     ========================================================= */
 
-  window.saveCriterionState = function (criterionId, data) {
-    const app = window.WCAG_AUDIT_APP;
-    const now = new Date().toISOString();
+  window.loadWCAGDefinitions = async function () {
+    try {
+      const res = await fetch('data/wcag-2.2-definitions.json');
 
-    ensureStateShape(app);
+      if (!res.ok) throw new Error('WCAG not found');
 
-    if (!app.state.criteria[criterionId]) {
-      app.state.criteria[criterionId] = {};
+      return await res.json();
+
+    } catch (e) {
+      console.error("❌ WCAG load error:", e);
+      return { groups: [], criteria: [] };
     }
-
-    app.state.criteria[criterionId] = {
-      ...app.state.criteria[criterionId],
-      ...data,
-      rowLastModifiedAt: now
-    };
-
-    touchMeta(app, now);
-    saveState();
   };
 
-  window.saveAuditMeta = function (metaPatch) {
-    const app = window.WCAG_AUDIT_APP;
-    const now = new Date().toISOString();
+  /* =========================================================
+     LOAD AUDIT STATE (CLEAN - NO NORMALIZATION HERE)
+     ========================================================= */
 
-    ensureStateShape(app);
-
-    app.state.meta = {
-      ...app.state.meta,
-      ...metaPatch
-    };
-
-    touchMeta(app, now);
-    saveState();
-  };
-
-  window.setProductType = function (productType) {
-    if (productType !== 'web' && productType !== 'app') return;
-    window.saveAuditMeta({ productType });
-  };
-
-  window.setAuditMode = function (mode) {
-    if (mode !== 'edit' && mode !== 'view') return;
-    window.saveAuditMeta({ mode });
-  };
-
-  /* =====================================================
-     INTERNAL HELPERS
-     ===================================================== */
-
-  function ensureStateShape(app) {
-    if (!app.state) {
-      app.state = {};
-    }
-
-    if (!app.state.meta) {
-      app.state.meta = createDefaultMeta();
-    }
-
-    if (!app.state.criteria) {
-      app.state.criteria = {};
-    }
-  }
-
-  function createDefaultMeta() {
-    const now = new Date().toISOString();
-
-    return {
-      auditedApplication: '',
-      standard: 'WCAG 2.2 + EN 301 549',
-      productType: 'web',
-      mode: 'edit',
-      auditStartedAt: now,
-      auditLastModifiedAt: now
-    };
-  }
-
-  function touchMeta(app, now) {
-    if (!app.state.meta.auditStartedAt) {
-      app.state.meta.auditStartedAt = now;
-    }
-    app.state.meta.auditLastModifiedAt = now;
-
-    updateMetaUI(app.state.meta);
-
-    if (typeof window.updateAuditSummary === 'function') {
-      window.updateAuditSummary();
-    }
-  }
-
-  function saveState() {
-    fetch('/api/audit-state', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(window.WCAG_AUDIT_APP.state)
-    }).catch(err => {
-      console.error('❌ Błąd zapisu stanu audytu:', err);
-    });
-  }
-
-  /* =====================================================
-     META UI UPDATE (read-only)
-     ===================================================== */
-
-  function updateMetaUI(meta) {
-    setText('audit-start-date', meta.auditStartedAt);
-    setText('audit-last-modified', meta.auditLastModifiedAt);
-
-    const appNameInput = document.getElementById('app-name');
-    if (appNameInput && document.activeElement !== appNameInput) {
-      appNameInput.value = meta.auditedApplication || '';
-    }
-
-    // synchronizacja web/app radio
-    document
-      .querySelectorAll('input[name="product-type"]')
-      .forEach(radio => {
-        radio.checked = radio.value === meta.productType;
+  window.loadAuditState = async function (auditId = 'default') {
+    try {
+      const res = await fetch(`/api/audits/${auditId}/draft`, {
+        cache: 'no-store'
       });
-  }
 
-  function setText(id, iso) {
-    const el = document.getElementById(id);
-    if (!el || !iso) return;
-    el.textContent = new Date(iso).toLocaleString('pl-PL');
+      if (!res.ok) {
+        throw new Error(`Audit not found: ${auditId}`);
+      }
+
+      const state = await res.json();
+
+      return {
+        state,
+        context: {
+          auditId,
+          mode: 'edit',
+          version: 'draft',
+          isNew: Object.keys(state?.criteria || {}).length === 0
+        }
+      };
+
+    } catch (e) {
+      console.error("❌ loadAuditState:", e);
+
+      return createEmptyState(auditId);
+    }
+  };
+
+  /* =========================================================
+     SAVE STATE (UNCHANGED BUT CLEANED)
+     ========================================================= */
+
+  window.saveState = async function (auditId, state) {
+    if (!auditId || !state) return false;
+
+    try {
+      const res = await fetch(`/api/audits/${auditId}/draft`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(state)
+      });
+
+      if (!res.ok) return false;
+
+      const result = await res.json();
+      return result?.status === 'saved';
+
+    } catch (e) {
+      console.error("❌ saveState:", e);
+      return false;
+    }
+  };
+
+  /* =========================================================
+     EMPTY STATE (MATCH BACKEND 1:1)
+     ========================================================= */
+
+  function createEmptyState(auditId = 'default') {
+    return {
+      state: {
+        criteria: {},
+        meta: {
+          appName: '',
+          productType: 'web',
+          auditStartedAt: new Date().toISOString(),
+          auditLastModifiedAt: new Date().toISOString()
+        }
+      },
+      context: {
+        auditId,
+        mode: 'edit',
+        version: 'draft',
+        isNew: true
+      }
+    };
   }
 
 })();

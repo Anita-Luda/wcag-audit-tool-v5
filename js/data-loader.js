@@ -1,97 +1,115 @@
-/* =========================================================
-   data-loader.js
-   Ładowanie definicji, audytów i wersji (draft + versions)
-   ========================================================= */
-
 (function () {
   'use strict';
 
   const DEFINITIONS_PATH = 'data/wcag-2.2-definitions.json';
 
-  /* =====================================================
-     PUBLIC API (ZACHOWANE)
-     ===================================================== */
+  /* =========================================================
+     WCAG DEFINITIONS
+     ========================================================= */
 
   window.loadWCAGDefinitions = async function () {
-    const response = await fetch(DEFINITIONS_PATH, { cache: 'no-store' });
-    if (!response.ok) {
-      throw new Error('Nie można załadować wcag-2.2-definitions.json');
+    try {
+      const res = await fetch(DEFINITIONS_PATH, { cache: 'no-store' });
+
+      if (!res.ok) throw new Error('WCAG definitions not found');
+
+      return await res.json();
+
+    } catch (e) {
+      console.error('❌ WCAG load error:', e);
+      return { groups: [], criteria: [] };
     }
-    return response.json();
   };
 
-  window.loadAuditState = async function () {
-    const audits = await fetchAudits();
-    if (!audits.length) {
-      return createEmptyAuditState();
+  /* =========================================================
+     AUDIT LOADER (CLEAN VERSION - NO FALLBACK LOGIC)
+     ========================================================= */
+
+  window.loadAuditState = async function (auditId = 'default') {
+    try {
+      ensureAuditId(auditId);
+
+      const res = await fetch(`/api/audits/${auditId}/draft`, {
+        cache: 'no-store'
+      });
+
+      if (!res.ok) {
+        throw new Error(`Audit load failed: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      const state = normalizeState(data);
+      const context = normalizeContext(auditId, state);
+
+      return { state, context };
+
+    } catch (e) {
+      console.error('❌ loadAuditState failed:', e);
+
+      return createEmptyAuditState(auditId);
     }
-
-    const selectedAuditId = audits[0].id;
-    const draft = await fetchDraft(selectedAuditId);
-
-    return {
-      __context: {
-        selectedAuditId,
-        selectedVersion: 'draft',
-        mode: 'edit'
-      },
-      ...draft
-    };
   };
 
-  /* =====================================================
-     INTERNAL – AUDITS
-     ===================================================== */
+  /* =========================================================
+     NORMALIZATION (SINGLE SOURCE OF TRUTH)
+     ========================================================= */
 
-  async function fetchAudits() {
-    const res = await fetch('/api/audits', { cache: 'no-store' });
-    if (!res.ok) return [];
-    return res.json();
-  }
-
-  async function fetchDraft(auditId) {
-    const res = await fetch(`/api/audits/${auditId}/draft`, {
-      cache: 'no-store'
-    });
-
-    if (!res.ok) {
-      return createEmptyAuditState();
-    }
-
-    return res.json();
-  }
-
-  async function fetchVersion(auditId, version) {
-    const res = await fetch(
-      `/api/audits/${auditId}/versions/${version}`,
-      { cache: 'no-store' }
-    );
-
-    if (!res.ok) {
-      throw new Error('Nie można załadować wersji audytu');
-    }
-
-    return res.json();
-  }
-
-  /* =====================================================
-     STATE FACTORY
-     ===================================================== */
-
-  function createEmptyAuditState() {
-    const now = new Date().toISOString();
+  function normalizeState(data) {
+    const state = data || {};
 
     return {
+      criteria: state.criteria || {},
       meta: {
-        auditedApplication: '',
-        standard: 'WCAG 2.2 + EN 301 549',
-        productType: 'web',
-        mode: 'edit',
-        auditStartedAt: now,
-        auditLastModifiedAt: now
-      },
-      criteria: {}
+        appName: state.meta?.appName || '',
+        productType: state.meta?.productType || 'web',
+        auditStartedAt: state.meta?.auditStartedAt || new Date().toISOString(),
+        auditLastModifiedAt: new Date().toISOString()
+      }
     };
+  }
+
+  function normalizeContext(auditId, state) {
+    return {
+      auditId,
+      mode: 'edit',
+      version: 'draft',
+      isNew: !state.criteria || Object.keys(state.criteria).length === 0
+    };
+  }
+
+  /* =========================================================
+     EMPTY STATE (MATCH BACKEND 1:1)
+     ========================================================= */
+
+  function createEmptyAuditState(auditId) {
+    return {
+      state: {
+        criteria: {},
+        meta: {
+          appName: '',
+          productType: 'web',
+          auditStartedAt: new Date().toISOString(),
+          auditLastModifiedAt: new Date().toISOString()
+        }
+      },
+      context: {
+        auditId,
+        mode: 'edit',
+        version: 'draft',
+        isNew: true
+      }
+    };
+  }
+
+  /* =========================================================
+     SAFETY
+     ========================================================= */
+
+  function ensureAuditId(id) {
+    if (!id || typeof id !== 'string') {
+      throw new Error('Invalid auditId');
+    }
   }
 
 })();

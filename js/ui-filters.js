@@ -1,151 +1,285 @@
 /* =========================================================
-   Filtry globalne: neutral / include / exclude   ui-filters.js
+   ui-filters.js – CANONICAL FILTER ENGINE (V3)
    ========================================================= */
 
 (function () {
   'use strict';
 
-  /* =====================================================
-     MODEL STANU FILTRÓW
-     ===================================================== */
-
-  const filterState = {
-    level: {},     // A / AA / AAA / EN
-    status: {},    // pass / fail / not-applicable / not-tested
-    area: {},      // development / content / design / mixed
-    priority: {}   // critical / high / medium
-  };
-
-  /* =====================================================
+  /* =========================================================
      INIT
-     ===================================================== */
+     ========================================================= */
 
-  document.addEventListener('DOMContentLoaded', () => {
-    initFilterInputs();
-  });
+  document.addEventListener('DOMContentLoaded', initFilters);
 
-  /* =====================================================
-     OBSŁUGA INPUTÓW (CLICK / SHIFT+CLICK)
-     ===================================================== */
+  function initFilters() {
+    bindInputs();
+    syncEntireFilterUI();
+  }
 
-  function initFilterInputs() {
+  function bindInputs() {
     document
       .querySelectorAll('.audit-filters input[type="checkbox"]')
       .forEach(input => {
-        input.addEventListener('click', e => {
-          const type = input.name.replace('filter-', '');
-          const value = input.value;
-
-          if (e.shiftKey) {
-            toggleExclude(type, value);
-          } else {
-            toggleInclude(type, value);
-          }
-
-          syncFilterUI(type, value, input);
-          applyFilters();
-        });
+        input.removeEventListener('click', onFilterClick);
+        input.addEventListener('click', onFilterClick);
       });
   }
 
-  /* =====================================================
-     ZMIANA STANU FILTRA
-     ===================================================== */
+  /* =========================================================
+     STATE ACCESS
+     ========================================================= */
 
-  function toggleInclude(type, value) {
-    const current = filterState[type][value];
-
-    if (current === 'include') {
-      delete filterState[type][value];
-    } else {
-      filterState[type][value] = 'include';
-    }
+  function getApp() {
+    return window.WCAG_AUDIT_APP || {};
   }
 
-  function toggleExclude(type, value) {
-    const current = filterState[type][value];
-
-    if (current === 'exclude') {
-      delete filterState[type][value];
-    } else {
-      filterState[type][value] = 'exclude';
-    }
+  function getState() {
+    return getApp().state || {};
   }
 
-  /* =====================================================
-     APLIKACJA FILTRÓW
-     ===================================================== */
+  function getFilters() {
+    const state = getState();
 
-  function applyFilters() {
+    if (!state.filters) {
+      state.filters = {
+        level: {},
+        status: {},
+        area: {},
+        priority: {}
+      };
+    }
+
+    return state.filters;
+  }
+
+  /* =========================================================
+     CLICK HANDLER
+     ========================================================= */
+
+  function onFilterClick(e) {
+    const input = e.target;
+
+    const type = normalizeType(
+      input.name.replace('filter-', '')
+    );
+
+    const value = normalizeValue(input.value);
+
+    const filters = getFilters();
+
+    if (!filters[type]) {
+      filters[type] = {};
+    }
+
+    const mode = e.shiftKey
+      ? 'exclude'
+      : 'include';
+
+    toggleRule(filters[type], value, mode);
+
+    syncSingleInputUI(input, filters[type][value]);
+
+    window.applyGlobalFilters?.();
+  }
+
+  /* =========================================================
+     RULE TOGGLE
+     ========================================================= */
+
+  function toggleRule(group, value, mode) {
+    const current = group[value];
+
+    if (current === mode) {
+      delete group[value];
+      return;
+    }
+
+    group[value] = mode;
+  }
+
+  /* =========================================================
+     APPLY FILTERS
+     ========================================================= */
+
+  window.applyGlobalFilters = function () {
+    const filters = getFilters();
+
     document
       .querySelectorAll('.audit-table tbody tr')
       .forEach(tr => {
-        tr.hidden = !rowMatchesFilters(tr);
+        const row = extractRowData(tr);
+
+        tr.hidden = !matchesAllFilters(
+          row,
+          filters
+        );
       });
+
+    syncEntireFilterUI();
+  };
+
+  /* =========================================================
+     ROW EXTRACTION
+     ========================================================= */
+
+  function extractRowData(tr) {
+    return {
+      level: normalizeValue(tr.dataset.level),
+      status: normalizeValue(tr.dataset.status),
+
+      areas: normalizeArray(
+        tr.dataset.areas ||
+        tr.dataset.area
+      ),
+
+      priorities: normalizeArray(
+        tr.dataset.priorities ||
+        tr.dataset.priority
+      )
+    };
   }
 
-  function rowMatchesFilters(tr) {
+  /* =========================================================
+     MATCH ENGINE
+     ========================================================= */
+
+  function matchesAllFilters(row, filters) {
     return (
-      matchSingle('level', tr.dataset.level) &&
-      matchSingle('status', tr.dataset.status) &&
-      matchSingle('area', tr.dataset.team) &&
-      matchSingle('priority', tr.dataset.priority)
+      matchSingle(
+        filters.level,
+        [row.level]
+      ) &&
+
+      matchSingle(
+        filters.status,
+        [row.status]
+      ) &&
+
+      matchSingle(
+        filters.area,
+        row.areas
+      ) &&
+
+      matchSingle(
+        filters.priority,
+        row.priorities
+      )
     );
   }
 
-  /* =====================================================
-     LOGIKA MATCHOWANIA
-     ===================================================== */
+  function matchSingle(ruleSet = {}, values = []) {
 
-  function matchSingle(type, value) {
-    const rules = filterState[type];
     const includes = [];
     const excludes = [];
 
-    Object.entries(rules).forEach(([k, v]) => {
-      if (v === 'include') includes.push(k);
-      if (v === 'exclude') excludes.push(k);
-    });
+    Object.entries(ruleSet)
+      .forEach(([k, v]) => {
+        if (v === 'include') includes.push(k);
+        if (v === 'exclude') excludes.push(k);
+      });
 
-    if (excludes.includes(value)) {
+    /* =========================
+       EXCLUDES WIN
+       ========================= */
+
+    if (
+      values.some(v => excludes.includes(v))
+    ) {
       return false;
     }
 
-    if (includes.length > 0 && !includes.includes(value)) {
-      return false;
+    /* =========================
+       NO INCLUDES = PASS
+       ========================= */
+
+    if (!includes.length) {
+      return true;
     }
 
-    return true;
+    /* =========================
+       AT LEAST ONE INCLUDE
+       ========================= */
+
+    return values.some(v =>
+      includes.includes(v)
+    );
   }
 
-  /* =====================================================
-     SYNCHRONIZACJA UI (KLASY CSS)
-     ===================================================== */
+  /* =========================================================
+     UI SYNC
+     ========================================================= */
 
-  function syncFilterUI(type, value, input) {
-    const state = filterState[type][value];
+  function syncEntireFilterUI() {
+    const filters = getFilters();
+
+    document
+      .querySelectorAll('.audit-filters input[type="checkbox"]')
+      .forEach(input => {
+
+        const type = normalizeType(
+          input.name.replace('filter-', '')
+        );
+
+        const value = normalizeValue(input.value);
+
+        syncSingleInputUI(
+          input,
+          filters[type]?.[value]
+        );
+      });
+  }
+
+  function syncSingleInputUI(input, state) {
+
     const label = input.closest('label');
 
     if (!label) return;
 
-    label.classList.remove('filter-include', 'filter-exclude');
+    label.classList.remove(
+      'filter-include',
+      'filter-exclude'
+    );
+
+    input.checked = false;
 
     if (state === 'include') {
       input.checked = true;
       label.classList.add('filter-include');
-    } else if (state === 'exclude') {
-      input.checked = false;
+    }
+
+    if (state === 'exclude') {
       label.classList.add('filter-exclude');
-    } else {
-      input.checked = false;
     }
   }
 
-  /* =====================================================
-     PUBLICZNY HOOK (PO RE-RENDERZE)
-     ===================================================== */
+  /* =========================================================
+     HELPERS
+     ========================================================= */
 
-  window.applyGlobalFilters = applyFilters;
+  function normalizeType(v) {
+    return String(v || '')
+      .trim()
+      .toLowerCase();
+  }
+
+  function normalizeValue(v) {
+    return String(v || '')
+      .trim()
+      .toLowerCase();
+  }
+
+  function normalizeArray(v) {
+
+    if (!v) return [];
+
+    if (Array.isArray(v)) {
+      return v.map(normalizeValue);
+    }
+
+    return String(v)
+      .split(',')
+      .map(normalizeValue)
+      .filter(Boolean);
+  }
 
 })();
-

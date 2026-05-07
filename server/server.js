@@ -8,11 +8,15 @@ const PORT = 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..')));
 
+/* =========================================================
+   DATA ROOT
+   ========================================================= */
+
 const DATA_DIR = path.join(__dirname, '../data/audits');
 
-/* =====================================================
-   UTILS
-   ===================================================== */
+/* =========================================================
+   HELPERS
+   ========================================================= */
 
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) {
@@ -20,143 +24,240 @@ function ensureDir(dir) {
   }
 }
 
-function readJSON(file) {
-  return JSON.parse(fs.readFileSync(file, 'utf8'));
+function safeRead(file) {
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch {
+    return null;
+  }
 }
 
-function writeJSON(file, data) {
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+function write(file, data) {
+  const tmp = file + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+  fs.renameSync(tmp, file);
 }
 
-function auditDir(id) {
+function auditPath(id) {
+  if (!/^[a-zA-Z0-9-_]+$/.test(id)) {
+    throw new Error('Invalid audit id');
+  }
   return path.join(DATA_DIR, id);
 }
 
-function draftPath(id) {
-  return path.join(auditDir(id), 'draft.json');
+function draftFile(id) {
+  return path.join(auditPath(id), 'draft.json');
 }
 
-function metaPath(id) {
-  return path.join(auditDir(id), 'meta.json');
+function metaFile(id) {
+  return path.join(auditPath(id), 'meta.json');
 }
+
+function versionsDir(id) {
+  return auditPath(id);
+}
+
+/* =========================================================
+   CANONICAL STATE
+   ========================================================= */
+
+function createEmptyState() {
+  const now = new Date().toISOString();
+
+  return {
+    meta: {
+      appName: '',
+      productType: 'web',
+      auditStartedAt: now,
+      auditLastModifiedAt: now
+    },
+    criteria: {}
+  };
+}
+
+/* =========================================================
+   CORE BOOTSTRAP (GUARANTEED EXISTENCE)
+   ========================================================= */
+
+function ensureAudit(id) {
+  const dir = auditPath(id);
+  ensureDir(dir);
+
+  const draft = draftFile(id);
+  const meta = metaFile(id);
+
+  if (!fs.existsSync(draft)) {
+    write(draft, createEmptyState());
+  }
+
+  if (!fs.existsSync(meta)) {
+    write(meta, {
+      id,
+      name: id,
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  return {
+    state: safeRead(draft),
+    meta: safeRead(meta)
+  };
+}
+
+/* =========================================================
+   INIT ROOT
+   ========================================================= */
+
+ensureDir(DATA_DIR);
+
+/* =========================================================
+   GET ALL AUDITS
+   ========================================================= */
+
+app.get('/api/audits', (req, res) => {
+  ensureDir(DATA_DIR);
+
+  const audits = fs.readdirSync(DATA_DIR)
+    .filter(name => fs.lstatSync(path.join(DATA_DIR, name)).isDirectory())
+    .map(id => {
+      const meta = safeRead(metaFile(id)) || {};
+      return { id, ...meta };
+    });
+
+  res.json(audits);
+});
+
+/* =========================================================
+   GET DRAFT (NO 404 ANYMORE)
+   ========================================================= */
+
+app.get('/api/audits/:id/draft', (req, res) => {
+  try {
+    const audit = ensureAudit(req.params.id);
+    res.json(audit.state);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+/* =========================================================
+   CREATE AUDIT (OPTIONAL MANUAL)
+   ========================================================= */
+
+app.post('/api/audits', (req, res) => {
+  ensureDir(DATA_DIR);
+
+  const id = `audit-${Date.now()}`;
+  const dir = auditPath(id);
+  ensureDir(dir);
+
+  const state = createEmptyState();
+
+  write(draftFile(id), state);
+  write(metaFile(id), {
+    id,
+    name: req.body?.name || id,
+    createdAt: new Date().toISOString()
+  });
+
+  res.json({ id });
+});
+
+/* =========================================================
+   SAVE DRAFT
+   ========================================================= */
+
+app.post('/api/audits/:id/draft', (req, res) => {
+  try {
+    const file = draftFile(req.params.id);
+
+    ensureAudit(req.params.id);
+
+    const body = req.body;
+
+    if (!body || typeof body !== 'object') {
+      return res.status(400).json({ error: 'Invalid state' });
+    }
+
+    write(file, body);
+
+    res.json({ status: 'saved' });
+
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+/* =========================================================
+   VERSIONS
+   ========================================================= */
 
 function listVersions(id) {
-  const dir = auditDir(id);
+  const dir = versionsDir(id);
   if (!fs.existsSync(dir)) return [];
+
   return fs.readdirSync(dir)
     .filter(f => /^v\d+\.json$/.test(f))
     .map(f => f.replace('.json', ''))
     .sort((a, b) => parseInt(a.slice(1)) - parseInt(b.slice(1)));
 }
 
-/* =====================================================
-   LIST AUDITS
-   ===================================================== */
-
-app.get('/api/audits', (req, res) => {
-  ensureDir(DATA_DIR);
-
-  const audits = fs.readdirSync(DATA_DIR).map(id => {
-    const meta = fs.existsSync(metaPath(id))
-      ? readJSON(metaPath(id))
-      : {};
-    return { id, ...meta };
-  });
-
-  res.json(audits);
-});
-
-/* =====================================================
-   CREATE AUDIT
-   ===================================================== */
-
-app.post('/api/audits', (req, res) => {
-  ensureDir(DATA_DIR);
-
-  const id = `audit-${Date.now()}`;
-  const dir = auditDir(id);
-  ensureDir(dir);
-
-  writeJSON(metaPath(id), {
-    name: req.body.name || 'Nowy audyt',
-    createdAt: new Date().toISOString()
-  });
-
-  writeJSON(draftPath(id), req.body.initialState || {
-    meta: {},
-    criteria: {}
-  });
-
-  res.json({ id });
-});
-
-/* =====================================================
-   GET / SAVE DRAFT (MUTABLE)
-   ===================================================== */
-
-app.get('/api/audits/:id/draft', (req, res) => {
-  const file = draftPath(req.params.id);
-  if (!fs.existsSync(file)) {
-    return res.status(404).end();
+app.get('/api/audits/:id/versions', (req, res) => {
+  try {
+    ensureAudit(req.params.id);
+    res.json(listVersions(req.params.id));
+  } catch (e) {
+    res.status(400).json({ error: e.message });
   }
-  res.json(readJSON(file));
 });
-
-app.post('/api/audits/:id/draft', (req, res) => {
-  const file = draftPath(req.params.id);
-  if (!fs.existsSync(auditDir(req.params.id))) {
-    return res.status(404).end();
-  }
-
-  writeJSON(file, req.body);
-  res.json({ status: 'saved' });
-});
-
-/* =====================================================
-   CREATE NEW VERSION (IMMUTABLE)
-   ===================================================== */
 
 app.post('/api/audits/:id/versions', (req, res) => {
-  const dir = auditDir(req.params.id);
-  if (!fs.existsSync(dir)) {
-    return res.status(404).end();
+  try {
+    const id = req.params.id;
+    const dir = auditPath(id);
+
+    ensureAudit(id);
+
+    const versions = listVersions(id);
+    const next = `v${versions.length + 1}`;
+
+    const draft = safeRead(draftFile(id));
+
+    write(path.join(dir, `${next}.json`), draft);
+
+    res.json({ version: next });
+
+  } catch (e) {
+    res.status(400).json({ error: e.message });
   }
-
-  const versions = listVersions(req.params.id);
-  const next = `v${versions.length + 1}`;
-  const source = draftPath(req.params.id);
-
-  if (!fs.existsSync(source)) {
-    return res.status(400).json({ error: 'Brak wersji roboczej' });
-  }
-
-  writeJSON(path.join(dir, `${next}.json`), readJSON(source));
-  res.json({ version: next });
-});
-
-/* =====================================================
-   LIST / GET VERSIONS (READ-ONLY)
-   ===================================================== */
-
-app.get('/api/audits/:id/versions', (req, res) => {
-  res.json(listVersions(req.params.id));
 });
 
 app.get('/api/audits/:id/versions/:version', (req, res) => {
-  const file = path.join(
-    auditDir(req.params.id),
-    `${req.params.version}.json`
-  );
-  if (!fs.existsSync(file)) {
-    return res.status(404).end();
+  try {
+    const file = path.join(
+      auditPath(req.params.id),
+      `${req.params.version}.json`
+    );
+
+    const data = safeRead(file);
+
+    if (!data) {
+      return res.status(404).json({ error: 'Version not found' });
+    }
+
+    res.json(data);
+
+  } catch (e) {
+    res.status(400).json({ error: e.message });
   }
-  res.json(readJSON(file));
 });
 
-/* =====================================================
-   START SERVER
-   ===================================================== */
+/* =========================================================
+   START
+   ========================================================= */
+
+ensureAudit('default');
 
 app.listen(PORT, () => {
-  console.log(`✅ Audit app running at http://localhost:${PORT}`);
+  console.log(`✅ Audit app running: http://localhost:${PORT}`);
 });

@@ -1,141 +1,213 @@
 /* =========================================================
-   app.js
-   Bootstrap aplikacji audytu WCAG 2.2
+   app.js – CORE ORCHESTRATOR (V2 STABLE)
    ========================================================= */
 
-(function () {
-  'use strict';
+window.WCAG_AUDIT_APP = {
+  definitions: null,
 
-  /* =====================================================
-     GLOBAL NAMESPACE
-     ===================================================== */
+  state: {
+    meta: {
+      appName: '',
+      productType: 'web',
+      auditStartedAt: new Date().toISOString(),
+      auditLastModifiedAt: new Date().toISOString()
+    },
 
-  window.WCAG_AUDIT_APP = {
-    definitions: null,
-    state: null
+    criteria: {},
+
+    filters: {
+      level: {},
+      status: {},
+      area: {},
+      priority: {}
+    },
+
+    context: {
+      auditId: 'default',
+      mode: 'edit',
+      version: 'draft'
+    }
+  }
+};
+
+/* =========================================================
+   INIT BOOTSTRAP
+   ========================================================= */
+
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('🚀 Audit App starting...');
+
+  try {
+    await bootstrapApp();
+  } catch (e) {
+    console.error('❌ Fatal init error:', e);
+    alert('Aplikacja nie mogła się uruchomić');
+  }
+});
+
+/* =========================================================
+   BOOTSTRAP PIPELINE
+   ========================================================= */
+
+async function bootstrapApp() {
+  const app = window.WCAG_AUDIT_APP;
+
+  // 1. Load definitions
+  app.definitions = await window.loadWCAGDefinitions?.();
+
+  // 2. Load state
+  const loaded = await window.loadAuditState?.(app.state.context.auditId);
+
+  if (loaded?.state) {
+    app.state = mergeState(app.state, loaded.state);
+  }
+
+  if (loaded?.context) {
+    app.state.context = {
+      ...app.state.context,
+      ...loaded.context
+    };
+  }
+
+  // 3. Normalize safety defaults
+  normalizeState(app.state);
+
+  // 4. Render initial UI
+  window.refreshUI?.();
+
+  // 5. Bind global interactions
+  bindGlobalUI();
+}
+
+/* =========================================================
+   STATE MERGE (SAFE)
+   ========================================================= */
+
+function mergeState(base, incoming) {
+  return {
+    meta: { ...base.meta, ...(incoming.meta || {}) },
+    criteria: { ...base.criteria, ...(incoming.criteria || {}) },
+    filters: { ...base.filters, ...(incoming.filters || {}) },
+    context: { ...base.context, ...(incoming.context || {}) }
   };
+}
 
-  /* =====================================================
-     START
-     ===================================================== */
+/* =========================================================
+   NORMALIZATION
+   ========================================================= */
 
-  document.addEventListener('DOMContentLoaded', initApp);
+function normalizeState(state) {
+  state.meta = state.meta || {};
+  state.criteria = state.criteria || {};
+  state.filters = state.filters || {};
+  state.context = state.context || {};
 
-  async function initApp() {
-    try {
-      console.info('[WCAG] Init application');
+  if (!state.context.mode) state.context.mode = 'edit';
+  if (!state.context.version) state.context.version = 'draft';
+  if (!state.context.auditId) state.context.auditId = 'default';
+}
 
-      await loadData();
-      initUI();
-      initGlobalActions();
-      updateMetaUI();
+/* =========================================================
+   GLOBAL REFRESH PIPELINE
+   ========================================================= */
 
-      console.info('[WCAG] Application ready');
-    } catch (error) {
-      console.error('[WCAG] Init failed', error);
-      alert(
-        'Nie udało się uruchomić aplikacji audytu WCAG.\n' +
-        'Sprawdź, czy wszystkie pliki są dostępne.'
-      );
-    }
+window.refreshUI = function () {
+  const app = window.WCAG_AUDIT_APP;
+
+  if (!app.definitions || !app.state) return;
+
+  window.renderAuditTables(app.definitions, app.state, app.state.context);
+  window.applyGlobalFilters?.();
+  window.updateAuditSummary?.();
+};
+
+/* =========================================================
+   STATE MUTATION API
+   ========================================================= */
+
+window.updateRowState = function (id, key, value) {
+  const state = window.WCAG_AUDIT_APP.state;
+
+  if (!state.criteria[id]) {
+    state.criteria[id] = {};
   }
 
-  /* =====================================================
-     DATA
-     ===================================================== */
+  state.criteria[id][key] = value;
 
-  async function loadData() {
-    if (!window.loadWCAGDefinitions || !window.loadAuditState) {
-      throw new Error('Data loader missing');
-    }
+  state.meta.auditLastModifiedAt = new Date().toISOString();
 
-    WCAG_AUDIT_APP.definitions = await window.loadWCAGDefinitions();
-    WCAG_AUDIT_APP.state = await window.loadAuditState();
-  }
+  window.triggerAutosave?.();
+  window.refreshUI?.();
+};
 
-  /* =====================================================
-     UI INIT
-     ===================================================== */
+/* =========================================================
+   PRODUCT TYPE HANDLER
+   ========================================================= */
 
-  function initUI() {
-    if (!window.renderAuditTables) {
-      throw new Error('ui.js missing');
-    }
+window.setProductType = function (type) {
+  window.WCAG_AUDIT_APP.state.meta.productType = type;
+  window.refreshUI?.();
+};
 
-    window.renderAuditTables(
-      WCAG_AUDIT_APP.definitions,
-      WCAG_AUDIT_APP.state
+/* =========================================================
+   GLOBAL UI BINDINGS
+   ========================================================= */
+
+function bindGlobalUI() {
+  const saveBtn = document.getElementById('save-version-btn');
+
+  saveBtn?.addEventListener('click', async () => {
+    const app = window.WCAG_AUDIT_APP;
+
+    if (!confirm('Utworzyć wersję audytu?')) return;
+
+    const res = await fetch(
+      `/api/audits/${app.state.context.auditId}/versions`,
+      { method: 'POST' }
     );
 
-    if (typeof window.updateAuditSummary === 'function') {
-      window.updateAuditSummary();
+    if (!res.ok) {
+      alert('Błąd zapisu wersji');
+      return;
     }
-  }
 
-  /* =====================================================
-     META UI
-     ===================================================== */
+    const data = await res.json();
+    alert(`Utworzono wersję: ${data.version}`);
+  });
 
-  function updateMetaUI() {
-    const { meta } = WCAG_AUDIT_APP.state;
+  document.getElementById('export-html-btn')
+    ?.addEventListener('click', () => window.exportAuditHTML?.());
 
-    setText('audit-start-date', meta.auditStartedAt);
-    setText('audit-last-modified', meta.auditLastModifiedAt);
+  document.getElementById('export-csv-btn')
+    ?.addEventListener('click', () => window.exportAuditCSV?.());
 
-    const appNameInput = document.getElementById('app-name');
-    if (appNameInput && meta.auditedApplication) {
-      appNameInput.value = meta.auditedApplication;
+  document.getElementById('export-pdf-btn')
+    ?.addEventListener('click', () => window.exportAuditPDF?.());
+}
+
+/* =========================================================
+   AUTOSAVE (DEBOUNCED)
+   ========================================================= */
+
+let saveTimeout = null;
+
+window.triggerAutosave = function () {
+  const app = window.WCAG_AUDIT_APP;
+
+  clearTimeout(saveTimeout);
+
+  saveTimeout = setTimeout(async () => {
+    if (!window.saveState) return;
+
+    const success = await window.saveState(
+      app.state.context.auditId,
+      app.state
+    );
+
+    if (success) {
+      console.log('💾 Autosaved');
+    } else {
+      console.warn('⚠️ Autosave failed');
     }
-  }
-
-  function setText(id, iso) {
-    const el = document.getElementById(id);
-    if (!el || !iso) return;
-    el.textContent = formatDate(iso);
-  }
-
-  function formatDate(iso) {
-    return new Date(iso).toLocaleString('pl-PL');
-  }
-
-  /* =====================================================
-     GLOBAL ACTIONS
-     ===================================================== */
-
-  function initGlobalActions() {
-    bind('save-version-btn', saveAuditVersion);
-    bind('export-html-btn', exportHTML);
-    bind('export-csv-btn', exportCSV);
-    bind('export-pdf-btn', exportPDF);
-  }
-
-  function bind(id, handler) {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('click', handler);
-    }
-  }
-
-  function saveAuditVersion() {
-    if (typeof window.saveAuditVersionToFile === 'function') {
-      window.saveAuditVersionToFile();
-    }
-  }
-
-  function exportHTML() {
-    if (typeof window.exportAuditHTML === 'function') {
-      window.exportAuditHTML();
-    }
-  }
-
-  function exportCSV() {
-    if (typeof window.exportAuditCSV === 'function') {
-      window.exportAuditCSV();
-    }
-  }
-
-  function exportPDF() {
-    window.print();
-  }
-
-})();
+  }, 1200);
+};

@@ -1,71 +1,154 @@
 /* =========================================================
-   summary.js
-   Podsumowanie audytu: WCAG + EN + obszary (multi‑select)
+   summary.js – CANONICAL SUMMARY ENGINE (V3)
    ========================================================= */
 
 (function () {
   'use strict';
 
-  /* =====================================================
-     PUBLIC API
-     ===================================================== */
+  /* =========================================================
+     CONSTANTS
+     ========================================================= */
 
-  window.updateAuditSummary = function () {
-    const app = window.WCAG_AUDIT_APP;
-    if (!app || !app.definitions || !app.state) return;
+  const VALID_STATUSES = [
+    'pass',
+    'fail',
+    'not-applicable',
+    'not-tested'
+  ];
 
-    const { definitions, state } = app;
-
-    const wcagAA = initCounters();
-    const wcagAAA = initCounters();
-    const en = initCounters();
-
-    const areas = {
-      dev: initCounters(),
-      content: initCounters(),
-      design: initCounters(),
-      mixed: initCounters()
-    };
-
-    definitions.criteria.forEach(def => {
-      const row = state.criteria?.[def.id] || {};
-      const status = row.status || 'not-tested';
-
-      /* ===== WCAG / EN ===== */
-
-      if (def.group === '5') {
-        increment(en, status);
-      } else if (def.level === 'AAA') {
-        increment(wcagAAA, status);
-      } else {
-        increment(wcagAA, status);
-      }
-
-      /* ===== OBSZARY (MULTI‑SELECT) ===== */
-
-      const rowAreas = Array.isArray(row.areas) && row.areas.length
-        ? row.areas
-        : [def.team];
-
-      rowAreas.forEach(area => {
-        const key = mapArea(area);
-        if (areas[key]) {
-          increment(areas[key], status);
-        }
-      });
-    });
-
-    renderSection('summary-aa', wcagAA, true);
-    renderSection('summary-aaa', wcagAAA, true);
-    renderSection('summary-en', en, false);
-    renderAreas('summary-teams', areas);
+  const AREA_MAP = {
+    development: 'dev',
+    dev: 'dev',
+    content: 'content',
+    design: 'design',
+    mixed: 'mixed'
   };
 
-  /* =====================================================
-     COUNTERS
-     ===================================================== */
+  const EN_GROUP_ID = '5';
 
-  function initCounters() {
+  /* =========================================================
+     PUBLIC API
+     ========================================================= */
+
+  window.updateAuditSummary = function () {
+
+    const app = window.WCAG_AUDIT_APP;
+
+    if (!app) return;
+
+    const definitions = app.definitions || {};
+    const state = app.state || {};
+
+    const criteria = Array.isArray(definitions.criteria)
+      ? definitions.criteria
+      : [];
+
+    const rows = state.criteria || {};
+
+    const summary = createSummaryModel();
+
+    for (const def of criteria) {
+
+      const row = rows[def.id] || {};
+
+      const status = normalizeStatus(
+        row.status
+      );
+
+      /* =====================================================
+         WCAG / EN SPLIT
+         ===================================================== */
+
+      if (String(def.group) === EN_GROUP_ID) {
+
+        increment(
+          summary.en,
+          status
+        );
+
+      } else if (
+        normalizeLevel(def.level) === 'aaa'
+      ) {
+
+        increment(
+          summary.wcagAAA,
+          status
+        );
+
+      } else {
+
+        increment(
+          summary.wcagAA,
+          status
+        );
+      }
+
+      /* =====================================================
+         AREAS
+         ===================================================== */
+
+      const normalizedAreas =
+        normalizeAreas(row, def);
+
+      normalizedAreas.forEach(area => {
+
+        const key = mapArea(area);
+
+        if (!summary.areas[key]) {
+          return;
+        }
+
+        increment(
+          summary.areas[key],
+          status
+        );
+      });
+    }
+
+    renderSummary(
+      'summary-aa',
+      summary.wcagAA,
+      true
+    );
+
+    renderSummary(
+      'summary-aaa',
+      summary.wcagAAA,
+      true
+    );
+
+    renderSummary(
+      'summary-en',
+      summary.en,
+      false
+    );
+
+    renderAreas(
+      'summary-teams',
+      summary.areas
+    );
+  };
+
+  /* =========================================================
+     MODEL
+     ========================================================= */
+
+  function createSummaryModel() {
+    return {
+      wcagAA: createCounter(),
+      wcagAAA: createCounter(),
+      en: createCounter(),
+
+      areas: {
+        dev: createCounter(),
+        content: createCounter(),
+        design: createCounter(),
+        mixed: createCounter()
+      }
+    };
+  }
+
+  function createCounter() {
     return {
       pass: 0,
       fail: 0,
@@ -74,95 +157,207 @@
     };
   }
 
+  /* =========================================================
+     REDUCER
+     ========================================================= */
+
   function increment(counter, status) {
-    if (counter[status] !== undefined) {
-      counter[status]++;
+
+    if (
+      !counter ||
+      counter[status] === undefined
+    ) {
+      return;
     }
+
+    counter[status]++;
+  }
+
+  /* =========================================================
+     NORMALIZATION
+     ========================================================= */
+
+  function normalizeStatus(status) {
+
+    status = String(status || '')
+      .trim()
+      .toLowerCase();
+
+    return VALID_STATUSES.includes(status)
+      ? status
+      : 'not-tested';
+  }
+
+  function normalizeLevel(level) {
+    return String(level || '')
+      .trim()
+      .toLowerCase();
+  }
+
+  function normalizeAreas(row, def) {
+
+    let values = [];
+
+    if (
+      Array.isArray(row.areas) &&
+      row.areas.length
+    ) {
+
+      values = row.areas;
+
+    } else if (def.area) {
+
+      values = [def.area];
+
+    } else if (def.team) {
+
+      values = [def.team];
+
+    } else {
+
+      values = ['mixed'];
+    }
+
+    return [...new Set(
+      values
+        .map(v => String(v || '')
+        .trim()
+        .toLowerCase())
+        .filter(Boolean)
+    )];
   }
 
   function mapArea(area) {
-    const map = {
-      development: 'dev',
-      content: 'content',
-      design: 'design',
-      mixed: 'mixed'
-    };
-    return map[area] || 'mixed';
+
+    area = String(area || '')
+      .trim()
+      .toLowerCase();
+
+    return AREA_MAP[area] || 'mixed';
   }
 
-  /* =====================================================
-     RENDER – WCAG / EN
-     ===================================================== */
+  /* =========================================================
+     RENDER SUMMARY
+     ========================================================= */
 
-  function renderSection(containerId, data, showCompliance) {
-    const el = document.getElementById(containerId);
+  function renderSummary(
+    containerId,
+    data,
+    showCompliance
+  ) {
+
+    const el =
+      document.getElementById(containerId);
+
     if (!el) return;
 
-    const checkedTotal =
-      data.pass + data.fail + data['not-applicable'];
+    const checked =
+      data.pass +
+      data.fail +
+      data['not-applicable'];
 
-    const allTotal =
-      data.pass + data.fail + data['not-applicable'] + data['not-tested'];
+    const total =
+      checked +
+      data['not-tested'];
 
     const complianceChecked =
-      checkedTotal > 0
-        ? percent(data.pass + data['not-applicable'], checkedTotal)
-        : '—';
+      calculatePercent(
+        data.pass +
+        data['not-applicable'],
+        checked
+      );
 
-    const complianceAll =
-      allTotal > 0
-        ? percent(data.pass + data['not-applicable'], allTotal)
-        : '—';
+    const complianceTotal =
+      calculatePercent(
+        data.pass +
+        data['not-applicable'],
+        total
+      );
 
     el.innerHTML = `
       <ul class="summary-list">
-        <li>✅ Spełnione: <strong>${data.pass}</strong></li>
-        <li>❌ Niespełnione: <strong>${data.fail}</strong></li>
-        <li>➖ Nie dotyczy: <strong>${data['not-applicable']}</strong></li>
-        <li>⏳ Niesprawdzone: <strong>${data['not-tested']}</strong></li>
-        ${
-          showCompliance
-            ? `
-              <li class="summary-metric">
-                📊 Zgodność (do sprawdzonych): <strong>${complianceChecked}</strong>
-              </li>
-              <li class="summary-metric">
-                📊 Zgodność (do całości): <strong>${complianceAll}</strong>
-              </li>
-            `
-            : ''
-        }
+        <li>✅ Pass: <strong>${safe(data.pass)}</strong></li>
+        <li>❌ Fail: <strong>${safe(data.fail)}</strong></li>
+        <li>➖ N/A: <strong>${safe(data['not-applicable'])}</strong></li>
+        <li>⏳ Not tested: <strong>${safe(data['not-tested'])}</strong></li>
+
+        ${showCompliance ? `
+          <li>
+            📊 Compliance (checked):
+            <strong>${safe(complianceChecked)}</strong>
+          </li>
+
+          <li>
+            📊 Compliance (total):
+            <strong>${safe(complianceTotal)}</strong>
+          </li>
+        ` : ''}
       </ul>
     `;
   }
 
-  /* =====================================================
-     RENDER – OBSZARY
-     ===================================================== */
+  /* =========================================================
+     RENDER AREAS
+     ========================================================= */
 
   function renderAreas(containerId, areas) {
-    const el = document.getElementById(containerId);
+
+    const el =
+      document.getElementById(containerId);
+
     if (!el) return;
 
     el.innerHTML = Object.entries(areas)
-      .map(([area, data]) => `
-        <h4>${capitalize(area)}</h4>
-        <ul>
-          <li>✅ ${data.pass}</li>
-          <li>❌ ${data.fail}</li>
-          <li>➖ ${data['not-applicable']}</li>
-          <li>⏳ ${data['not-tested']}</li>
-        </ul>
+      .map(([key, data]) => `
+        <div class="area-block">
+
+          <h4>${safe(
+            capitalize(key)
+          )}</h4>
+
+          <ul>
+            <li>✅ ${safe(data.pass)}</li>
+            <li>❌ ${safe(data.fail)}</li>
+            <li>➖ ${safe(data['not-applicable'])}</li>
+            <li>⏳ ${safe(data['not-tested'])}</li>
+          </ul>
+
+        </div>
       `)
       .join('');
   }
 
-  function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+  /* =========================================================
+     HELPERS
+     ========================================================= */
+
+  function calculatePercent(part, total) {
+
+    if (!total) {
+      return '—';
+    }
+
+    return Math.round(
+      (part / total) * 100
+    ) + '%';
   }
 
-  function percent(part, total) {
-    return `${Math.round((part / total) * 100)}%`;
+  function capitalize(str) {
+
+    str = String(str || '');
+
+    return (
+      str.charAt(0).toUpperCase() +
+      str.slice(1)
+    );
+  }
+
+  function safe(v) {
+
+    return String(v ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   }
 
 })();

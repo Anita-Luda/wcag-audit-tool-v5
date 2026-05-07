@@ -1,128 +1,451 @@
 /* =========================================================
-   ui-interactions-rows.js
-   Interakcje wierszy: status, zapis, badge
+   ui-interactions-rows.js – SINGLE SOURCE ROW STATE (V3)
    ========================================================= */
 
 (function () {
   'use strict';
 
-  // Helper do pobierania stanu wiersza
-  const getRowState = (id) => window.WCAG_AUDIT_APP.state.criteria[id] || {};
+  /* =========================================================
+     GLOBAL HELPERS
+     ========================================================= */
 
-  /* =====================================================
-     STATUS + DOSZCZEGÓŁOWIENIE
-     ===================================================== */
-  function onStatusChange(e) {
-    const radio = e.target;
-    if (!radio.name?.startsWith('status-')) return;
+  function getApp() {
+    return window.WCAG_AUDIT_APP;
+  }
 
-    const tr = radio.closest('tr');
-    const id = tr?.dataset.criterionId;
-    if (!id) return;
+  function getState() {
+    return getApp()?.state;
+  }
+
+  function ensureCriteria() {
+
+    const state = getState();
+
+    if (!state.criteria) {
+      state.criteria = {};
+    }
+
+    return state.criteria;
+  }
+
+  function getRowState(id) {
+
+    const criteria = ensureCriteria();
+
+    if (!criteria[id]) {
+      criteria[id] = {};
+    }
+
+    return criteria[id];
+  }
+
+  /* =========================================================
+     SINGLE SOURCE UPDATE
+     ========================================================= */
+
+  window.updateRowState = function (id, key, value) {
+
+    if (!id || !key) return;
 
     const row = getRowState(id);
-    row.status = radio.value;
 
-    // Czyścimy błąd, jeśli status nie jest "fail"
-    if (radio.value !== 'fail') {
+    row[key] = value;
+
+    normalizeRowState(row);
+
+    syncRowDatasets(id);
+
+    window.updateAuditSummary?.();
+  };
+
+  function safePatch(id, patch = {}) {
+
+    if (!id || typeof patch !== 'object') return;
+
+    const row = getRowState(id);
+
+    Object.assign(row, patch);
+
+    normalizeRowState(row);
+
+    syncRowDatasets(id);
+
+    window.updateAuditSummary?.();
+  }
+
+  /* =========================================================
+     NORMALIZATION
+     ========================================================= */
+
+  function normalizeRowState(row) {
+
+    /* =========================
+       STATUS
+       ========================= */
+
+    const validStatuses = [
+      'pass',
+      'fail',
+      'not-applicable',
+      'not-tested'
+    ];
+
+    if (!validStatuses.includes(row.status)) {
+      row.status = 'not-tested';
+    }
+
+    /* =========================
+       FAILURE DETAIL
+       ========================= */
+
+    if (row.status !== 'fail') {
       delete row.failureDetail;
     }
 
-    window.WCAG_AUDIT_APP.state.criteria[id] = row;
-    window.refreshUI?.();
+    /* =========================
+       ARRAYS
+       ========================= */
+
+    row.areas =
+      normalizeArray(
+        row.areas,
+        ['mixed']
+      );
+
+    row.priorities =
+      normalizeArray(
+        row.priorities,
+        ['medium']
+      );
+
+    /* =========================
+       TEXT FIELDS
+       ========================= */
+
+    row.issueDescription =
+      normalizeText(row.issueDescription);
+
+    row.expectedBehavior =
+      normalizeText(row.expectedBehavior);
+
+    row.htmlCurrent =
+      normalizeText(row.htmlCurrent);
+
+    row.htmlExpected =
+      normalizeText(row.htmlExpected);
   }
 
-  /* =====================================================
-     ZAPIS WIERSZA
-     ===================================================== */
+  function normalizeArray(value, fallback = []) {
+
+    if (Array.isArray(value)) {
+      return value.filter(Boolean);
+    }
+
+    if (!value) {
+      return fallback;
+    }
+
+    return [value];
+  }
+
+  function normalizeText(value) {
+
+    if (typeof value !== 'string') {
+      return '';
+    }
+
+    return value.trim();
+  }
+
+  /* =========================================================
+     ROW SAVE
+     ========================================================= */
+
   function saveRow(tr, id) {
-    const data = {
-      status: tr.querySelector(`input[name="status-${id}"]:checked`)?.value,
-      failureDetail: tr.querySelector(`.failure-detail input[name="failure-${id}"]:checked`)?.value,
-      issueDescription: tr.querySelector('.issue')?.value || '',
-      expectedBehavior: tr.querySelector('.expected')?.value || '',
-      htmlCurrent: tr.querySelector('.html-current')?.value || '',
-      htmlExpected: tr.querySelector('.html-expected')?.value || ''
+
+    if (!tr || !id) return;
+
+    const patch = {
+
+      status:
+        tr.querySelector(
+          `input[name="status-${id}"]:checked`
+        )?.value || 'not-tested',
+
+      failureDetail:
+        tr.querySelector(
+          `input[name="failure-${id}"]:checked`
+        )?.value || '',
+
+      issueDescription:
+        tr.querySelector('.issueDescription')
+          ?.value || '',
+
+      expectedBehavior:
+        tr.querySelector('.expectedBehavior')
+          ?.value || '',
+
+      htmlCurrent:
+        tr.querySelector('.htmlCurrent')
+          ?.value || '',
+
+      htmlExpected:
+        tr.querySelector('.htmlExpected')
+          ?.value || '',
+
+      areas:
+        getCheckboxValues(tr, 'area'),
+
+      priorities:
+        getCheckboxValues(tr, 'priority')
     };
 
-    // Zabezpieczenie: failureDetail tylko przy błędzie
-    if (data.status !== 'fail') delete data.failureDetail;
+    safePatch(id, patch);
 
-    window.WCAG_AUDIT_APP.state.criteria[id] = {
-      ...getRowState(id),
-      ...data
-    };
-
-    window.saveCriterionState?.(id, data);
-    window.refreshUI?.();
+    window.triggerAutosave?.();
   }
 
-  /* =====================================================
-     BADGE – OBSZAR / PRIORYTET
-     ===================================================== */
-  function openBadgeEditor(badgeEl) {
-    if (window.WCAG_AUDIT_APP.context.mode === 'view') return;
+  /* =========================================================
+     CHECKBOX HELPERS
+     ========================================================= */
 
-    const tr = badgeEl.closest('tr');
-    const id = tr?.dataset.criterionId;
-    if (!id) return;
+  function getCheckboxValues(tr, type) {
 
-    const isArea = badgeEl.classList.contains('area') || badgeEl.className.includes('area-');
-    const type = isArea ? 'area' : 'priority';
-
-    const config = {
-      area: {
-        options: ['development', 'content', 'design', 'mixed'],
-        key: 'areas'
-      },
-      priority: {
-        options: ['critical', 'high', 'medium'],
-        key: 'priorities'
-      }
-    }[type];
-
-    const currentValues = getRowState(id)[config.key] || [];
-    const input = prompt(`Podaj wartości (${config.options.join(', ')}):`, currentValues.join(', '));
-
-    if (input === null) return; // Anulowano
-
-    const newValues = input
-      .split(',')
-      .map(v => v.trim().toLowerCase())
-      .filter(v => config.options.includes(v));
-
-    window.WCAG_AUDIT_APP.state.criteria[id] = {
-      ...getRowState(id),
-      [config.key]: newValues
-    };
-
-    window.saveCriterionState?.(id, window.WCAG_AUDIT_APP.state.criteria[id]);
-    window.refreshUI?.();
+    return Array.from(
+      tr.querySelectorAll(
+        `.checkbox-group[data-type="${type}"] input:checked`
+      )
+    ).map(el => el.value);
   }
 
-  /* =====================================================
-     DELEGACJA ZDARZEŃ
-     ===================================================== */
-  function onClick(e) {
-    const target = e.target;
+  /* =========================================================
+     STATUS CHANGES
+     ========================================================= */
 
-    // Przycisk zapisu
-    const saveBtn = target.closest('.save-row');
-    if (saveBtn) {
-      const tr = saveBtn.closest('tr');
-      if (tr?.dataset.criterionId) saveRow(tr, tr.dataset.criterionId);
+  function onStatusChange(e) {
+
+    const input = e.target;
+
+    if (!input?.name?.startsWith('status-')) {
       return;
     }
 
-    // Badge
-    const badge = target.closest('.badge');
-    if (badge) {
-      openBadgeEditor(badge);
+    const tr =
+      input.closest('tr');
+
+    const id =
+      tr?.dataset?.criterionId;
+
+    if (!id) return;
+
+    safePatch(id, {
+      status: input.value
+    });
+
+    rerenderFailureSection(tr, id);
+
+    window.triggerAutosave?.();
+  }
+
+  /* =========================================================
+     FAILURE SECTION RENDER
+     ========================================================= */
+
+  function rerenderFailureSection(tr, id) {
+
+    const container =
+      tr.querySelector('.failure-container');
+
+    if (!container) return;
+
+    const row =
+      getRowState(id);
+
+    if (row.status !== 'fail') {
+      container.innerHTML = '';
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="failure-group">
+
+        <label class="failure-option">
+          <input
+            type="radio"
+            name="failure-${id}"
+            value="full"
+            ${row.failureDetail === 'full' ? 'checked' : ''}
+          />
+          <span>Brak</span>
+        </label>
+
+        <label class="failure-option">
+          <input
+            type="radio"
+            name="failure-${id}"
+            value="partial"
+            ${row.failureDetail === 'partial' ? 'checked' : ''}
+          />
+          <span>Częściowo</span>
+        </label>
+
+        <label class="failure-option">
+          <input
+            type="radio"
+            name="failure-${id}"
+            value="accepted"
+            ${row.failureDetail === 'accepted' ? 'checked' : ''}
+          />
+          <span>Akceptowalne</span>
+        </label>
+
+      </div>
+    `;
+  }
+
+  /* =========================================================
+     CHECKBOX CHANGE
+     ========================================================= */
+
+  function onCheckboxChange(e) {
+
+    const input = e.target;
+
+    if (
+      input.type !== 'checkbox' ||
+      !input.closest('.checkbox-group')
+    ) {
+      return;
+    }
+
+    const tr =
+      input.closest('tr');
+
+    const id =
+      tr?.dataset?.criterionId;
+
+    if (!id) return;
+
+    const group =
+      input.closest('.checkbox-group');
+
+    const type =
+      group.dataset.type;
+
+    const values =
+      getCheckboxValues(tr, type);
+
+    safePatch(id, {
+      [type === 'area'
+        ? 'areas'
+        : 'priorities'
+      ]: values
+    });
+
+    window.triggerAutosave?.();
+  }
+
+  /* =========================================================
+     TEXTAREA INPUT
+     ========================================================= */
+
+  function onTextareaInput(e) {
+
+    const textarea = e.target;
+
+    if (!(textarea instanceof HTMLTextAreaElement)) {
+      return;
+    }
+
+    const tr =
+      textarea.closest('tr');
+
+    const id =
+      tr?.dataset?.criterionId;
+
+    if (!id) return;
+
+    window.updateRowState?.(
+      id,
+      textarea.className,
+      textarea.value
+    );
+
+    window.triggerAutosave?.();
+  }
+
+  /* =========================================================
+     DATASET SYNC
+     ========================================================= */
+
+  function syncRowDatasets(id) {
+
+    const tr = document.querySelector(
+      `tr[data-criterion-id="${id}"]`
+    );
+
+    if (!tr) return;
+
+    const row =
+      getRowState(id);
+
+    tr.dataset.status =
+      row.status || 'not-tested';
+
+    tr.dataset.area =
+      row.areas?.[0] || 'mixed';
+
+    tr.dataset.priority =
+      row.priorities?.[0] || 'medium';
+
+    window.applyGlobalFilters?.();
+  }
+
+  /* =========================================================
+     CLICK EVENTS
+     ========================================================= */
+
+  function onClick(e) {
+
+    const saveBtn =
+      e.target.closest('.save-row');
+
+    if (saveBtn) {
+
+      const tr =
+        saveBtn.closest('tr');
+
+      const id =
+        tr?.dataset?.criterionId;
+
+      saveRow(tr, id);
+
+      return;
     }
   }
 
-  // Inicjalizacja nasłuchiwania
-  document.body.addEventListener('change', onStatusChange);
-  document.body.addEventListener('click', onClick);
+  /* =========================================================
+     INIT
+     ========================================================= */
+
+  document.body.addEventListener(
+    'change',
+    onStatusChange
+  );
+
+  document.body.addEventListener(
+    'change',
+    onCheckboxChange
+  );
+
+  document.body.addEventListener(
+    'input',
+    onTextareaInput
+  );
+
+  document.body.addEventListener(
+    'click',
+    onClick
+  );
 
 })();

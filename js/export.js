@@ -1,263 +1,368 @@
 /* =========================================================
-    Eksport audytu: HTML / CSV / PDF/======== */  
+   export-audit.js – STRICT EXPORT ENGINE (V3 STABLE)
+   ========================================================= */
 
 (function () {
   'use strict';
 
-  /* =====================================================
-     EXPORT HTML (RAPORT)
-     ===================================================== */
+  /* =========================================================
+     PUBLIC EXPORT
+     ========================================================= */
 
   window.exportAuditHTML = function () {
-    const { definitions, state } = window.WCAG_AUDIT_APP;
-    const isWeb = state.meta.productType === 'web';
+    const app = window.WCAG_AUDIT_APP;
 
-    const html = `
+    if (!app?.definitions?.criteria || !app?.state) {
+      console.error('❌ Export failed: missing state');
+      return;
+    }
+
+    const html = buildHTML(
+      app.definitions,
+      app.state
+    );
+
+    download(
+      html,
+      'audit-report.html',
+      'text/html'
+    );
+  };
+
+  /* =========================================================
+     MAIN HTML
+     ========================================================= */
+
+  function buildHTML(definitions, state) {
+    return `
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+
 <meta charset="UTF-8" />
-<title>Raport audytu dostępności – WCAG 2.2 / EN</title>
+
+<title>Raport audytu WCAG 2.2 / EN</title>
 
 <style>
-  body {
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    background: #f7f6fb;
-    color: #1e1e2f;
-    padding: 32px;
-  }
 
-  h1 {
-    color: #3b2b5f;
-    margin-bottom: 8px;
-  }
+body {
+  font-family: system-ui, sans-serif;
+  padding: 24px;
+  background: #f7f7fb;
+  color: #222;
+}
 
-  h2 {
-    color: #3b2b5f;
-    margin-top: 48px;
-  }
+h1 {
+  margin-bottom: 32px;
+}
 
-  .meta {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 16px 20px;
-    box-shadow: 0 6px 18px rgba(91,63,163,0.15);
-    margin-bottom: 32px;
-  }
+h2 {
+  margin-top: 40px;
+}
 
-  .meta p {
-    margin: 4px 0;
-    font-size: 14px;
-  }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 48px;
+  background: #fff;
+}
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #ffffff;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 6px 18px rgba(91,63,163,0.1);
-    margin-bottom: 32px;
-  }
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  font-size: 13px;
+  vertical-align: top;
+}
 
-  th {
-    background: #f0ebff;
-    color: #3b2b5f;
-    text-align: left;
-    font-size: 13px;
-    padding: 10px;
-  }
+th {
+  background: #f0f0f6;
+  font-weight: 600;
+}
 
-  td {
-    padding: 10px;
-    border-top: 1px solid #e6e2f3;
-    font-size: 13px;
-    vertical-align: top;
-  }
+.ok {
+  color: #2e7d32;
+  font-weight: 700;
+}
 
-  .criterion-name {
-    font-weight: 600;
-  }
+.fail {
+  color: #c62828;
+  font-weight: 700;
+}
 
-  .criterion-desc {
-    margin-top: 4px;
-    font-size: 12px;
-    color: #666666;
-  }
+.na {
+  color: #777;
+}
 
-  .badge {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-    white-space: nowrap;
-    text-transform: capitalize;
-  }
+.nt {
+  color: #999;
+}
 
-  .area-dev { background: #e3f2fd; color: #0d47a1; }
-  .area-content { background: #e8f5e9; color: #1b5e20; }
-  .area-design { background: #f3e5f5; color: #4a148c; }
-  .area-mixed { background: #ede7f6; color: #4527a0; }
+code {
+  display: block;
+  white-space: pre-wrap;
+  background: #f5f5ff;
+  border-radius: 6px;
+  padding: 6px;
+  margin-top: 4px;
+}
 
-  .priority-critical { background: #fdecea; color: #b00020; }
-  .priority-high { background: #fff4e5; color: #e65100; }
-  .priority-medium { background: #fffde7; color: #9e7700; }
+.multi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
 
-  .status-pass { color: #2e7d32; font-weight: 600; }
-  .status-fail { color: #c62828; font-weight: 600; }
-  .status-na,
-  .status-nt { color: #555555; }
+.badge {
+  background: #ececff;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
 
-  code {
-    display: block;
-    background: #f6f4ff;
-    padding: 8px;
-    border-radius: 8px;
-    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-    font-size: 12px;
-    white-space: pre-wrap;
-  }
 </style>
+
 </head>
 
 <body>
 
-<h1>Raport audytu dostępności – WCAG 2.2 / EN 301 549</h1>
+<h1>Raport audytu WCAG 2.2 / EN 301 549</h1>
 
-<div class="meta">
-  <p><strong>Aplikacja:</strong> ${state.meta.auditedApplication || '—'}</p>
-  <p><strong>Typ produktu:</strong> ${state.meta.productType}</p>
-  <p><strong>Data rozpoczęcia:</strong> ${formatDate(state.meta.auditStartedAt)}</p>
-  <p><strong>Ostatnia modyfikacja:</strong> ${formatDate(state.meta.auditLastModifiedAt)}</p>
-</div>
-
-${renderGroups(definitions, state, isWeb)}
+${definitions.groups
+  .map(group =>
+    renderGroup(group, definitions.criteria, state)
+  )
+  .join('')}
 
 </body>
 </html>
     `;
-
-    downloadFile(html, 'raport-wcag.html', 'text/html');
-  };
-
-  /* =====================================================
-     GROUPS
-     ===================================================== */
-
-  function renderGroups(definitions, state, isWeb) {
-    return definitions.groups.map(group => {
-      const rows = definitions.criteria
-        .filter(c => c.group === group.id)
-        .map(def => renderRow(def, state.criteria[def.id] || {}, isWeb))
-        .join('');
-
-      return `
-<h2>${group.number}. ${group.name}</h2>
-
-<table>
-  <thead>
-    <tr>
-      <th>Nr</th>
-      <th>Kryterium</th>
-      <th>Poziom</th>
-      <th>Status</th>
-      <th>Co jest nie tak</th>
-      <th>Jak powinno być</th>
-      ${isWeb ? '<th>Kod – teraz</th><th>Kod – poprawnie</th>' : ''}
-      <th>Obszar</th>
-      <th>Priorytet</th>
-    </tr>
-  </thead>
-  <tbody>
-    ${rows}
-  </tbody>
-</table>
-      `;
-    }).join('');
   }
 
-  function renderRow(def, row, isWeb) {
+  /* =========================================================
+     GROUP
+     ========================================================= */
+
+  function renderGroup(group, criteria, state) {
+    const rows = criteria
+      .filter(c => c.group === group.id)
+      .map(c =>
+        renderRow(
+          c,
+          state.criteria?.[c.id] || {}
+        )
+      )
+      .join('');
+
+    return `
+<h2>${escape(group.number)}. ${escape(group.name)}</h2>
+
+<table>
+
+<thead>
+<tr>
+
+<th>Nr</th>
+<th>Kryterium</th>
+<th>Poziom</th>
+<th>Status</th>
+<th>Problem</th>
+<th>Oczekiwane</th>
+
+<th>HTML aktualny</th>
+<th>HTML poprawny</th>
+
+<th>Obszar</th>
+<th>Priorytet</th>
+
+</tr>
+</thead>
+
+<tbody>
+${rows}
+</tbody>
+
+</table>
+    `;
+  }
+
+  /* =========================================================
+     ROW
+     ========================================================= */
+
+  function renderRow(def, row) {
+    const status = normalizeStatus(row.status);
+
     const statusMap = {
-      pass: '✅ OK',
-      fail: '❌ Nie OK',
-      'not-applicable': '➖ ND',
-      'not-tested': '⏳ NS'
+      pass: ['ok', 'OK'],
+      fail: ['fail', 'NOK'],
+      'not-applicable': ['na', 'N/A'],
+      'not-tested': ['nt', 'NS']
     };
 
-    const statusClass = {
-      pass: 'status-pass',
-      fail: 'status-fail',
-      'not-applicable': 'status-na',
-      'not-tested': 'status-nt'
-    }[row.status] || 'status-nt';
+    const [cls, label] =
+      statusMap[status] ||
+      statusMap['not-tested'];
 
-    const level = def.group === '5' ? 'EN' : def.level;
+    const areas = resolveAreas(def, row);
+
+    const priorities = resolvePriorities(def, row);
 
     return `
 <tr>
-  <td>${def.number}</td>
-  <td>
-    <div class="criterion-name">${def.name}</div>
-    <div class="criterion-desc">${def.description || ''}</div>
-  </td>
-  <td>${level}</td>
-  <td class="${statusClass}">${statusMap[row.status] || '⏳ NS'}</td>
-  <td>${row.issueDescription || ''}</td>
-  <td>${row.expectedBehavior || ''}</td>
-  ${
-    isWeb
-      ? `
-  <td><code>${escapeHTML(row.htmlCurrent || '')}</code></td>
-  <td><code>${escapeHTML(row.htmlExpected || '')}</code></td>
-  `
-      : ''
-  }
-  <td><span class="badge area-${mapArea(def.team)}">${mapArea(def.team)}</span></td>
-  <td><span class="badge priority-${def.priority}">${priorityLabel(def.priority)}</span></td>
+
+<td>
+  ${escape(def.number)}
+</td>
+
+<td>
+  <strong>${escape(def.name)}</strong>
+  <br/>
+  ${escape(def.description || '')}
+</td>
+
+<td>
+  ${escape(def.group === '5'
+    ? 'EN'
+    : def.level)}
+</td>
+
+<td class="${cls}">
+  ${label}
+</td>
+
+<td>
+  ${escape(row.issueDescription || '')}
+</td>
+
+<td>
+  ${escape(row.expectedBehavior || '')}
+</td>
+
+<td>
+  <code>${escape(row.htmlCurrent || '')}</code>
+</td>
+
+<td>
+  <code>${escape(row.htmlExpected || '')}</code>
+</td>
+
+<td>
+  ${renderBadges(areas)}
+</td>
+
+<td>
+  ${renderBadges(priorities)}
+</td>
+
 </tr>
     `;
   }
 
-  /* =====================================================
-     HELPERS
-     ===================================================== */
+  /* =========================================================
+     BADGES
+     ========================================================= */
 
-  function downloadFile(content, filename, type) {
-    const blob = new Blob([content], { type });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(link.href);
+  function renderBadges(values) {
+    return `
+<div class="multi">
+  ${values.map(v => `
+    <span class="badge">
+      ${escape(v)}
+    </span>
+  `).join('')}
+</div>
+    `;
   }
 
-  function formatDate(iso) {
-    return iso ? new Date(iso).toLocaleString('pl-PL') : '—';
+  /* =========================================================
+     NORMALIZATION
+     ========================================================= */
+
+  function normalizeStatus(status) {
+    const valid = [
+      'pass',
+      'fail',
+      'not-applicable',
+      'not-tested'
+    ];
+
+    return valid.includes(status)
+      ? status
+      : 'not-tested';
   }
 
-  function mapArea(team) {
-    return {
-      development: 'dev',
-      content: 'content',
-      design: 'design',
-      mixed: 'mixed'
-    }[team] || team;
+  function resolveAreas(def, row) {
+    if (Array.isArray(row.areas) && row.areas.length) {
+      return row.areas;
+    }
+
+    if (def.area) {
+      return [def.area];
+    }
+
+    if (def.team) {
+      return [def.team];
+    }
+
+    return ['mixed'];
   }
 
-  function priorityLabel(priority) {
-    return {
-      critical: '🔴 Krytyczny',
-      high: '🟠 Wysoki',
-      medium: '🟡 Średni'
-    }[priority] || priority;
+  function resolvePriorities(def, row) {
+    if (
+      Array.isArray(row.priorities) &&
+      row.priorities.length
+    ) {
+      return row.priorities;
+    }
+
+    if (row.priority) {
+      return [row.priority];
+    }
+
+    if (def.priority) {
+      return [def.priority];
+    }
+
+    return ['medium'];
   }
 
-  function escapeHTML(str) {
-    return str
+  /* =========================================================
+     ESCAPE
+     ========================================================= */
+
+  function escape(str) {
+    if (str === null || str === undefined) {
+      return '';
+    }
+
+    return String(str)
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
+  }
+
+  /* =========================================================
+     DOWNLOAD
+     ========================================================= */
+
+  function download(content, filename, type) {
+    const blob = new Blob([content], { type });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+
+    a.href = url;
+    a.download = filename;
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+    URL.revokeObjectURL(url);
   }
 
 })();
