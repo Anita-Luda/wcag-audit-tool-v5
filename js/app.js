@@ -20,13 +20,14 @@ window.WCAG_AUDIT_APP = {
       status: {},
       area: {},
       priority: {}
-    },
-
-    context: {
-      auditId: 'default',
-      mode: 'edit',
-      version: 'draft'
     }
+  },
+
+  context: {
+    auditId: 'default',
+    mode: 'edit',
+    version: 'draft',
+    unlockedRows: new Set()
   }
 };
 
@@ -54,16 +55,17 @@ async function bootstrapApp() {
   app.definitions = await window.loadWCAGDefinitions?.();
 
   // 2. Load state
-  const loaded = await window.loadAuditState?.(app.state.context.auditId);
+  const loaded = await window.loadAuditState?.(app.context.auditId);
 
   if (loaded?.state) {
     app.state = mergeState(app.state, loaded.state);
   }
 
   if (loaded?.context) {
-    app.state.context = {
-      ...app.state.context,
-      ...loaded.context
+    app.context = {
+      ...app.context,
+      ...loaded.context,
+      unlockedRows: app.context.unlockedRows // Keep existing Set
     };
   }
 
@@ -101,11 +103,12 @@ function normalizeState(state) {
   state.meta = state.meta || {};
   state.criteria = state.criteria || {};
   state.filters = state.filters || {};
-  state.context = state.context || {};
 
-  if (!state.context.mode) state.context.mode = 'edit';
-  if (!state.context.version) state.context.version = 'draft';
-  if (!state.context.auditId) state.context.auditId = 'default';
+  const ctx = window.WCAG_AUDIT_APP.context;
+  if (!ctx.mode) ctx.mode = 'edit';
+  if (!ctx.version) ctx.version = 'draft';
+  if (!ctx.auditId) ctx.auditId = 'default';
+  if (!ctx.unlockedRows) ctx.unlockedRows = new Set();
 }
 
 /* =========================================================
@@ -117,7 +120,7 @@ window.refreshUI = function () {
 
   if (!app.definitions || !app.state) return;
 
-  window.renderAuditTables(app.definitions, app.state, app.state.context);
+  window.renderAuditTables(app.definitions, app.state, app.context);
   window.applyGlobalFilters?.();
   window.updateAuditSummary?.();
   window.updateProgressBar?.();
@@ -203,7 +206,12 @@ function bindGlobalUI() {
     const app = window.WCAG_AUDIT_APP;
     const auditId = app.context.auditId;
 
-    if (!confirm(`Utworzyć wersję dla projektu "${auditId}"?`)) return;
+    const now = new Date();
+    const dateStr = now.toLocaleDateString();
+    const defaultVerName = `v_${dateStr}`;
+
+    const versionName = prompt(`Podaj nazwę wersji dla projektu "${auditId}":`, defaultVerName);
+    if (versionName === null) return;
 
     // 1. Sync draft first
     await window.saveState?.(auditId, app.state);
@@ -211,7 +219,11 @@ function bindGlobalUI() {
     // 2. POST version
     const res = await fetch(
       `/api/audits/${auditId}/versions`,
-      { method: 'POST' }
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: versionName })
+      }
     );
 
     if (!res.ok) {
@@ -268,7 +280,7 @@ window.triggerAutosave = function () {
     if (indicator) indicator.classList.add('visible');
 
     const success = await window.saveState(
-      app.state.context.auditId,
+      app.context.auditId,
       app.state
     );
 

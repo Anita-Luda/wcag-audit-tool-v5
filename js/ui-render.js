@@ -187,8 +187,8 @@
 
       <td class="col-actions">
         ${rowMode === 'edit'
-          ? '<button type="button" class="save-row" title="Zapisz i zablokuj">💾</button>'
-          : '<button type="button" class="unlock-row" title="Odblokuj do edycji">🔓</button>'
+          ? '<button type="button" class="save-row btn-action-kawaii" title="Zapisz i zablokuj">Zapisz 💾</button>'
+          : '<button type="button" class="unlock-row btn-action-kawaii" title="Odblokuj do edycji">Edytuj 🔓</button>'
         }
       </td>
     `;
@@ -342,7 +342,7 @@
      ========================================================= */
 
   function renderBadgeTrigger({ type, values = [], mode }) {
-    const selected = Array.isArray(values) ? values : [values];
+    const selected = (Array.isArray(values) ? values : [values]).filter(v => v);
     const isPriority = type === 'priority';
     const icons = { critical: '🔴', high: '🟠', medium: '🟡' };
 
@@ -447,7 +447,8 @@
       });
 
     row.querySelector('.unlock-row')
-      ?.addEventListener('click', () => {
+      ?.addEventListener('click', (e) => {
+        e.stopPropagation();
         if (!window.WCAG_AUDIT_APP.context.unlockedRows) {
            window.WCAG_AUDIT_APP.context.unlockedRows = new Set();
         }
@@ -576,6 +577,28 @@
 
     row.dataset.priority =
       normalizeSingle(rowState.priorities);
+
+    // Update level display if it was missing or corrupted
+    const levelCell = row.querySelector('.col-level');
+    if (levelCell) {
+       // We need to find the definition to be sure
+       const def = window.WCAG_AUDIT_APP.definitions.criteria.find(c => c.id === id);
+       if (def) {
+          levelCell.textContent = def.group === '5' ? 'EN' : (def.level || '');
+       }
+    }
+
+    // After updating data, we might need to refresh badges if they were lost during save
+    const areaTrigger = row.querySelector('.badge-trigger[data-type="area"] .badge-list');
+    if (areaTrigger) {
+      areaTrigger.innerHTML = renderBadgeTrigger({ type: 'area', values: rowState.areas, mode: 'edit' })
+        .match(/<div class="badge-list">([\s\S]*)<\/div>/)[1];
+    }
+    const priorityTrigger = row.querySelector('.badge-trigger[data-type="priority"] .badge-list');
+    if (priorityTrigger) {
+      priorityTrigger.innerHTML = renderBadgeTrigger({ type: 'priority', values: rowState.priorities, mode: 'edit' })
+        .match(/<div class="badge-list">([\s\S]*)<\/div>/)[1];
+    }
 
     window.applyGlobalFilters?.();
   }

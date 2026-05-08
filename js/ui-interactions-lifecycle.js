@@ -243,11 +243,12 @@
       const dateStr = now.toISOString().split('T')[0];
       const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
       const newAuditId = `${slug}-${dateStr}`;
+      const fullName = `${name} (${dateStr})`;
 
       if (action === 'empty') {
-        await createAudit(newAuditId, name, null);
+        await createAudit(newAuditId, fullName, null);
       } else if (action === 'save-new') {
-        await createAudit(newAuditId, name, window.WCAG_AUDIT_APP.state);
+        await createAudit(newAuditId, fullName, window.WCAG_AUDIT_APP.state);
       } else if (action === 'save-version') {
         await saveAsVersion(targetAuditId);
       }

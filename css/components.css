@@ -339,11 +339,12 @@ button:focus {
   outline-offset: 2px;
 }
 
-/* save row */
-.save-row {
+/* row actions */
+.btn-action-kawaii {
   height: 34px;
   padding: 0 14px;
   font-size: 0.75rem;
+  border-radius: 12px;
 }
 
 /* ======================
@@ -423,8 +424,32 @@ button:focus {
 .filter-group input {
   /* Keep visible but style them better */
   accent-color: var(--violet-500);
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+  appearance: none;
+  border: 2px solid var(--violet-300);
+  border-radius: 4px;
+  background: white;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.filter-group input:checked {
+  background: var(--violet-500);
+  border-color: var(--violet-500);
+}
+
+.filter-group input:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .filter-include {
@@ -434,12 +459,22 @@ button:focus {
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
 }
 
+.filter-include input {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+}
+
 .filter-exclude {
   background: #fff1f2 !important;
   color: #f43f5e !important;
   border-color: #f43f5e !important;
   text-decoration: line-through;
   box-shadow: 0 4px 12px rgba(244, 63, 94, 0.15);
+}
+
+.filter-exclude input {
+  background: #f43f5e !important;
+  border-color: #f43f5e !important;
 }
 
 /* ======================
@@ -619,15 +654,24 @@ tr.saved {
 
 .modal-select {
   width: 100%;
-  padding: 12px;
-  border-radius: 16px;
+  padding: 10px 20px;
+  border-radius: 18px;
   border: 2px solid var(--violet-200);
-  background: #faf9ff;
+  background: #ffffff;
   font-family: inherit;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--violet-900);
   cursor: pointer;
   appearance: none;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(167, 151, 255, 0.05);
+  transition: all 0.2s;
+  line-height: 1.5;
+}
+
+.modal-select:hover {
+  border-color: var(--violet-400);
+  background: var(--violet-50);
 }
 
 .modal-select-wrapper::after {
