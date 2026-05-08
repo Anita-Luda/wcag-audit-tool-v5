@@ -367,6 +367,28 @@ button:focus {
   margin-bottom: 1.5rem;
   padding-bottom: 0.75rem;
   border-bottom: 2px dashed var(--violet-100);
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-grow: 1;
+  justify-content: flex-end;
+}
+
+.search-wrapper {
+  flex-grow: 1;
+  max-width: 400px;
+}
+
+#criteria-search {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 2px solid var(--violet-100);
 }
 
 .btn-clear-filters {
@@ -411,7 +433,7 @@ button:focus {
   padding: 6px 12px;
   cursor: pointer;
   border-radius: 12px;
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 700;
   border: 2px solid transparent;
 }
@@ -533,21 +555,28 @@ button:focus {
   z-index: 9999;
   background: var(--pink-500);
   color: white;
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-radius: 24px;
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 800;
   opacity: 0;
-  transform: translateX(20px);
+  transform: translateX(20px) scale(0.9);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   pointer-events: none;
-  box-shadow: 0 8px 24px rgba(255, 151, 213, 0.4);
-  border: 2px solid #ffffff;
+  box-shadow: 0 8px 30px rgba(255, 151, 213, 0.5);
+  border: 3px solid #ffffff;
 }
 
 .saving-indicator.visible {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateX(0) scale(1);
+  animation: kawaiiPulse 2s infinite;
+}
+
+@keyframes kawaiiPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
 /* ======================

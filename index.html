@@ -116,7 +116,12 @@
 
     <div class="filters-header">
       <h2 id="filters-heading">Filtry globalne</h2>
-      <button id="clear-filters-btn-inline" class="btn-clear-filters" type="button">🧹 Wyczyść filtry</button>
+      <div class="filter-actions">
+        <div class="search-wrapper">
+          <input type="text" id="criteria-search" placeholder="Szukaj kryterium (nazwa, numer)..." aria-label="Szukaj kryterium" />
+        </div>
+        <button id="clear-filters-btn-inline" class="btn-clear-filters" type="button">🧹 Wyczyść filtry</button>
+      </div>
     </div>
 
     <div class="filters-grid">
@@ -312,7 +317,6 @@
 <script src="js/ui-render.js"></script>
 <script src="js/ui-filters.js"></script>
 <script src="js/ui-interactions-lifecycle.js"></script>
-<script src="js/ui-interactions-rows.js"></script>
 <script src="js/summary.js"></script>
 <script src="js/export.js"></script>
 <script src="js/state-store.js"></script>

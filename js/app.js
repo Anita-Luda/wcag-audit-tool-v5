@@ -1,10 +1,9 @@
 /* =========================================================
-   app.js – CORE ORCHESTRATOR (V2 STABLE)
+   app.js – CORE ORCHESTRATOR (V3 CONSOLIDATED)
    ========================================================= */
 
 window.WCAG_AUDIT_APP = {
   definitions: null,
-
   state: {
     meta: {
       appName: '',
@@ -12,9 +11,7 @@ window.WCAG_AUDIT_APP = {
       auditStartedAt: new Date().toISOString(),
       auditLastModifiedAt: new Date().toISOString()
     },
-
     criteria: {},
-
     filters: {
       level: {},
       status: {},
@@ -22,7 +19,6 @@ window.WCAG_AUDIT_APP = {
       priority: {}
     }
   },
-
   context: {
     auditId: 'default',
     mode: 'edit',
@@ -40,13 +36,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     await bootstrapApp();
   } catch (e) {
     console.error('❌ Fatal init error:', e);
-    alert('Aplikacja nie mogła się uruchomić');
   }
 });
-
-/* =========================================================
-   BOOTSTRAP PIPELINE
-   ========================================================= */
 
 async function bootstrapApp() {
   const app = window.WCAG_AUDIT_APP;
@@ -54,61 +45,17 @@ async function bootstrapApp() {
   // 1. Load definitions
   app.definitions = await window.loadWCAGDefinitions?.();
 
-  // 2. Load state
-  const loaded = await window.loadAuditState?.(app.context.auditId);
-
-  if (loaded?.state) {
-    app.state = mergeState(app.state, loaded.state);
+  // 2. Initialize Project Selectors (Lifecycle)
+  if (window.lifecycle) {
+    await window.lifecycle.init();
   }
 
-  if (loaded?.context) {
-    app.context = {
-      ...app.context,
-      ...loaded.context,
-      unlockedRows: app.context.unlockedRows // Keep existing Set
-    };
-  }
-
-  // 3. Normalize safety defaults
-  normalizeState(app.state);
-
-  // 4. Render initial UI
+  // 3. Initial Render
   window.refreshUI?.();
 
-  // 5. Bind global interactions
+  // 4. Bind global interactions
   bindGlobalUI();
-
-  // 6. Sync Metadata
   syncMetadataUI();
-}
-
-/* =========================================================
-   STATE MERGE (SAFE)
-   ========================================================= */
-
-function mergeState(base, incoming) {
-  return {
-    meta: { ...base.meta, ...(incoming.meta || {}) },
-    criteria: { ...base.criteria, ...(incoming.criteria || {}) },
-    filters: { ...base.filters, ...(incoming.filters || {}) },
-    context: { ...base.context, ...(incoming.context || {}) }
-  };
-}
-
-/* =========================================================
-   NORMALIZATION
-   ========================================================= */
-
-function normalizeState(state) {
-  state.meta = state.meta || {};
-  state.criteria = state.criteria || {};
-  state.filters = state.filters || {};
-
-  const ctx = window.WCAG_AUDIT_APP.context;
-  if (!ctx.mode) ctx.mode = 'edit';
-  if (!ctx.version) ctx.version = 'draft';
-  if (!ctx.auditId) ctx.auditId = 'default';
-  if (!ctx.unlockedRows) ctx.unlockedRows = new Set();
 }
 
 /* =========================================================
@@ -117,7 +64,6 @@ function normalizeState(state) {
 
 window.refreshUI = function () {
   const app = window.WCAG_AUDIT_APP;
-
   if (!app.definitions || !app.state) return;
 
   window.renderAuditTables(app.definitions, app.state, app.context);
@@ -155,32 +101,14 @@ window.updateMetaState = function (key, value) {
 
 window.updateRowState = function (id, key, value) {
   const state = window.WCAG_AUDIT_APP.state;
-
-  if (!state.criteria[id]) {
-    state.criteria[id] = {};
-  }
-
+  if (!state.criteria[id]) state.criteria[id] = {};
   state.criteria[id][key] = value;
-
   state.meta.auditLastModifiedAt = new Date().toISOString();
-
-  window.triggerAutosave?.();
-  // Don't call refreshUI here if it's just a row update to avoid losing focus or closing popups
-  // But we need to update some things.
   window.updateProgressBar?.();
 };
 
 /* =========================================================
-   PRODUCT TYPE HANDLER
-   ========================================================= */
-
-window.setProductType = function (type) {
-  window.WCAG_AUDIT_APP.state.meta.productType = type;
-  window.refreshUI?.();
-};
-
-/* =========================================================
-   GLOBAL UI BINDINGS
+   UI BINDINGS
    ========================================================= */
 
 function syncMetadataUI() {
@@ -189,76 +117,29 @@ function syncMetadataUI() {
   const startDateOutput = document.getElementById('audit-start-date');
   const lastModifiedOutput = document.getElementById('audit-last-modified');
 
-  if (appNameInput) appNameInput.value = state.meta.appName || '';
-  if (startDateOutput) startDateOutput.textContent = state.meta.auditStartedAt ? new Date(state.meta.auditStartedAt).toLocaleString() : '—';
-  if (lastModifiedOutput) lastModifiedOutput.textContent = state.meta.auditLastModifiedAt ? new Date(state.meta.auditLastModifiedAt).toLocaleString() : '—';
+  const nameValue = state.meta.appName || '';
+  if (appNameInput && appNameInput.value !== nameValue) {
+    appNameInput.value = nameValue;
+  }
+
+  if (startDateOutput) startDateOutput.textContent = state.meta.auditStartedAt ? new Date(state.meta.auditStartedAt).toLocaleDateString() : '—';
+  if (lastModifiedOutput) lastModifiedOutput.textContent = state.meta.auditLastModifiedAt ? new Date(state.meta.auditLastModifiedAt).toLocaleDateString() : '—';
 }
 
 function bindGlobalUI() {
-  const saveBtn = document.getElementById('save-version-btn');
   const appNameInput = document.getElementById('app-name');
-
   appNameInput?.addEventListener('input', () => {
     window.updateMetaState('appName', appNameInput.value);
   });
 
-  saveBtn?.addEventListener('click', async () => {
-    const app = window.WCAG_AUDIT_APP;
-    const auditId = app.context.auditId;
+  document.getElementById('export-html-btn')?.addEventListener('click', () => window.exportAuditHTML?.());
+  document.getElementById('export-csv-btn')?.addEventListener('click', () => window.exportAuditCSV?.());
+  document.getElementById('export-pdf-btn')?.addEventListener('click', () => window.exportAuditPDF?.());
 
-    const now = new Date();
-    const dateStr = now.toLocaleDateString();
-    const defaultVerName = `v_${dateStr}`;
-
-    const versionName = prompt(`Podaj nazwę wersji dla projektu "${auditId}":`, defaultVerName);
-    if (versionName === null) return;
-
-    // 1. Sync draft first
-    await window.saveState?.(auditId, app.state);
-
-    // 2. POST version
-    const res = await fetch(
-      `/api/audits/${auditId}/versions`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: versionName })
-      }
-    );
-
-    if (!res.ok) {
-      alert('Błąd zapisu wersji');
-      return;
-    }
-
-    const data = await res.json();
-    alert(`Utworzono wersję: ${data.version}`);
-
-    if (window.refreshVersionSelector) {
-       await window.refreshVersionSelector(auditId);
-    }
+  document.getElementById('clear-filters-btn-inline')?.addEventListener('click', () => {
+    window.WCAG_AUDIT_APP.state.filters = { level: {}, status: {}, failure: {}, area: {}, priority: {} };
+    window.applyGlobalFilters?.();
   });
-
-  document.getElementById('export-html-btn')
-    ?.addEventListener('click', () => window.exportAuditHTML?.());
-
-  document.getElementById('export-csv-btn')
-    ?.addEventListener('click', () => window.exportAuditCSV?.());
-
-  document.getElementById('export-pdf-btn')
-    ?.addEventListener('click', () => window.exportAuditPDF?.());
-
-  document.getElementById('clear-filters-btn')
-    ?.addEventListener('click', () => {
-      window.WCAG_AUDIT_APP.state.filters = {
-        level: {},
-        status: {},
-        failure: {},
-        area: {},
-        priority: {}
-      };
-      window.applyGlobalFilters?.();
-    });
 }
 
 /* =========================================================
@@ -266,36 +147,26 @@ function bindGlobalUI() {
    ========================================================= */
 
 let saveTimeout = null;
-
 window.triggerAutosave = function () {
   const app = window.WCAG_AUDIT_APP;
-
   clearTimeout(saveTimeout);
-
   const indicator = document.getElementById('saving-indicator');
 
   saveTimeout = setTimeout(async () => {
     if (!window.saveState) return;
-
     if (indicator) indicator.classList.add('visible');
 
-    const success = await window.saveState(
-      app.context.auditId,
-      app.state
-    );
+    const success = await window.saveState(app.context.auditId, app.state);
 
     if (success) {
       if (indicator) {
         indicator.textContent = '✨ Zapisano!';
         setTimeout(() => {
           indicator.classList.remove('visible');
-          setTimeout(() => {
-            indicator.textContent = '✨ Zapisywanie...';
-          }, 300);
+          setTimeout(() => indicator.textContent = '✨ Zapisywanie...', 300);
         }, 1500);
       }
     } else {
-      console.warn('⚠️ Autosave failed');
       if (indicator) {
         indicator.textContent = '❌ Błąd zapisu';
         setTimeout(() => indicator.classList.remove('visible'), 3000);

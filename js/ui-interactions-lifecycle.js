@@ -1,97 +1,30 @@
 /* =========================================================
-   ui-interactions-lifecycle.js – APP LIFECYCLE CORE (V3)
+   ui-interactions-lifecycle.js – PROJECT LIFECYCLE (V4)
    ========================================================= */
 
 (function () {
   'use strict';
 
-  /* =========================================================
-     BOOT
-     ========================================================= */
-
-  document.addEventListener(
-    'DOMContentLoaded',
-    bootstrapApplication
-  );
-
-  async function bootstrapApplication() {
-
-    try {
-
-      ensureGlobalApp();
-
+  window.lifecycle = {
+    async init() {
       bindAuditSelector();
       bindVersionSelector();
       bindModeSelector();
       bindProductTypeSelector();
       bindCreateAuditButton();
-
+      bindSaveVersionButton();
       await initializeAuditSelector();
-
-      syncAllUI();
-    } catch (e) {
-
-      console.error(
-        '❌ bootstrapApplication failed:',
-        e
-      );
     }
-  }
-
-  /* =========================================================
-     GLOBAL APP
-     ========================================================= */
-
-  function ensureGlobalApp() {
-
-    if (!window.WCAG_AUDIT_APP) {
-
-      window.WCAG_AUDIT_APP = {
-        definitions: null,
-        state: {
-          criteria: {},
-          meta: {}
-        },
-        context: {
-          auditId: 'default',
-          version: 'draft',
-          mode: 'edit'
-        },
-        filters: {}
-      };
-    }
-
-    if (!window.WCAG_AUDIT_APP.context) {
-      window.WCAG_AUDIT_APP.context = {};
-    }
-
-    if (!window.WCAG_AUDIT_APP.state) {
-      window.WCAG_AUDIT_APP.state = {
-        criteria: {},
-        meta: {}
-      };
-    }
-  }
+  };
 
   /* =========================================================
      REFRESH
      ========================================================= */
 
   function refreshApplicationUI() {
-
     window.refreshUI?.();
-
-    window.renderAuditTables?.(
-      window.WCAG_AUDIT_APP.definitions,
-      window.WCAG_AUDIT_APP.state,
-      window.WCAG_AUDIT_APP.context
-    );
-
-    window.updateAuditSummary?.();
-
-    window.applyGlobalFilters?.();
-
-    syncAllUI();
+    syncModeRadios();
+    syncProductTypeUI();
   }
 
   /* =========================================================
@@ -99,91 +32,62 @@
      ========================================================= */
 
   async function initializeAuditSelector(preferId) {
-
-    const select =
-      document.getElementById('audit-selector');
-
+    const select = document.getElementById('audit-selector');
     if (!select) return;
 
     try {
-
-      const res =
-        await fetch('/api/audits');
-
-      if (!res.ok) {
-        throw new Error('Cannot load audits');
-      }
-
-      const audits =
-        await res.json();
-
-      /* =========================
-         DEFAULT FALLBACK
-         ========================= */
+      const res = await fetch('/api/audits');
+      if (!res.ok) throw new Error('Cannot load audits');
+      const audits = await res.json();
 
       if (!audits.length) {
-
-        select.innerHTML = `
-          <option value="default">
-            default
-          </option>
-        `;
-
+        select.innerHTML = '<option value="default">default</option>';
         await loadDraft('default');
-
         return;
       }
 
-      /* =========================
-         OPTIONS
-         ========================= */
+      select.innerHTML = audits.map(audit => `
+        <option value="${escapeHTML(audit.id)}">${escapeHTML(audit.name || audit.id)}</option>
+      `).join('');
 
-      select.innerHTML =
-        audits.map(audit => `
-          <option value="${escapeHTML(audit.id)}">
-            ${escapeHTML(audit.name || audit.id)}
-          </option>
-        `).join('');
-
-      const ctx =
-        window.WCAG_AUDIT_APP.context;
-
-      // If preferId is provided (e.g. after creation), use it.
-      // Otherwise use current or 'default'.
+      const ctx = window.WCAG_AUDIT_APP.context;
       const selectedAuditId = preferId || ctx.auditId || 'default';
+      select.value = selectedAuditId;
 
-      select.value =
-        selectedAuditId;
-
-      // Only load draft if we are not already on it or if explicitly told to (via preferId)
       if (preferId || !window.WCAG_AUDIT_APP.state.criteria || Object.keys(window.WCAG_AUDIT_APP.state.criteria).length === 0) {
         await loadDraft(selectedAuditId);
       }
-
     } catch (e) {
-
-      console.error(
-        '❌ initializeAuditSelector:',
-        e
-      );
+      console.error('❌ initializeAuditSelector:', e);
     }
   }
 
   function bindCreateAuditButton() {
     const btn = document.getElementById('create-audit-btn');
     const input = document.getElementById('app-name');
-
     if (!btn || !input) return;
 
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', () => {
       const name = input.value.trim();
       if (!name) {
         alert('Podaj nazwę aplikacji, aby stworzyć nowy audyt.');
         return;
       }
-
-      // Dialog flow for sophisticated creation
       showCreateAuditDialog(name);
+    });
+  }
+
+  function bindSaveVersionButton() {
+    const btn = document.getElementById('save-version-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+      const auditId = window.WCAG_AUDIT_APP.context.auditId;
+      if (!auditId || auditId === 'default') {
+        alert('Najpierw wybierz lub utwórz projekt, aby zapisać wersję.');
+        return;
+      }
+      saveAsVersion(auditId);
     });
   }
 
@@ -196,7 +100,7 @@
     overlay.className = 'modal-overlay';
     overlay.innerHTML = `
       <div class="modal-content">
-        <h3>✨ Co chcesz zrobić z obecną pracą?</h3>
+        <h3>✨ Co chcesz zrobić?</h3>
 
         <div class="modal-options">
           <label class="modal-option">
@@ -228,7 +132,8 @@
       </div>
     `;
 
-    // Toggle visibility of the select
+    document.body.appendChild(overlay);
+
     const selectContainer = overlay.querySelector('#modal-select-container');
     overlay.querySelectorAll('input[name="create-action"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
@@ -242,7 +147,6 @@
     overlay.querySelector('#modal-confirm').onclick = async () => {
       const action = overlay.querySelector('input[name="create-action"]:checked').value;
       const targetAuditId = overlay.querySelector('#modal-audit-target').value;
-
       close();
 
       const now = new Date();
@@ -268,14 +172,11 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, name, state })
       });
-
       if (res.status === 409) {
         alert('Audyt o tym ID już istnieje.');
         return;
       }
-
       if (!res.ok) throw new Error('Failed to create audit');
-
       await initializeAuditSelector(id);
     } catch (e) {
       alert('Błąd: ' + e.message);
@@ -284,24 +185,22 @@
 
   async function saveAsVersion(auditId) {
     try {
-      // 1. Sync current state to draft of target audit FIRST
-      // This is crucial if we are saving as a version of the CURRENT audit too.
-      const saveRes = await fetch(`/api/audits/${auditId}/draft`, {
+      const versionName = prompt('Podaj nazwę wersji:', `v_${new Date().toLocaleDateString()}`);
+      if (!versionName) return;
+
+      await fetch(`/api/audits/${auditId}/draft`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(window.WCAG_AUDIT_APP.state)
       });
 
-      if (!saveRes.ok) throw new Error('Failed to sync state to draft before versioning');
+      await fetch(`/api/audits/${auditId}/versions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: versionName })
+      });
 
-      // 2. Trigger version creation
-      const res = await fetch(`/api/audits/${auditId}/versions`, { method: 'POST' });
-      if (!res.ok) throw new Error('Failed to create version');
-
-      const data = await res.json();
-      alert(`Dodano wersję ${data.version} do audytu ${auditId}`);
-
-      // Refresh selectors and current state
+      alert(`Dodano wersję ${versionName} do audytu ${auditId}`);
       await initializeAuditSelector(auditId);
     } catch (e) {
       alert('Błąd wersji: ' + e.message);
@@ -309,379 +208,122 @@
   }
 
   function bindAuditSelector() {
-
-    const select =
-      document.getElementById('audit-selector');
-
+    const select = document.getElementById('audit-selector');
     if (!select) return;
-
-    select.addEventListener(
-      'change',
-      async () => {
-
-        const auditId =
-          select.value;
-
-        const ctx =
-          window.WCAG_AUDIT_APP.context;
-
-        ctx.auditId =
-          auditId;
-
-        ctx.version =
-          'draft';
-
-        ctx.mode =
-          'edit';
-
-        await loadDraft(auditId);
-      }
-    );
+    select.addEventListener('change', async () => {
+      const ctx = window.WCAG_AUDIT_APP.context;
+      ctx.auditId = select.value;
+      ctx.version = 'draft';
+      ctx.mode = 'edit';
+      await loadDraft(ctx.auditId);
+    });
   }
 
-  /* =========================================================
-     VERSION SELECTOR
-     ========================================================= */
-
   function bindVersionSelector() {
-
-    const select =
-      document.getElementById('version-selector');
-
+    const select = document.getElementById('version-selector');
     if (!select) return;
-
-    select.addEventListener(
-      'change',
-      async () => {
-
-        const ctx =
-          window.WCAG_AUDIT_APP.context;
-
-        const version =
-          select.value;
-
-        ctx.version =
-          version;
-
-        if (version === 'draft') {
-
-          await loadDraft(ctx.auditId);
-
-        } else {
-
-          await loadVersion(
-            ctx.auditId,
-            version
-          );
-        }
+    select.addEventListener('change', async () => {
+      const ctx = window.WCAG_AUDIT_APP.context;
+      ctx.version = select.value;
+      if (ctx.version === 'draft') {
+        await loadDraft(ctx.auditId);
+      } else {
+        await loadVersion(ctx.auditId, ctx.version);
       }
-    );
+    });
   }
 
   window.refreshVersionSelector = async function (auditId) {
-
-    const select =
-      document.getElementById('version-selector');
-
+    const select = document.getElementById('version-selector');
     if (!select) return;
-
     try {
-
-      const res =
-        await fetch(
-          `/api/audits/${auditId}/versions`
-        );
-
-      const versions =
-        res.ok
-          ? await res.json()
-          : [];
-
-      select.innerHTML = `
-        <option value="draft">
-          Draft
-        </option>
-
-        ${versions.map(version => `
-          <option value="${escapeHTML(version)}">
-            ${escapeHTML(version)}
-          </option>
-        `).join('')}
-      `;
-
-      select.value =
-        window.WCAG_AUDIT_APP.context.version ||
-        'draft';
-
+      const res = await fetch(`/api/audits/${auditId}/versions`);
+      const versions = res.ok ? await res.json() : [];
+      select.innerHTML = '<option value="draft">Draft</option>' +
+        versions.map(v => `<option value="${escapeHTML(v)}">${escapeHTML(v)}</option>`).join('');
+      select.value = window.WCAG_AUDIT_APP.context.version || 'draft';
     } catch (e) {
-
-      console.error(
-        '❌ refreshVersionSelector:',
-        e
-      );
+      console.error('❌ refreshVersionSelector:', e);
     }
-  }
-
-  /* =========================================================
-     LOAD DRAFT
-     ========================================================= */
+  };
 
   async function loadDraft(auditId) {
-
     try {
-
-      const res =
-        await fetch(
-          `/api/audits/${auditId}/draft`,
-          {
-            cache: 'no-store'
-          }
-        );
-
-      if (!res.ok) {
-        throw new Error('Draft load failed');
-      }
-
-      const state =
-        await res.json();
-
-      const app =
-        window.WCAG_AUDIT_APP;
-
-      app.state =
-        normalizeState(state);
-
-      app.context.auditId =
-        auditId;
-
-      app.context.version =
-        'draft';
-
-      app.context.mode =
-        'edit';
-
-      await refreshVersionSelector(auditId);
-
-      syncAllUI();
-
+      const res = await fetch(`/api/audits/${auditId}/draft`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Draft load failed');
+      const state = await res.json();
+      const app = window.WCAG_AUDIT_APP;
+      app.state = normalizeState(state);
+      app.context.auditId = auditId;
+      app.context.version = 'draft';
+      app.context.mode = 'edit';
+      await window.refreshVersionSelector(auditId);
       refreshApplicationUI();
     } catch (e) {
-
-      console.error(
-        '❌ loadDraft:',
-        e
-      );
+      console.error('❌ loadDraft:', e);
     }
   }
 
-  /* =========================================================
-     LOAD VERSION
-     ========================================================= */
-
-  async function loadVersion(
-    auditId,
-    version
-  ) {
-
+  async function loadVersion(auditId, version) {
     try {
-
-      const res =
-        await fetch(
-          `/api/audits/${auditId}/versions/${version}`,
-          {
-            cache: 'no-store'
-          }
-        );
-
-      if (!res.ok) {
-        throw new Error('Version load failed');
-      }
-
-      const state =
-        await res.json();
-
-      const app =
-        window.WCAG_AUDIT_APP;
-
-      app.state =
-        normalizeState(state);
-
-      app.context.auditId =
-        auditId;
-
-      app.context.version =
-        version;
-
-      app.context.mode =
-        'view';
-
-      syncAllUI();
-
+      const res = await fetch(`/api/audits/${auditId}/versions/${version}`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Version load failed');
+      const state = await res.json();
+      const app = window.WCAG_AUDIT_APP;
+      app.state = normalizeState(state);
+      app.context.auditId = auditId;
+      app.context.version = version;
+      app.context.mode = 'view';
       refreshApplicationUI();
     } catch (e) {
-
-      console.error(
-        '❌ loadVersion:',
-        e
-      );
+      console.error('❌ loadVersion:', e);
     }
   }
-
-  /* =========================================================
-     MODE
-     ========================================================= */
 
   function bindModeSelector() {
-
-    document
-      .querySelectorAll(
-        'input[name="audit-mode"]'
-      )
-      .forEach(radio => {
-
-        radio.addEventListener(
-          'change',
-          () => {
-
-            const mode =
-              radio.value;
-
-            window.WCAG_AUDIT_APP.context.mode =
-              mode;
-
-            refreshApplicationUI();
-          }
-        );
+    document.querySelectorAll('input[name="audit-mode"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        window.WCAG_AUDIT_APP.context.mode = radio.value;
+        refreshApplicationUI();
       });
+    });
   }
 
   function syncModeRadios() {
-
-    const mode =
-      window.WCAG_AUDIT_APP.context.mode;
-
-    document
-      .querySelectorAll(
-        'input[name="audit-mode"]'
-      )
-      .forEach(radio => {
-
-        radio.checked =
-          radio.value === mode;
-      });
+    const mode = window.WCAG_AUDIT_APP.context.mode;
+    document.querySelectorAll('input[name="audit-mode"]').forEach(radio => {
+      radio.checked = radio.value === mode;
+    });
   }
-
-  /* =========================================================
-     PRODUCT TYPE
-     ========================================================= */
 
   function bindProductTypeSelector() {
-
-    document
-      .querySelectorAll(
-        'input[name="product-type"]'
-      )
-      .forEach(radio => {
-
-        radio.addEventListener(
-          'change',
-          () => {
-
-            const value =
-              radio.value;
-
-            setProductType(value);
-
-            refreshApplicationUI();
-          }
-        );
+    document.querySelectorAll('input[name="product-type"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        window.WCAG_AUDIT_APP.state.meta.productType = radio.value;
+        refreshApplicationUI();
+        window.triggerAutosave?.();
       });
-  }
-
-  function setProductType(type) {
-
-    const state =
-      window.WCAG_AUDIT_APP.state;
-
-    if (!state.meta) {
-      state.meta = {};
-    }
-
-    state.meta.productType =
-      type;
-
-    syncProductTypeUI();
-
-    window.triggerAutosave?.();
+    });
   }
 
   function syncProductTypeUI() {
-
-    const type =
-      window.WCAG_AUDIT_APP.state?.meta?.productType ||
-      'web';
-
-    document
-      .querySelectorAll(
-        'input[name="product-type"]'
-      )
-      .forEach(radio => {
-
-        radio.checked =
-          radio.value === type;
-      });
+    const type = window.WCAG_AUDIT_APP.state?.meta?.productType || 'web';
+    document.querySelectorAll('input[name="product-type"]').forEach(radio => {
+      radio.checked = radio.value === type;
+    });
   }
-
-  /* =========================================================
-     UI SYNC
-     ========================================================= */
-
-  function syncAllUI() {
-
-    syncModeRadios();
-
-    syncProductTypeUI();
-  }
-
-  /* =========================================================
-     STATE NORMALIZATION
-     ========================================================= */
 
   function normalizeState(state) {
-
-    if (!state || typeof state !== 'object') {
-      state = {};
-    }
-
-    if (!state.criteria) {
-      state.criteria = {};
-    }
-
-    if (!state.meta) {
-      state.meta = {};
-    }
-
-    state.meta.productType =
-      state.meta.productType || 'web';
-
+    if (!state || typeof state !== 'object') state = {};
+    if (!state.criteria) state.criteria = {};
+    if (!state.meta) state.meta = {};
+    state.meta.productType = state.meta.productType || 'web';
     return state;
   }
 
-  /* =========================================================
-     ESCAPE
-     ========================================================= */
-
   function escapeHTML(value) {
-
-    if (value === null || value === undefined) {
-      return '';
-    }
-
-    return String(value)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    if (value === null || value === undefined) return '';
+    return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
 })();

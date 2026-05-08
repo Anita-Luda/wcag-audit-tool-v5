@@ -291,11 +291,11 @@
         ${showCompliance ? `
           <div class="summary-compliance">
             <div class="compliance-item">
-              <span class="compliance-label">Zbadane:</span>
+              <span class="compliance-label">ZBADANE</span>
               <span class="compliance-value">${safe(complianceChecked)}</span>
             </div>
             <div class="compliance-item">
-              <span class="compliance-label">Całość:</span>
+              <span class="compliance-label">CAŁOŚĆ</span>
               <span class="compliance-value">${safe(complianceTotal)}</span>
             </div>
           </div>

@@ -12,12 +12,10 @@
   window.renderAuditTables = function (definitions, state, context = {}) {
 
     if (!definitions?.groups || !definitions?.criteria) {
-      console.error('❌ Missing WCAG definitions');
       return;
     }
 
     if (!state) {
-      console.error('❌ Missing audit state');
       return;
     }
 
@@ -211,20 +209,17 @@
     tr.dataset.failure =
       rowState.failureDetail || '';
 
-    tr.dataset.area =
-      normalizeSingle(
-        rowState.areas ||
-        def.area ||
-        def.team ||
-        'mixed'
-      );
+    tr.dataset.areas =
+      normalizeArray(
+        rowState.areas,
+        def.area || def.team || 'mixed'
+      ).join(',');
 
-    tr.dataset.priority =
-      normalizeSingle(
-        rowState.priorities ||
-        def.priority ||
-        'medium'
-      );
+    tr.dataset.priorities =
+      normalizeArray(
+        rowState.priorities,
+        def.priority || 'medium'
+      ).join(',');
   }
 
   /* =========================================================
@@ -562,11 +557,13 @@
     row.dataset.status =
       normalizeStatus(rowState.status);
 
-    row.dataset.area =
-      normalizeSingle(rowState.areas);
+    const def = window.WCAG_AUDIT_APP.definitions.criteria.find(c => c.id === id);
 
-    row.dataset.priority =
-      normalizeSingle(rowState.priorities);
+    row.dataset.areas =
+      normalizeArray(rowState.areas, def?.area || def?.team || 'mixed').join(',');
+
+    row.dataset.priorities =
+      normalizeArray(rowState.priorities, def?.priority || 'medium').join(',');
 
     // Update level display if it was missing or corrupted
     const levelCell = row.querySelector('.col-level');
@@ -637,13 +634,13 @@
 
   function normalizeArray(value, fallback = []) {
 
-    if (Array.isArray(value)) {
+    if (Array.isArray(value) && value.length > 0) {
       return value;
     }
 
-    if (!value) {
+    if (!value || (Array.isArray(value) && value.length === 0)) {
       return Array.isArray(fallback)
-        ? fallback
+        ? (fallback.length > 0 ? fallback : [])
         : [fallback];
     }
 
