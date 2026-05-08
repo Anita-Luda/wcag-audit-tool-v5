@@ -214,6 +214,13 @@ function bindGlobalUI() {
 
     const data = await res.json();
     alert(`Utworzono wersję: ${data.version}`);
+
+    // Dynamic refresh of version selector if lifecycle script is loaded
+    if (window.WCAG_AUDIT_APP.context.auditId) {
+       // We can trigger a refresh if we expose the function or just rely on manual reload for now,
+       // but let's try to be helpful if the global method exists.
+       window.refreshVersionSelector?.(window.WCAG_AUDIT_APP.context.auditId);
+    }
   });
 
   document.getElementById('export-html-btn')

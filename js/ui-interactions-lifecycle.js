@@ -24,6 +24,7 @@
       bindVersionSelector();
       bindModeSelector();
       bindProductTypeSelector();
+      bindCreateAuditButton();
 
       await initializeAuditSelector();
 
@@ -165,6 +166,62 @@
     }
   }
 
+  function bindCreateAuditButton() {
+    const btn = document.getElementById('create-audit-btn');
+    const input = document.getElementById('app-name');
+
+    if (!btn || !input) return;
+
+    btn.addEventListener('click', async () => {
+      const name = input.value.trim();
+      if (!name) {
+        alert('Podaj nazwę aplikacji, aby stworzyć nowy audyt.');
+        return;
+      }
+
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+      const slug = name.toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+
+      const id = `${slug}-${dateStr}`;
+
+      if (!confirm(`Stworzyć nowy audyt: ${id}?`)) return;
+
+      try {
+        const res = await fetch('/api/audits', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, name })
+        });
+
+        if (res.status === 409) {
+          alert('Audyt o tej nazwie i dacie już istnieje.');
+          return;
+        }
+
+        if (!res.ok) throw new Error('Failed to create audit');
+
+        // Refresh list and switch
+        await initializeAuditSelector();
+
+        const select = document.getElementById('audit-selector');
+        if (select) {
+          select.value = id;
+          window.WCAG_AUDIT_APP.context.auditId = id;
+          window.WCAG_AUDIT_APP.context.version = 'draft';
+          window.WCAG_AUDIT_APP.context.mode = 'edit';
+          await loadDraft(id);
+        }
+
+      } catch (e) {
+        alert('Błąd podczas tworzenia audytu: ' + e.message);
+      }
+    });
+  }
+
   function bindAuditSelector() {
 
     const select =
@@ -235,7 +292,7 @@
     );
   }
 
-  async function refreshVersionSelector(auditId) {
+  window.refreshVersionSelector = async function (auditId) {
 
     const select =
       document.getElementById('version-selector');

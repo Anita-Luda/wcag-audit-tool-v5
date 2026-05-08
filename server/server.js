@@ -147,20 +147,34 @@ app.get('/api/audits/:id/draft', (req, res) => {
 app.post('/api/audits', (req, res) => {
   ensureDir(DATA_DIR);
 
-  const id = `audit-${Date.now()}`;
-  const dir = auditPath(id);
+  const body = req.body || {};
+  const requestedId = body.id;
+  const requestedName = body.name;
+
+  if (!requestedId || !/^[a-zA-Z0-9-_]+$/.test(requestedId)) {
+    return res.status(400).json({ error: 'Invalid or missing audit id' });
+  }
+
+  const dir = auditPath(requestedId);
+  if (fs.existsSync(dir)) {
+    return res.status(409).json({ error: 'Audit already exists' });
+  }
+
   ensureDir(dir);
 
-  const state = createEmptyState();
+  const state = body.state || createEmptyState();
+  if (requestedName) {
+    state.meta.appName = requestedName;
+  }
 
-  write(draftFile(id), state);
-  write(metaFile(id), {
-    id,
-    name: req.body?.name || id,
+  write(draftFile(requestedId), state);
+  write(metaFile(requestedId), {
+    id: requestedId,
+    name: requestedName || requestedId,
     createdAt: new Date().toISOString()
   });
 
-  res.json({ id });
+  res.json({ id: requestedId });
 });
 
 /* =========================================================
