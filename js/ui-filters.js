@@ -23,6 +23,13 @@
         input.removeEventListener('click', onFilterClick);
         input.addEventListener('click', onFilterClick);
       });
+
+    document.getElementById('clear-filters-btn-inline')
+      ?.addEventListener('click', () => {
+        const filters = getFilters();
+        Object.keys(filters).forEach(k => filters[k] = {});
+        window.applyGlobalFilters?.();
+      });
   }
 
   /* =========================================================
@@ -58,44 +65,34 @@
      ========================================================= */
 
   function onFilterClick(e) {
+    e.preventDefault(); // Control state manually for 3-state logic
+
     const input = e.target;
-
-    const type = normalizeType(
-      input.name.replace('filter-', '')
-    );
-
+    const type = normalizeType(input.name.replace('filter-', ''));
     const value = normalizeValue(input.value);
-
     const filters = getFilters();
 
-    if (!filters[type]) {
-      filters[type] = {};
+    if (!filters[type]) filters[type] = {};
+
+    const currentMode = filters[type][value]; // undefined | 'include' | 'exclude'
+    let nextMode;
+
+    if (!currentMode) {
+      nextMode = 'include';
+    } else if (currentMode === 'include') {
+      nextMode = 'exclude';
+    } else {
+      nextMode = undefined;
     }
 
-    const mode = e.shiftKey
-      ? 'exclude'
-      : 'include';
+    if (nextMode) {
+      filters[type][value] = nextMode;
+    } else {
+      delete filters[type][value];
+    }
 
-    toggleRule(filters[type], value, mode);
-
-    syncSingleInputUI(input, filters[type][value]);
-
+    syncSingleInputUI(input, nextMode);
     window.applyGlobalFilters?.();
-  }
-
-  /* =========================================================
-     RULE TOGGLE
-     ========================================================= */
-
-  function toggleRule(group, value, mode) {
-    const current = group[value];
-
-    if (current === mode) {
-      delete group[value];
-      return;
-    }
-
-    group[value] = mode;
   }
 
   /* =========================================================

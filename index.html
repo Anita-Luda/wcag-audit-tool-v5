@@ -57,7 +57,7 @@
       <!-- NAZWA APLIKACJI -->
       <div class="meta-field">
         <label for="app-name">Audytowana aplikacja</label>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; gap: 8px;">
           <input
             id="app-name"
             type="text"
@@ -138,7 +138,11 @@
 <!-- GLOBALNE FILTRY -->
   <section class="audit-filters" aria-labelledby="filters-heading">
     <div class="saving-indicator" id="saving-indicator">✨ Zapisywanie...</div>
-    <h2 id="filters-heading">Filtry globalne</h2>
+
+    <div class="filters-header">
+      <h2 id="filters-heading">Filtry globalne</h2>
+      <button id="clear-filters-btn-inline" class="btn-clear-filters" type="button">🧹 Wyczyść filtry</button>
+    </div>
 
     <div class="filters-grid">
 

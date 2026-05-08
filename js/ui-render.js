@@ -24,6 +24,10 @@
     const mode = context.mode || 'edit';
     const productType = state.meta?.productType || 'web';
 
+    if (!context.unlockedRows) {
+      context.unlockedRows = new Set();
+    }
+
     definitions.groups.forEach(group => {
 
       const tbody = document.getElementById(`group-${group.id}-body`);
@@ -86,8 +90,14 @@
      ========================================================= */
 
   function renderRow({ def, rowState, mode, productType }) {
-
     const tr = document.createElement('tr');
+    tr.dataset.criterionId = def.id;
+
+    const isUnlocked = window.WCAG_AUDIT_APP?.context?.unlockedRows?.has(def.id);
+    if (isUnlocked) tr.classList.add('unlocked');
+
+    // Effective mode for this row
+    const rowMode = (mode === 'edit' || isUnlocked) ? 'edit' : 'view';
 
     const status = normalizeStatus(rowState.status);
 
@@ -108,10 +118,10 @@
       </td>
 
       <td class="col-status">
-        ${renderStatusGroup(def.id, status, mode)}
+        ${renderStatusGroup(def.id, status, rowMode)}
 
         <div class="failure-container">
-          ${renderFailureGroup(def.id, rowState, mode)}
+          ${renderFailureGroup(def.id, rowState, rowMode)}
         </div>
       </td>
 
@@ -119,7 +129,7 @@
         ${renderTextarea({
           className: 'issueDescription',
           value: rowState.issueDescription,
-          mode
+          mode: rowMode
         })}
       </td>
 
@@ -127,7 +137,7 @@
         ${renderTextarea({
           className: 'expectedBehavior',
           value: rowState.expectedBehavior,
-          mode
+          mode: rowMode
         })}
       </td>
 
@@ -136,7 +146,7 @@
           ? renderTextarea({
               className: 'htmlCurrent',
               value: rowState.htmlCurrent,
-              mode
+              mode: rowMode
             })
           : '<div class="not-applicable-cell">—</div>'
         }
@@ -147,43 +157,41 @@
           ? renderTextarea({
               className: 'htmlExpected',
               value: rowState.htmlExpected,
-              mode
+              mode: rowMode
             })
           : '<div class="not-applicable-cell">—</div>'
         }
       </td>
 
       <td class="col-area">
-        ${renderCheckboxGroup({
+        ${renderBadgeTrigger({
           type: 'area',
           values: normalizeArray(
             rowState.areas,
-            def.area || def.team || 'mixed'
+            def.area || def.team || []
           ),
-          mode
+          mode: rowMode
         })}
       </td>
 
       <td class="col-priority">
-        ${renderCheckboxGroup({
+        ${renderBadgeTrigger({
           type: 'priority',
           values: normalizeArray(
             rowState.priorities,
             def.priority || 'medium'
           ),
-          mode
+          mode: rowMode
         })}
       </td>
 
       <td class="col-actions">
-        ${mode === 'edit'
-          ? '<button type="button" class="save-row">💾</button>'
-          : '<span class="view-mode-label">view</span>'
+        ${rowMode === 'edit'
+          ? '<button type="button" class="save-row" title="Zapisz i zablokuj">💾</button>'
+          : '<button type="button" class="unlock-row" title="Odblokuj do edycji">🔓</button>'
         }
       </td>
     `;
-
-    tr.dataset.criterionId = def.id;
 
     return tr;
   }
@@ -233,7 +241,6 @@
     ];
 
     if (mode === 'view') {
-
       return `
         <div class="status-view">
           ${options.find(o => o[0] === currentStatus)?.[1] || '⏳ N/T'}
@@ -242,7 +249,8 @@
     }
 
     return `
-      <div class="status-group">
+      <div class="status-switcher">
+        <div class="status-switcher-bg"></div>
         ${options.map(([value, label]) => `
           <label class="status-option">
             <input
@@ -251,7 +259,7 @@
               value="${value}"
               ${currentStatus === value ? 'checked' : ''}
             />
-            <span>${label}</span>
+            <span class="status-label">${label}</span>
           </label>
         `).join('')}
       </div>
@@ -333,57 +341,20 @@
      CHECKBOX GROUPS
      ========================================================= */
 
-  function renderCheckboxGroup({
-    type,
-    values = [],
-    mode
-  }) {
-
-    const options = {
-      area: [
-        'development',
-        'content',
-        'design',
-        'mixed'
-      ],
-
-      priority: [
-        'critical',
-        'high',
-        'medium'
-      ]
-    };
-
-    const selected =
-      Array.isArray(values)
-        ? values
-        : [values];
-
-    if (mode === 'view') {
-
-      return `
-        <div class="checkbox-view">
-          ${selected.map(v => `
-            <span class="badge badge-${escapeHTML(v)}">
-              ${escapeHTML(v)}
-            </span>
-          `).join('')}
-        </div>
-      `;
-    }
+  function renderBadgeTrigger({ type, values = [], mode }) {
+    const selected = Array.isArray(values) ? values : [values];
+    const isPriority = type === 'priority';
+    const icons = { critical: '🔴', high: '🟠', medium: '🟡' };
 
     return `
-      <div class="checkbox-group" data-type="${type}">
-        ${options[type].map(option => `
-          <label class="checkbox-option">
-            <input
-              type="checkbox"
-              value="${option}"
-              ${selected.includes(option) ? 'checked' : ''}
-            />
-            <span>${escapeHTML(option)}</span>
-          </label>
-        `).join('')}
+      <div class="badge-trigger" data-type="${type}">
+        <div class="badge-list">
+          ${selected.length ? selected.map(v => `
+            <span class="badge badge-${escapeHTML(v)}">
+              ${isPriority ? (icons[v] || '⚪') + ' ' : ''}${escapeHTML(v)}
+            </span>
+          `).join('') : `<span class="badge-empty">Wybierz...</span>`}
+        </div>
       </div>
     `;
   }
@@ -450,50 +421,100 @@
       });
 
     /* =========================
-       CHECKBOX GROUPS
+       BADGE TRIGGERS (POPUPS)
        ========================= */
 
-    row.querySelectorAll('.checkbox-group')
-      .forEach(group => {
+    row.querySelectorAll('.badge-trigger')
+      .forEach(trigger => {
+        trigger.addEventListener('click', () => {
+          const mode = window.WCAG_AUDIT_APP.context.mode;
+          if (mode === 'view' && !row.classList.contains('unlocked')) return;
 
-        const type = group.dataset.type;
-
-        group.querySelectorAll('input[type="checkbox"]')
-          .forEach(input => {
-
-            input.addEventListener('change', () => {
-
-              const values = Array.from(
-                group.querySelectorAll('input:checked')
-              ).map(el => el.value);
-
-              const key =
-                type === 'area'
-                  ? 'areas'
-                  : 'priorities';
-
-              window.updateRowState?.(
-                id,
-                key,
-                values
-              );
-
-              updateRowDatasets(row, id);
-
-              window.triggerAutosave?.();
-            });
-          });
+          const type = trigger.dataset.type;
+          showBadgePopup(trigger, id, type, row);
+        });
       });
 
     /* =========================
-       SAVE BUTTON
+       SAVE / UNLOCK BUTTONS
        ========================= */
 
     row.querySelector('.save-row')
       ?.addEventListener('click', () => {
-
+        window.WCAG_AUDIT_APP.context.unlockedRows?.delete(id);
         window.triggerAutosave?.();
+        window.refreshUI?.();
       });
+
+    row.querySelector('.unlock-row')
+      ?.addEventListener('click', () => {
+        if (!window.WCAG_AUDIT_APP.context.unlockedRows) {
+           window.WCAG_AUDIT_APP.context.unlockedRows = new Set();
+        }
+        window.WCAG_AUDIT_APP.context.unlockedRows.add(id);
+        window.refreshUI?.();
+      });
+  }
+
+  function showBadgePopup(trigger, criterionId, type, row) {
+    const options = {
+      area: ['development', 'content', 'design'],
+      priority: ['critical', 'high', 'medium']
+    };
+
+    const rowState = window.WCAG_AUDIT_APP?.state?.criteria?.[criterionId] || {};
+    const key = type === 'area' ? 'areas' : 'priorities';
+    const currentValues = normalizeArray(rowState[key], type === 'priority' ? 'medium' : []);
+
+    const overlay = document.createElement('div');
+    overlay.className = 'popup-overlay';
+
+    const rect = trigger.getBoundingClientRect();
+    const popup = document.createElement('div');
+    popup.className = 'badge-popup';
+    popup.style.top = `${rect.bottom + window.scrollY}px`;
+    popup.style.left = `${rect.left + window.scrollX}px`;
+
+    popup.innerHTML = `
+      <div class="popup-options">
+        ${options[type].map(opt => `
+          <label class="popup-option">
+            <input type="checkbox" value="${opt}" ${currentValues.includes(opt) ? 'checked' : ''}>
+            <span>${escapeHTML(opt)}</span>
+          </label>
+        `).join('')}
+      </div>
+      <div class="popup-actions">
+        <button class="popup-close">Gotowe</button>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+    document.body.appendChild(popup);
+
+    const close = () => {
+      overlay.remove();
+      popup.remove();
+    };
+
+    overlay.onclick = close;
+    popup.querySelector('.popup-close').onclick = close;
+
+    popup.querySelectorAll('input').forEach(input => {
+      input.onchange = () => {
+        const values = Array.from(popup.querySelectorAll('input:checked')).map(i => i.value);
+        window.updateRowState?.(criterionId, key, values);
+        updateRowDatasets(row, criterionId);
+        window.triggerAutosave?.();
+
+        // Update the trigger view immediately
+        const list = trigger.querySelector('.badge-list');
+        if (list) {
+          list.innerHTML = renderBadgeTrigger({ type, values, mode: 'edit' })
+            .match(/<div class="badge-list">([\s\S]*)<\/div>/)[1];
+        }
+      };
+    });
   }
 
   function bindFailureEvents(row, id) {

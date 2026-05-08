@@ -85,7 +85,7 @@ h3 {
 label {
   font-weight: 600;
   font-size: 0.85rem;
-  color: var(--violet-800);
+  color: var(--text-muted);
 }
 
 /* FORM ELEMENTS */
