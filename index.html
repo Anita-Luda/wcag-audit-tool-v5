@@ -107,11 +107,22 @@
     </div>
   </section>
 
+  <!-- POSTĘP -->
+  <section class="audit-progress-container">
+    <div class="progress-info">
+      Postęp audytu: <span id="progress-percent">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div id="progress-bar-fill"></div>
+    </div>
+  </section>
+
   <!-- EKSPORTY -->
   <section class="global-actions">
-    <button id="export-html-btn" type="button">📄 Eksport HTML</button>
-    <button id="export-csv-btn" type="button">📊 Eksport CSV</button>
-    <button id="export-pdf-btn" type="button">🖨️ Eksport PDF</button>
+    <button id="export-html-btn" type="button">📄 HTML</button>
+    <button id="export-csv-btn" type="button">📊 CSV</button>
+    <button id="export-pdf-btn" type="button">🖨️ PDF</button>
+    <button id="clear-filters-btn" type="button">🧹 Wyczyść filtry</button>
   </section>
 </header>
 
@@ -121,6 +132,7 @@
   
 <!-- GLOBALNE FILTRY -->
   <section class="audit-filters" aria-labelledby="filters-heading">
+    <div class="saving-indicator" id="saving-indicator">✨ Zapisywanie...</div>
     <h2 id="filters-heading">Filtry globalne</h2>
 
     <div class="filters-grid">

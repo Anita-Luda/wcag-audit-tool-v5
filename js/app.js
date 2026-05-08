@@ -35,8 +35,6 @@ window.WCAG_AUDIT_APP = {
    ========================================================= */
 
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('🚀 Audit App starting...');
-
   try {
     await bootstrapApp();
   } catch (e) {
@@ -77,6 +75,9 @@ async function bootstrapApp() {
 
   // 5. Bind global interactions
   bindGlobalUI();
+
+  // 6. Sync Metadata
+  syncMetadataUI();
 }
 
 /* =========================================================
@@ -119,11 +120,35 @@ window.refreshUI = function () {
   window.renderAuditTables(app.definitions, app.state, app.state.context);
   window.applyGlobalFilters?.();
   window.updateAuditSummary?.();
+  window.updateProgressBar?.();
+};
+
+window.updateProgressBar = function () {
+  const app = window.WCAG_AUDIT_APP;
+  if (!app.definitions?.criteria) return;
+
+  const total = app.definitions.criteria.length;
+  const tested = Object.values(app.state.criteria || {}).filter(c => c.status && c.status !== 'not-tested').length;
+  const percent = total > 0 ? Math.round((tested / total) * 100) : 0;
+
+  const bar = document.getElementById('progress-bar-fill');
+  const text = document.getElementById('progress-percent');
+
+  if (bar) bar.style.width = `${percent}%`;
+  if (text) text.textContent = `${percent}%`;
 };
 
 /* =========================================================
    STATE MUTATION API
    ========================================================= */
+
+window.updateMetaState = function (key, value) {
+  const state = window.WCAG_AUDIT_APP.state;
+  state.meta[key] = value;
+  state.meta.auditLastModifiedAt = new Date().toISOString();
+  syncMetadataUI();
+  window.triggerAutosave?.();
+};
 
 window.updateRowState = function (id, key, value) {
   const state = window.WCAG_AUDIT_APP.state;
@@ -153,8 +178,24 @@ window.setProductType = function (type) {
    GLOBAL UI BINDINGS
    ========================================================= */
 
+function syncMetadataUI() {
+  const state = window.WCAG_AUDIT_APP.state;
+  const appNameInput = document.getElementById('app-name');
+  const startDateOutput = document.getElementById('audit-start-date');
+  const lastModifiedOutput = document.getElementById('audit-last-modified');
+
+  if (appNameInput) appNameInput.value = state.meta.appName || '';
+  if (startDateOutput) startDateOutput.textContent = state.meta.auditStartedAt ? new Date(state.meta.auditStartedAt).toLocaleString() : '—';
+  if (lastModifiedOutput) lastModifiedOutput.textContent = state.meta.auditLastModifiedAt ? new Date(state.meta.auditLastModifiedAt).toLocaleString() : '—';
+}
+
 function bindGlobalUI() {
   const saveBtn = document.getElementById('save-version-btn');
+  const appNameInput = document.getElementById('app-name');
+
+  appNameInput?.addEventListener('input', () => {
+    window.updateMetaState('appName', appNameInput.value);
+  });
 
   saveBtn?.addEventListener('click', async () => {
     const app = window.WCAG_AUDIT_APP;
@@ -183,6 +224,18 @@ function bindGlobalUI() {
 
   document.getElementById('export-pdf-btn')
     ?.addEventListener('click', () => window.exportAuditPDF?.());
+
+  document.getElementById('clear-filters-btn')
+    ?.addEventListener('click', () => {
+      window.WCAG_AUDIT_APP.state.filters = {
+        level: {},
+        status: {},
+        failure: {},
+        area: {},
+        priority: {}
+      };
+      window.applyGlobalFilters?.();
+    });
 }
 
 /* =========================================================
@@ -196,8 +249,12 @@ window.triggerAutosave = function () {
 
   clearTimeout(saveTimeout);
 
+  const indicator = document.getElementById('saving-indicator');
+
   saveTimeout = setTimeout(async () => {
     if (!window.saveState) return;
+
+    if (indicator) indicator.classList.add('visible');
 
     const success = await window.saveState(
       app.state.context.auditId,
@@ -205,9 +262,21 @@ window.triggerAutosave = function () {
     );
 
     if (success) {
-      console.log('💾 Autosaved');
+      if (indicator) {
+        indicator.textContent = '✨ Zapisano!';
+        setTimeout(() => {
+          indicator.classList.remove('visible');
+          setTimeout(() => {
+            indicator.textContent = '✨ Zapisywanie...';
+          }, 300);
+        }, 1500);
+      }
     } else {
       console.warn('⚠️ Autosave failed');
+      if (indicator) {
+        indicator.textContent = '❌ Błąd zapisu';
+        setTimeout(() => indicator.classList.remove('visible'), 3000);
+      }
     }
   }, 1200);
 };

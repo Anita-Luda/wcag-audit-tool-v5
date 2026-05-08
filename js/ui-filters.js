@@ -44,6 +44,7 @@
       state.filters = {
         level: {},
         status: {},
+        failure: {},
         area: {},
         priority: {}
       };
@@ -126,6 +127,7 @@
     return {
       level: normalizeValue(tr.dataset.level),
       status: normalizeValue(tr.dataset.status),
+      failure: normalizeValue(tr.dataset.failure),
 
       areas: normalizeArray(
         tr.dataset.areas ||
@@ -153,6 +155,11 @@
       matchSingle(
         filters.status,
         [row.status]
+      ) &&
+
+      matchSingle(
+        filters.failure,
+        [row.failure]
       ) &&
 
       matchSingle(

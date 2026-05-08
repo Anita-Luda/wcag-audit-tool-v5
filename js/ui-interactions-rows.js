@@ -56,6 +56,7 @@
     syncRowDatasets(id);
 
     window.updateAuditSummary?.();
+    window.updateProgressBar?.();
   };
 
   function safePatch(id, patch = {}) {
@@ -71,6 +72,7 @@
     syncRowDatasets(id);
 
     window.updateAuditSummary?.();
+    window.updateProgressBar?.();
   }
 
   /* =========================================================
@@ -391,6 +393,9 @@
 
     tr.dataset.status =
       row.status || 'not-tested';
+
+    tr.dataset.failure =
+      row.failureDetail || '';
 
     tr.dataset.area =
       row.areas?.[0] || 'mixed';

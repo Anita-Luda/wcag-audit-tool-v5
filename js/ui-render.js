@@ -200,6 +200,9 @@
     tr.dataset.status =
       normalizeStatus(rowState.status);
 
+    tr.dataset.failure =
+      rowState.failureDetail || '';
+
     tr.dataset.area =
       normalizeSingle(
         rowState.areas ||

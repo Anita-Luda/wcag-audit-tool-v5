@@ -29,6 +29,45 @@
     );
   };
 
+  window.exportAuditCSV = function () {
+    const app = window.WCAG_AUDIT_APP;
+    if (!app?.definitions?.criteria || !app?.state) return;
+
+    const criteria = app.definitions.criteria;
+    const state = app.state.criteria || {};
+
+    const headers = [
+      'Nr', 'Kryterium', 'Poziom', 'Status', 'Problem', 'Oczekiwane',
+      'Kod obecny', 'Kod poprawny', 'Obszar', 'Priorytet'
+    ];
+
+    const rows = criteria.map(def => {
+      const row = state[def.id] || {};
+      const areas = resolveAreas(def, row).join(', ');
+      const priorities = resolvePriorities(def, row).join(', ');
+
+      return [
+        def.number,
+        def.name,
+        def.group === '5' ? 'EN' : def.level,
+        row.status || 'not-tested',
+        row.issueDescription || '',
+        row.expectedBehavior || '',
+        row.htmlCurrent || '',
+        row.htmlExpected || '',
+        areas,
+        priorities
+      ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    download(csvContent, 'audit-report.csv', 'text/csv;charset=utf-8;');
+  };
+
+  window.exportAuditPDF = function () {
+    window.print();
+  };
+
   /* =========================================================
      MAIN HTML
      ========================================================= */

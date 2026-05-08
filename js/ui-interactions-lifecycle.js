@@ -28,9 +28,6 @@
       await initializeAuditSelector();
 
       syncAllUI();
-
-      console.log('✅ Lifecycle initialized');
-
     } catch (e) {
 
       console.error(
@@ -325,11 +322,6 @@
       syncAllUI();
 
       refreshApplicationUI();
-
-      console.log(
-        `✅ Draft loaded: ${auditId}`
-      );
-
     } catch (e) {
 
       console.error(
@@ -383,11 +375,6 @@
       syncAllUI();
 
       refreshApplicationUI();
-
-      console.log(
-        `✅ Version loaded: ${version}`
-      );
-
     } catch (e) {
 
       console.error(

@@ -12,10 +12,16 @@ textarea {
   font-family: inherit;
   font-size: 0.9rem;
   line-height: 1.4;
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  padding: 10px 12px;
+  border: 2px solid var(--violet-100);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
   background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+input[type="text"]:hover,
+textarea:hover {
+  border-color: var(--violet-300);
 }
 
 /* zamiast .col-issue / .col-expected → target po kolejności kolumn */
@@ -66,12 +72,19 @@ textarea:focus {
   display: flex;
   align-items: center;
   height: 36px;
-  padding: 0 10px;
-  border-radius: 10px;
+  padding: 0 12px;
+  border-radius: 18px;
   font-size: 0.8rem;
   cursor: pointer;
-  background: #f3efff;
+  background: var(--violet-100);
   color: var(--violet-900);
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.audit-table td:nth-child(4) label:hover {
+  background: var(--violet-300);
+  transform: translateY(-2px);
 }
 
 /* ukrycie radio */
@@ -153,15 +166,15 @@ textarea:focus {
 }
 
 /* area */
-.area-development { background: #e3f2fd; color: #0d47a1; }
-.area-content { background: #e8f5e9; color: #1b5e20; }
-.area-design { background: #f3e5f5; color: #4a148c; }
-.area-mixed { background: #ede7f6; color: #4527a0; }
+.badge-development { background: #e3f2fd; color: #0d47a1; }
+.badge-content { background: #e8f5e9; color: #1b5e20; }
+.badge-design { background: #f3e5f5; color: #4a148c; }
+.badge-mixed { background: #ede7f6; color: #4527a0; }
 
 /* priority */
-.priority-critical { background: #fdecea; color: #b00020; }
-.priority-high { background: #fff4e5; color: #e65100; }
-.priority-medium { background: #fffde7; color: #9e7700; }
+.badge-critical { background: #fdecea; color: #b00020; }
+.badge-high { background: #fff4e5; color: #e65100; }
+.badge-medium { background: #fffde7; color: #9e7700; }
 
 /* ======================
    BUTTONS (UNCHANGED LOGIC SAFE)
@@ -171,14 +184,27 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 999px;
+  height: 42px;
+  padding: 0 24px;
+  border-radius: 21px;
   border: none;
-  background: linear-gradient(135deg, #7b5cd6 0%, #b084f5 100%);
+  background: linear-gradient(135deg, var(--violet-500) 0%, var(--violet-700) 100%);
   color: #ffffff;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 15px rgba(167, 151, 255, 0.4);
+}
+
+button:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(167, 151, 255, 0.5);
+}
+
+button:active {
+  transform: scale(0.95);
 }
 
 button:hover {
@@ -207,6 +233,7 @@ button:focus {
   background: #ffffff;
   border-radius: 18px;
   box-shadow: 0 8px 24px rgba(91, 63, 163, 0.1);
+  position: relative;
 }
 
 .filters-grid {
@@ -216,17 +243,45 @@ button:focus {
 }
 
 .filter-group {
-  border: 1px solid var(--border-soft);
-  border-radius: 14px;
-  padding: 0.75rem;
-  background: #faf9ff;
+  border: 2px solid var(--violet-100);
+  border-radius: 20px;
+  padding: 1rem;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.filter-group:hover {
+  border-color: var(--violet-300);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(167, 151, 255, 0.1);
 }
 
 .filter-group label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.filter-group label:hover {
+  background: var(--violet-100);
+}
+
+.filter-include {
+  background: var(--mint-100) !important;
+  color: var(--ok) !important;
+  font-weight: 700;
+}
+
+.filter-exclude {
+  background: var(--pink-100) !important;
+  color: var(--fail) !important;
+  text-decoration: line-through;
+  font-weight: 700;
 }
 
 /* ======================
@@ -239,6 +294,65 @@ button:focus {
   border-radius: 8px;
   font-size: 0.8rem;
   white-space: pre-wrap;
+}
+
+/* ======================
+   PROGRESS BAR
+   ====================== */
+
+.audit-progress-container {
+  margin-top: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.progress-info {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #ffffff;
+}
+
+.progress-bar-bg {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid #ffffff;
+}
+
+#progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--mint-500);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ======================
+   SAVING INDICATOR
+   ====================== */
+
+.saving-indicator {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  background: var(--pink-300);
+  color: var(--violet-900);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  box-shadow: 0 4px 10px rgba(255, 151, 213, 0.3);
+}
+
+.saving-indicator.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ======================
