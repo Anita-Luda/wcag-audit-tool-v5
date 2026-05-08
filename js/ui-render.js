@@ -461,11 +461,22 @@
       priority: ['critical', 'high', 'medium']
     };
 
+    const def = window.WCAG_AUDIT_APP.definitions.criteria.find(c => c.id === criterionId);
     const rowState = window.WCAG_AUDIT_APP?.state?.criteria?.[criterionId] || {};
     const key = type === 'area' ? 'areas' : 'priorities';
 
-    // Ensure we have current values correctly mapped from state
-    const currentValues = normalizeArray(rowState[key] || [], type === 'priority' ? 'medium' : ['mixed']);
+    // Crucial: Get current values from state, or fallback to definitions if state is empty
+    let currentValues = [];
+    if (rowState[key] && Array.isArray(rowState[key]) && rowState[key].length > 0) {
+      currentValues = rowState[key];
+    } else {
+      // Fallback logic matching renderRow
+      if (type === 'area') {
+        currentValues = normalizeArray(def?.area || def?.team || ['mixed']);
+      } else {
+        currentValues = normalizeArray(def?.priority || 'medium');
+      }
+    }
 
     const overlay = document.createElement('div');
     overlay.className = 'popup-overlay';

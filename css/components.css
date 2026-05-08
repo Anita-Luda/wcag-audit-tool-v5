@@ -438,14 +438,13 @@ button:focus {
   border: 2px solid transparent;
 }
 
-.filter-group label:hover {
+.filter-group label:hover:not(.filter-include):not(.filter-exclude) {
   background: var(--violet-100);
   transform: scale(1.02);
 }
 
 .filter-group input {
   /* Keep visible but style them better */
-  accent-color: var(--violet-500);
   width: 18px;
   height: 18px;
   margin: 0;
@@ -456,14 +455,22 @@ button:focus {
   background: white;
   position: relative;
   transition: all 0.2s;
+  pointer-events: none; /* Let the label handle the click */
 }
 
-.filter-group input:checked {
-  background: var(--violet-500);
-  border-color: var(--violet-500);
+.filter-include {
+  background: #e8fff3 !important;
+  color: #10b981 !important;
+  border: 2px solid #10b981 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
 }
 
-.filter-group input:checked::after {
+.filter-include input {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+}
+
+.filter-include input::after {
   content: '✓';
   position: absolute;
   top: 50%;
@@ -474,22 +481,10 @@ button:focus {
   font-weight: 900;
 }
 
-.filter-include {
-  background: #e8fff3 !important;
-  color: #10b981 !important;
-  border-color: #10b981 !important;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
-}
-
-.filter-include input {
-  background: #10b981 !important;
-  border-color: #10b981 !important;
-}
-
 .filter-exclude {
   background: #fff1f2 !important;
   color: #f43f5e !important;
-  border-color: #f43f5e !important;
+  border: 2px solid #f43f5e !important;
   text-decoration: line-through;
   box-shadow: 0 4px 12px rgba(244, 63, 94, 0.15);
 }
@@ -497,6 +492,17 @@ button:focus {
 .filter-exclude input {
   background: #f43f5e !important;
   border-color: #f43f5e !important;
+}
+
+.filter-exclude input::after {
+  content: '✕';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 10px;
+  font-weight: 900;
 }
 
 /* ======================
