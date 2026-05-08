@@ -214,7 +214,7 @@
             <span>📦 Zapisz jako nową wersję istniejącego audytu:</span>
           </label>
 
-          <div class="modal-select-wrapper">
+          <div class="modal-select-wrapper" id="modal-select-container" style="display: none;">
             <select id="modal-audit-target" class="modal-select">
               ${audits.map(a => `<option value="${a.id}" ${a.id === currentAuditId ? 'selected' : ''}>${escapeHTML(a.name || a.id)}</option>`).join('')}
             </select>
@@ -228,7 +228,13 @@
       </div>
     `;
 
-    document.body.appendChild(overlay);
+    // Toggle visibility of the select
+    const selectContainer = overlay.querySelector('#modal-select-container');
+    overlay.querySelectorAll('input[name="create-action"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            selectContainer.style.display = e.target.value === 'save-version' ? 'block' : 'none';
+        });
+    });
 
     const close = () => overlay.remove();
     overlay.querySelector('#modal-cancel').onclick = close;

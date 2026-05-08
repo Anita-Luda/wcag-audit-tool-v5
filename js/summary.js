@@ -264,24 +264,43 @@
       );
 
     el.innerHTML = `
-      <ul class="summary-list">
-        <li>✅ Pass: <strong>${safe(data.pass)}</strong></li>
-        <li>❌ Fail: <strong>${safe(data.fail)}</strong></li>
-        <li>➖ N/A: <strong>${safe(data['not-applicable'])}</strong></li>
-        <li>⏳ Not tested: <strong>${safe(data['not-tested'])}</strong></li>
+      <div class="summary-card">
+        <div class="summary-stats">
+          <div class="stat-item stat-pass">
+            <span class="stat-icon">✅</span>
+            <span class="stat-value">${safe(data.pass)}</span>
+            <span class="stat-label">Pass</span>
+          </div>
+          <div class="stat-item stat-fail">
+            <span class="stat-icon">❌</span>
+            <span class="stat-value">${safe(data.fail)}</span>
+            <span class="stat-label">Fail</span>
+          </div>
+          <div class="stat-item stat-na">
+            <span class="stat-icon">➖</span>
+            <span class="stat-value">${safe(data['not-applicable'])}</span>
+            <span class="stat-label">N/A</span>
+          </div>
+          <div class="stat-item stat-nt">
+            <span class="stat-icon">⏳</span>
+            <span class="stat-value">${safe(data['not-tested'])}</span>
+            <span class="stat-label">N/T</span>
+          </div>
+        </div>
 
         ${showCompliance ? `
-          <li>
-            📊 Compliance (checked):
-            <strong>${safe(complianceChecked)}</strong>
-          </li>
-
-          <li>
-            📊 Compliance (total):
-            <strong>${safe(complianceTotal)}</strong>
-          </li>
+          <div class="summary-compliance">
+            <div class="compliance-item">
+              <span class="compliance-label">Zbadane:</span>
+              <span class="compliance-value">${safe(complianceChecked)}</span>
+            </div>
+            <div class="compliance-item">
+              <span class="compliance-label">Całość:</span>
+              <span class="compliance-value">${safe(complianceTotal)}</span>
+            </div>
+          </div>
         ` : ''}
-      </ul>
+      </div>
     `;
   }
 
@@ -296,24 +315,21 @@
 
     if (!el) return;
 
-    el.innerHTML = Object.entries(areas)
-      .map(([key, data]) => `
-        <div class="area-block">
-
-          <h4>${safe(
-            capitalize(key)
-          )}</h4>
-
-          <ul>
-            <li>✅ ${safe(data.pass)}</li>
-            <li>❌ ${safe(data.fail)}</li>
-            <li>➖ ${safe(data['not-applicable'])}</li>
-            <li>⏳ ${safe(data['not-tested'])}</li>
-          </ul>
-
-        </div>
-      `)
-      .join('');
+    el.innerHTML = `
+      <div class="areas-grid">
+        ${Object.entries(areas).map(([key, data]) => `
+          <div class="area-card area-${key}">
+            <h4>${safe(capitalize(key))}</h4>
+            <div class="area-stats-mini">
+              <div class="mini-stat" title="Pass">✅ <span>${safe(data.pass)}</span></div>
+              <div class="mini-stat" title="Fail">❌ <span>${safe(data.fail)}</span></div>
+              <div class="mini-stat" title="N/A">➖ <span>${safe(data['not-applicable'])}</span></div>
+              <div class="mini-stat" title="N/T">⏳ <span>${safe(data['not-tested'])}</span></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
   }
 
   /* =========================================================

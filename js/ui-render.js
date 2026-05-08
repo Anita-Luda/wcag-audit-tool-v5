@@ -386,8 +386,11 @@
 
             rowState.status = input.value;
 
+            const isUnlocked = window.WCAG_AUDIT_APP.context.unlockedRows?.has(id);
+            const mode = (window.WCAG_AUDIT_APP.context.mode === 'edit' || isUnlocked) ? 'edit' : 'view';
+
             failureContainer.innerHTML =
-              renderFailureGroup(id, rowState, 'edit');
+              renderFailureGroup(id, rowState, mode);
           }
 
           bindFailureEvents(row, id);
@@ -518,24 +521,11 @@
           values = [input.value];
         } else {
           values = Array.from(popup.querySelectorAll('input:checked')).map(i => i.value);
-          // Don't allow empty for area, fallback to default or mixed
-          if (values.length === 0) {
-             // We can either keep it as is or force a default.
-             // The user said they shouldn't be empty.
-             // values = ['mixed']; // or some default from def
-          }
         }
 
         window.updateRowState?.(criterionId, key, values);
         updateRowDatasets(row, criterionId);
         window.triggerAutosave?.();
-
-        // Update the trigger view immediately
-        const list = trigger.querySelector('.badge-list');
-        if (list) {
-          list.innerHTML = renderBadgeTrigger({ type, values, mode: 'edit' })
-            .match(/<div class="badge-list">([\s\S]*)<\/div>/)[1];
-        }
       };
     });
   }
@@ -581,24 +571,48 @@
     // Update level display if it was missing or corrupted
     const levelCell = row.querySelector('.col-level');
     if (levelCell) {
-       // We need to find the definition to be sure
        const def = window.WCAG_AUDIT_APP.definitions.criteria.find(c => c.id === id);
        if (def) {
           levelCell.textContent = def.group === '5' ? 'EN' : (def.level || '');
        }
     }
 
-    // After updating data, we might need to refresh badges if they were lost during save
-    const areaTrigger = row.querySelector('.badge-trigger[data-type="area"] .badge-list');
-    if (areaTrigger) {
-      areaTrigger.innerHTML = renderBadgeTrigger({ type: 'area', values: rowState.areas, mode: 'edit' })
-        .match(/<div class="badge-list">([\s\S]*)<\/div>/)[1];
+    // Refresh badges properly
+    const areaCol = row.querySelector('.col-area');
+    if (areaCol) {
+      const def = window.WCAG_AUDIT_APP.definitions.criteria.find(c => c.id === id);
+      const isUnlocked = window.WCAG_AUDIT_APP.context.unlockedRows?.has(id);
+      const mode = (window.WCAG_AUDIT_APP.context.mode === 'edit' || isUnlocked) ? 'edit' : 'view';
+
+      areaCol.innerHTML = renderBadgeTrigger({
+        type: 'area',
+        values: normalizeArray(rowState.areas, def.area || def.team || []),
+        mode
+      });
     }
-    const priorityTrigger = row.querySelector('.badge-trigger[data-type="priority"] .badge-list');
-    if (priorityTrigger) {
-      priorityTrigger.innerHTML = renderBadgeTrigger({ type: 'priority', values: rowState.priorities, mode: 'edit' })
-        .match(/<div class="badge-list">([\s\S]*)<\/div>/)[1];
+
+    const priorityCol = row.querySelector('.col-priority');
+    if (priorityCol) {
+      const def = window.WCAG_AUDIT_APP.definitions.criteria.find(c => c.id === id);
+      const isUnlocked = window.WCAG_AUDIT_APP.context.unlockedRows?.has(id);
+      const mode = (window.WCAG_AUDIT_APP.context.mode === 'edit' || isUnlocked) ? 'edit' : 'view';
+
+      priorityCol.innerHTML = renderBadgeTrigger({
+        type: 'priority',
+        values: normalizeArray(rowState.priorities, def.priority || 'medium'),
+        mode
+      });
     }
+
+    // Re-bind events for the new trigger buttons if needed
+    row.querySelectorAll('.badge-trigger').forEach(trigger => {
+        trigger.addEventListener('click', () => {
+          const isUnlocked = window.WCAG_AUDIT_APP.context.unlockedRows?.has(id);
+          const mode = (window.WCAG_AUDIT_APP.context.mode === 'edit' || isUnlocked) ? 'edit' : 'view';
+          if (mode === 'view') return;
+          showBadgePopup(trigger, id, trigger.dataset.type, row);
+        });
+    });
 
     window.applyGlobalFilters?.();
   }
