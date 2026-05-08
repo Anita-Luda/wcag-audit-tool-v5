@@ -148,9 +148,8 @@
       const ctx =
         window.WCAG_AUDIT_APP.context;
 
-      const selectedAuditId =
-        ctx.auditId ||
-        audits[0].id;
+      // Always open on default draft as requested
+      const selectedAuditId = 'default';
 
       select.value =
         selectedAuditId;
@@ -179,47 +178,128 @@
         return;
       }
 
-      const now = new Date();
-      const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
-      const slug = name.toLowerCase()
-        .replace(/[^a-z0-9]/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '');
-
-      const id = `${slug}-${dateStr}`;
-
-      if (!confirm(`Stworzyć nowy audyt: ${id}?`)) return;
-
-      try {
-        const res = await fetch('/api/audits', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, name })
-        });
-
-        if (res.status === 409) {
-          alert('Audyt o tej nazwie i dacie już istnieje.');
-          return;
-        }
-
-        if (!res.ok) throw new Error('Failed to create audit');
-
-        // Refresh list and switch
-        await initializeAuditSelector();
-
-        const select = document.getElementById('audit-selector');
-        if (select) {
-          select.value = id;
-          window.WCAG_AUDIT_APP.context.auditId = id;
-          window.WCAG_AUDIT_APP.context.version = 'draft';
-          window.WCAG_AUDIT_APP.context.mode = 'edit';
-          await loadDraft(id);
-        }
-
-      } catch (e) {
-        alert('Błąd podczas tworzenia audytu: ' + e.message);
-      }
+      // Dialog flow for sophisticated creation
+      showCreateAuditDialog(name);
     });
+  }
+
+  async function showCreateAuditDialog(name) {
+    const auditsRes = await fetch('/api/audits');
+    const audits = auditsRes.ok ? await auditsRes.json() : [];
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal-content">
+        <h3>✨ Co chcesz zrobić z obecną pracą?</h3>
+
+        <div class="modal-options">
+          <label class="modal-option">
+            <input type="radio" name="create-action" value="empty" checked>
+            <span>🆕 Utwórz nowy, pusty audyt dla "${escapeHTML(name)}"</span>
+          </label>
+
+          <label class="modal-option">
+            <input type="radio" name="create-action" value="save-new">
+            <span>💾 Zapisz obecną pracę jako NOWY audyt "${escapeHTML(name)}"</span>
+          </label>
+
+          <label class="modal-option">
+            <input type="radio" name="create-action" value="save-version">
+            <span>📦 Zapisz jako nową wersję istniejącego audytu:</span>
+          </label>
+
+          <select id="modal-audit-target" class="modal-select">
+            ${audits.map(a => `<option value="${a.id}">${escapeHTML(a.name || a.id)}</option>`).join('')}
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button id="modal-cancel" class="btn-secondary">Anuluj</button>
+          <button id="modal-confirm">Potwierdź ✨</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    overlay.querySelector('#modal-cancel').onclick = close;
+
+    overlay.querySelector('#modal-confirm').onclick = async () => {
+      const action = overlay.querySelector('input[name="create-action"]:checked').value;
+      const targetAuditId = overlay.querySelector('#modal-audit-target').value;
+
+      close();
+
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0];
+      const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+      const newAuditId = `${slug}-${dateStr}`;
+
+      if (action === 'empty') {
+        await createAudit(newAuditId, name, null);
+      } else if (action === 'save-new') {
+        await createAudit(newAuditId, name, window.WCAG_AUDIT_APP.state);
+      } else if (action === 'save-version') {
+        await saveAsVersion(targetAuditId);
+      }
+    };
+  }
+
+  async function createAudit(id, name, state) {
+    try {
+      const res = await fetch('/api/audits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, name, state })
+      });
+
+      if (res.status === 409) {
+        alert('Audyt o tym ID już istnieje.');
+        return;
+      }
+
+      if (!res.ok) throw new Error('Failed to create audit');
+
+      await initializeAuditSelector();
+      const select = document.getElementById('audit-selector');
+      if (select) {
+        select.value = id;
+        window.WCAG_AUDIT_APP.context.auditId = id;
+        await loadDraft(id);
+      }
+    } catch (e) {
+      alert('Błąd: ' + e.message);
+    }
+  }
+
+  async function saveAsVersion(auditId) {
+    try {
+      // 1. Sync current state to draft of target audit first
+      await fetch(`/api/audits/${auditId}/draft`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(window.WCAG_AUDIT_APP.state)
+      });
+
+      // 2. Trigger version creation
+      const res = await fetch(`/api/audits/${auditId}/versions`, { method: 'POST' });
+      if (!res.ok) throw new Error('Failed to create version');
+
+      const data = await res.json();
+      alert(`Dodano wersję ${data.version} do audytu ${auditId}`);
+
+      await initializeAuditSelector();
+      const select = document.getElementById('audit-selector');
+      if (select) {
+        select.value = auditId;
+        window.WCAG_AUDIT_APP.context.auditId = auditId;
+        await loadDraft(auditId);
+      }
+    } catch (e) {
+      alert('Błąd wersji: ' + e.message);
+    }
   }
 
   function bindAuditSelector() {

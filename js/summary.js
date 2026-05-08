@@ -20,8 +20,7 @@
     development: 'dev',
     dev: 'dev',
     content: 'content',
-    design: 'design',
-    mixed: 'mixed'
+    design: 'design'
   };
 
   const EN_GROUP_ID = '5';
@@ -142,8 +141,7 @@
       areas: {
         dev: createCounter(),
         content: createCounter(),
-        design: createCounter(),
-        mixed: createCounter()
+        design: createCounter()
       }
     };
   }
@@ -202,20 +200,11 @@
       Array.isArray(row.areas) &&
       row.areas.length
     ) {
-
       values = row.areas;
-
     } else if (def.area) {
-
       values = [def.area];
-
     } else if (def.team) {
-
       values = [def.team];
-
-    } else {
-
-      values = ['mixed'];
     }
 
     return [...new Set(
@@ -233,7 +222,7 @@
       .trim()
       .toLowerCase();
 
-    return AREA_MAP[area] || 'mixed';
+    return AREA_MAP[area];
   }
 
   /* =========================================================
