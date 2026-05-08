@@ -69,20 +69,23 @@ textarea:focus {
   padding: 6px;
   border-radius: 18px;
   border: 1px solid var(--violet-300);
+  width: 140px; /* Fixed width to prevent wrapping */
+  flex-shrink: 0;
 }
 
 .status-option {
   position: relative;
   display: flex;
   align-items: center;
-  height: 32px;
-  padding: 0 12px;
+  height: 28px;
+  padding: 0 10px;
   border-radius: 14px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   cursor: pointer;
   z-index: 1;
   transition: all 0.2s ease;
-  font-weight: 600;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .status-option input {
@@ -102,15 +105,53 @@ textarea:focus {
 }
 
 /* ======================
-   FAILURE DETAIL (DOM fallback)
+   FAILURE DETAIL
    ====================== */
 
-/* 4 kolumna + brak fail UI */
-.audit-table td:nth-child(4) div {
-  margin-top: 6px;
-  padding-left: 8px;
-  border-left: 2px solid #e6e2f3;
-  font-size: 0.75rem;
+.failure-container {
+  margin-top: 8px;
+  width: 140px;
+}
+
+.failure-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px;
+  background: rgba(255, 214, 235, 0.3); /* Soft pink for failure details */
+  border-radius: 14px;
+  border: 1px solid var(--pink-200);
+}
+
+.failure-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.failure-option:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.failure-option input {
+  margin: 0;
+}
+
+.failure-view {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--pink-600);
+  padding: 4px 8px;
+  background: var(--pink-100);
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 4px;
 }
 
 /* ======================
@@ -364,29 +405,41 @@ button:focus {
 .filter-group label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  padding: 4px 8px;
+  gap: 0.6rem;
+  font-size: 0.75rem;
+  padding: 6px 12px;
   cursor: pointer;
-  border-radius: 8px;
-  transition: background 0.2s;
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-weight: 700;
+  border: 2px solid transparent;
 }
 
 .filter-group label:hover {
   background: var(--violet-100);
+  transform: scale(1.02);
+}
+
+.filter-group input {
+  /* Keep visible but style them better */
+  accent-color: var(--violet-500);
+  width: 16px;
+  height: 16px;
 }
 
 .filter-include {
-  background: var(--mint-100) !important;
-  color: var(--ok) !important;
-  font-weight: 700;
+  background: #e8fff3 !important;
+  color: #10b981 !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
 }
 
 .filter-exclude {
-  background: var(--pink-100) !important;
-  color: var(--fail) !important;
+  background: #fff1f2 !important;
+  color: #f43f5e !important;
+  border-color: #f43f5e !important;
   text-decoration: line-through;
-  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.15);
 }
 
 /* ======================
@@ -559,13 +612,39 @@ tr.saved {
   color: var(--violet-900);
 }
 
+.modal-select-wrapper {
+  position: relative;
+  margin-top: -0.5rem;
+}
+
 .modal-select {
   width: 100%;
-  padding: 10px;
-  border-radius: 12px;
-  border: 2px solid var(--violet-300);
+  padding: 12px;
+  border-radius: 16px;
+  border: 2px solid var(--violet-200);
+  background: #faf9ff;
   font-family: inherit;
-  margin-top: -0.5rem;
+  font-weight: 600;
+  color: var(--violet-900);
+  cursor: pointer;
+  appearance: none;
+}
+
+.modal-select-wrapper::after {
+  content: '▼';
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: var(--violet-400);
+  pointer-events: none;
+}
+
+.modal-select:focus {
+  outline: none;
+  border-color: var(--violet-500);
+  background: #fff;
 }
 
 .modal-actions {
@@ -584,4 +663,10 @@ tr.saved {
 
 .btn-secondary:hover {
   background: var(--violet-100);
+}
+
+.btn-primary-kawaii {
+  background: linear-gradient(135deg, var(--violet-500) 0%, var(--violet-700) 100%);
+  color: #fff;
+  border: none;
 }

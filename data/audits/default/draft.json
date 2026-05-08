@@ -1,9 +1,9 @@
 {
   "meta": {
-    "appName": "",
+    "appName": "Verification App",
     "productType": "web",
     "auditStartedAt": "2026-05-07T18:42:16.470Z",
-    "auditLastModifiedAt": "2026-05-07T18:42:16.470Z"
+    "auditLastModifiedAt": "2026-05-08T14:47:09.564Z"
   },
   "criteria": {
     "wcag-1-1-1": {
@@ -128,6 +128,7 @@
     "auditId": "default",
     "mode": "edit",
     "version": "draft",
-    "isNew": true
+    "isNew": false,
+    "unlockedRows": {}
   }
 }

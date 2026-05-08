@@ -162,7 +162,9 @@ window.updateRowState = function (id, key, value) {
   state.meta.auditLastModifiedAt = new Date().toISOString();
 
   window.triggerAutosave?.();
-  window.refreshUI?.();
+  // Don't call refreshUI here if it's just a row update to avoid losing focus or closing popups
+  // But we need to update some things.
+  window.updateProgressBar?.();
 };
 
 /* =========================================================
@@ -199,11 +201,16 @@ function bindGlobalUI() {
 
   saveBtn?.addEventListener('click', async () => {
     const app = window.WCAG_AUDIT_APP;
+    const auditId = app.context.auditId;
 
-    if (!confirm('Utworzyć wersję audytu?')) return;
+    if (!confirm(`Utworzyć wersję dla projektu "${auditId}"?`)) return;
 
+    // 1. Sync draft first
+    await window.saveState?.(auditId, app.state);
+
+    // 2. POST version
     const res = await fetch(
-      `/api/audits/${app.state.context.auditId}/versions`,
+      `/api/audits/${auditId}/versions`,
       { method: 'POST' }
     );
 
@@ -215,11 +222,8 @@ function bindGlobalUI() {
     const data = await res.json();
     alert(`Utworzono wersję: ${data.version}`);
 
-    // Dynamic refresh of version selector if lifecycle script is loaded
-    if (window.WCAG_AUDIT_APP.context.auditId) {
-       // We can trigger a refresh if we expose the function or just rely on manual reload for now,
-       // but let's try to be helpful if the global method exists.
-       window.refreshVersionSelector?.(window.WCAG_AUDIT_APP.context.auditId);
+    if (window.refreshVersionSelector) {
+       await window.refreshVersionSelector(auditId);
     }
   });
 

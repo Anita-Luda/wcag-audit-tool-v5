@@ -15,119 +15,94 @@
 
 
 <header class="app-header">
-  <h1>Audyt dostępności – WCAG 2.2 / EN 301 549</h1>
+  <div class="header-top">
+    <h1>✨ Kawaii WCAG Audit Pro</h1>
+    <div class="global-actions">
+      <button id="export-html-btn" class="btn-export" type="button">📄 HTML</button>
+      <button id="export-csv-btn" class="btn-export" type="button">📊 CSV</button>
+      <button id="export-pdf-btn" class="btn-export" type="button">🖨️ PDF</button>
+    </div>
+  </div>
 
-  <!-- METADANE + KONTEKST -->
   <section class="audit-meta" aria-labelledby="meta-heading">
-    <h2 id="meta-heading">Informacje o audycie</h2>
-
-    <div class="meta-grid">
-
-      <!-- WYBÓR AUDYTU -->
-      <div class="meta-field">
-        <label for="audit-selector">Audyt</label>
-        <select id="audit-selector">
-          <!-- wypełniane przez JS -->
-        </select>
-      </div>
-
-      <!-- WYBÓR WERSJI -->
-      <div class="meta-field">
-        <label for="version-selector">Wersja</label>
-        <select id="version-selector">
-          <!-- draft / v1 / v2 ... -->
-        </select>
-      </div>
-
-      <!-- TRYB PRACY -->
-      <div class="meta-field">
-        <fieldset>
-          <legend>Tryb</legend>
-          <label>
-            <input type="radio" name="audit-mode" value="edit" checked />
-            Edycja
-          </label>
-          <label>
-            <input type="radio" name="audit-mode" value="view" />
-            Tylko podgląd
-          </label>
-        </fieldset>
-      </div>
-
-      <!-- NAZWA APLIKACJI -->
-      <div class="meta-field">
-        <label for="app-name">Audytowana aplikacja</label>
-        <div style="display: flex; gap: 8px;">
-          <input
-            id="app-name"
-            type="text"
-            placeholder="Nazwa systemu / aplikacji"
-          />
-          <button id="create-audit-btn" type="button" title="Stwórz nowy audyt dla tej aplikacji">
-            🆕 Nowy Audyt
-          </button>
+    <div class="meta-main-row">
+      <!-- LEWA: Wybór projektu -->
+      <div class="meta-group project-selection">
+        <div class="meta-field">
+          <label for="audit-selector">Projekt</label>
+          <select id="audit-selector"></select>
+        </div>
+        <div class="meta-field">
+          <label for="version-selector">Wersja</label>
+          <select id="version-selector"></select>
         </div>
       </div>
 
-      <!-- STANDARD -->
-      <div class="meta-field">
-        <label>Standard</label>
-        <output>WCAG 2.2 + EN 301 549</output>
+      <!-- ŚRODEK: Nazwa i Nowy -->
+      <div class="meta-group app-naming">
+        <div class="meta-field">
+          <label for="app-name">Audytowana aplikacja</label>
+          <div class="input-with-btn">
+            <input id="app-name" type="text" placeholder="Wpisz nazwę..." />
+            <button id="create-audit-btn" type="button" title="Stwórz nowy audyt">🆕 Nowy</button>
+          </div>
+        </div>
       </div>
 
-      <!-- DATA STARTU -->
-      <div class="meta-field">
-        <label>Data rozpoczęcia</label>
-        <output id="audit-start-date">—</output>
-      </div>
-
-      <!-- DATA MODYFIKACJI -->
-      <div class="meta-field">
-        <label>Ostatnia modyfikacja</label>
-        <output id="audit-last-modified">—</output>
-      </div>
-
-      <!-- TYP PRODUKTU -->
-      <div class="meta-field">
-        <fieldset>
-          <legend>Typ produktu</legend>
-          <label>
-            <input type="radio" name="product-type" value="web" checked />
-            Web
-          </label>
-          <label>
-            <input type="radio" name="product-type" value="app" />
-            App
-          </label>
-        </fieldset>
-      </div>
-
-      <!-- ZAPIS WERSJI -->
-      <div class="meta-field">
-        <button id="save-version-btn" type="button">
-          💾 Zapisz wersję audytu
+      <!-- PRAWA: Przyciski akcji -->
+      <div class="meta-group header-btns">
+        <button id="save-version-btn" class="btn-primary-kawaii" type="button">
+          💾 Zapisz jako wersję
         </button>
       </div>
+    </div>
 
+    <div class="meta-secondary-row">
+      <div class="meta-info-chips">
+        <div class="info-chip">
+          <span class="chip-label">Standard:</span>
+          <span class="chip-value">WCAG 2.2 + EN</span>
+        </div>
+        <div class="info-chip">
+          <span class="chip-label">Start:</span>
+          <span class="chip-value" id="audit-start-date">—</span>
+        </div>
+        <div class="info-chip">
+          <span class="chip-label">Zmiana:</span>
+          <span class="chip-value" id="audit-last-modified">—</span>
+        </div>
+      </div>
+
+      <div class="meta-toggles">
+        <fieldset class="toggle-group">
+          <legend>Tryb</legend>
+          <div class="toggle-options">
+            <label><input type="radio" name="audit-mode" value="edit" checked /> Edycja</label>
+            <label><input type="radio" name="audit-mode" value="view" /> Podgląd</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="toggle-group">
+          <legend>Produkt</legend>
+          <div class="toggle-options">
+            <label><input type="radio" name="product-type" value="web" checked /> Web</label>
+            <label><input type="radio" name="product-type" value="app" /> App</label>
+          </div>
+        </fieldset>
+      </div>
     </div>
   </section>
 
   <!-- POSTĘP -->
   <section class="audit-progress-container">
-    <div class="progress-info">
-      Postęp audytu: <span id="progress-percent">0%</span>
+    <div class="progress-bar-wrapper">
+      <div class="progress-bar-bg">
+        <div id="progress-bar-fill"></div>
+      </div>
+      <div class="progress-info">
+        <span id="progress-percent">0%</span>
+      </div>
     </div>
-    <div class="progress-bar-bg">
-      <div id="progress-bar-fill"></div>
-    </div>
-  </section>
-
-  <!-- EKSPORTY -->
-  <section class="global-actions">
-    <button id="export-html-btn" type="button">📄 HTML</button>
-    <button id="export-csv-btn" type="button">📊 CSV</button>
-    <button id="export-pdf-btn" type="button">🖨️ PDF</button>
-    <button id="clear-filters-btn" type="button">🧹 Wyczyść filtry</button>
   </section>
 </header>
 

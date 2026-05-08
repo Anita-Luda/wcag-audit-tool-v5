@@ -57,6 +57,16 @@
 
     window.updateAuditSummary?.();
     window.updateProgressBar?.();
+
+    // Core state update also in app.js object if exists
+    if (window.WCAG_AUDIT_APP?.state) {
+       if (!window.WCAG_AUDIT_APP.state.criteria[id]) {
+         window.WCAG_AUDIT_APP.state.criteria[id] = row;
+       } else {
+         window.WCAG_AUDIT_APP.state.criteria[id][key] = value;
+       }
+       window.WCAG_AUDIT_APP.state.meta.auditLastModifiedAt = new Date().toISOString();
+    }
   };
 
   function safePatch(id, patch = {}) {

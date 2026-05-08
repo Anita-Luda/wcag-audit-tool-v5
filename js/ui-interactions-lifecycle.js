@@ -98,7 +98,7 @@
      AUDIT SELECTOR
      ========================================================= */
 
-  async function initializeAuditSelector() {
+  async function initializeAuditSelector(preferId) {
 
     const select =
       document.getElementById('audit-selector');
@@ -148,13 +148,17 @@
       const ctx =
         window.WCAG_AUDIT_APP.context;
 
-      // Always open on default draft as requested
-      const selectedAuditId = 'default';
+      // If preferId is provided (e.g. after creation), use it.
+      // Otherwise use current or 'default'.
+      const selectedAuditId = preferId || ctx.auditId || 'default';
 
       select.value =
         selectedAuditId;
 
-      await loadDraft(selectedAuditId);
+      // Only load draft if we are not already on it or if explicitly told to (via preferId)
+      if (preferId || !window.WCAG_AUDIT_APP.state.criteria || Object.keys(window.WCAG_AUDIT_APP.state.criteria).length === 0) {
+        await loadDraft(selectedAuditId);
+      }
 
     } catch (e) {
 
@@ -186,6 +190,7 @@
   async function showCreateAuditDialog(name) {
     const auditsRes = await fetch('/api/audits');
     const audits = auditsRes.ok ? await auditsRes.json() : [];
+    const currentAuditId = window.WCAG_AUDIT_APP.context.auditId;
 
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
@@ -209,14 +214,16 @@
             <span>📦 Zapisz jako nową wersję istniejącego audytu:</span>
           </label>
 
-          <select id="modal-audit-target" class="modal-select">
-            ${audits.map(a => `<option value="${a.id}">${escapeHTML(a.name || a.id)}</option>`).join('')}
-          </select>
+          <div class="modal-select-wrapper">
+            <select id="modal-audit-target" class="modal-select">
+              ${audits.map(a => `<option value="${a.id}" ${a.id === currentAuditId ? 'selected' : ''}>${escapeHTML(a.name || a.id)}</option>`).join('')}
+            </select>
+          </div>
         </div>
 
         <div class="modal-actions">
           <button id="modal-cancel" class="btn-secondary">Anuluj</button>
-          <button id="modal-confirm">Potwierdź ✨</button>
+          <button id="modal-confirm" class="btn-primary-kawaii">Potwierdź ✨</button>
         </div>
       </div>
     `;
@@ -262,13 +269,7 @@
 
       if (!res.ok) throw new Error('Failed to create audit');
 
-      await initializeAuditSelector();
-      const select = document.getElementById('audit-selector');
-      if (select) {
-        select.value = id;
-        window.WCAG_AUDIT_APP.context.auditId = id;
-        await loadDraft(id);
-      }
+      await initializeAuditSelector(id);
     } catch (e) {
       alert('Błąd: ' + e.message);
     }
@@ -276,12 +277,15 @@
 
   async function saveAsVersion(auditId) {
     try {
-      // 1. Sync current state to draft of target audit first
-      await fetch(`/api/audits/${auditId}/draft`, {
+      // 1. Sync current state to draft of target audit FIRST
+      // This is crucial if we are saving as a version of the CURRENT audit too.
+      const saveRes = await fetch(`/api/audits/${auditId}/draft`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(window.WCAG_AUDIT_APP.state)
       });
+
+      if (!saveRes.ok) throw new Error('Failed to sync state to draft before versioning');
 
       // 2. Trigger version creation
       const res = await fetch(`/api/audits/${auditId}/versions`, { method: 'POST' });
@@ -290,13 +294,8 @@
       const data = await res.json();
       alert(`Dodano wersję ${data.version} do audytu ${auditId}`);
 
-      await initializeAuditSelector();
-      const select = document.getElementById('audit-selector');
-      if (select) {
-        select.value = auditId;
-        window.WCAG_AUDIT_APP.context.auditId = auditId;
-        await loadDraft(auditId);
-      }
+      // Refresh selectors and current state
+      await initializeAuditSelector(auditId);
     } catch (e) {
       alert('Błąd wersji: ' + e.message);
     }

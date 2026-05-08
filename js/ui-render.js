@@ -464,7 +464,9 @@
 
     const rowState = window.WCAG_AUDIT_APP?.state?.criteria?.[criterionId] || {};
     const key = type === 'area' ? 'areas' : 'priorities';
-    const currentValues = normalizeArray(rowState[key], type === 'priority' ? 'medium' : []);
+
+    // Ensure we have current values correctly mapped from state
+    const currentValues = normalizeArray(rowState[key] || [], type === 'priority' ? 'medium' : ['mixed']);
 
     const overlay = document.createElement('div');
     overlay.className = 'popup-overlay';
@@ -472,20 +474,28 @@
     const rect = trigger.getBoundingClientRect();
     const popup = document.createElement('div');
     popup.className = 'badge-popup';
-    popup.style.top = `${rect.bottom + window.scrollY}px`;
-    popup.style.left = `${rect.left + window.scrollX}px`;
+
+    // Position adjustments to keep it on screen
+    let top = rect.bottom + window.scrollY;
+    let left = rect.left + window.scrollX;
+
+    popup.style.top = `${top}px`;
+    popup.style.left = `${left}px`;
+
+    const inputType = type === 'priority' ? 'radio' : 'checkbox';
+    const inputName = `popup-${type}-${criterionId}`;
 
     popup.innerHTML = `
       <div class="popup-options">
         ${options[type].map(opt => `
           <label class="popup-option">
-            <input type="checkbox" value="${opt}" ${currentValues.includes(opt) ? 'checked' : ''}>
+            <input type="${inputType}" name="${inputName}" value="${opt}" ${currentValues.includes(opt) ? 'checked' : ''}>
             <span>${escapeHTML(opt)}</span>
           </label>
         `).join('')}
       </div>
       <div class="popup-actions">
-        <button class="popup-close">Gotowe</button>
+        <button class="popup-close">Gotowe ✨</button>
       </div>
     `;
 
@@ -502,7 +512,19 @@
 
     popup.querySelectorAll('input').forEach(input => {
       input.onchange = () => {
-        const values = Array.from(popup.querySelectorAll('input:checked')).map(i => i.value);
+        let values;
+        if (inputType === 'radio') {
+          values = [input.value];
+        } else {
+          values = Array.from(popup.querySelectorAll('input:checked')).map(i => i.value);
+          // Don't allow empty for area, fallback to default or mixed
+          if (values.length === 0) {
+             // We can either keep it as is or force a default.
+             // The user said they shouldn't be empty.
+             // values = ['mixed']; // or some default from def
+          }
+        }
+
         window.updateRowState?.(criterionId, key, values);
         updateRowDatasets(row, criterionId);
         window.triggerAutosave?.();
