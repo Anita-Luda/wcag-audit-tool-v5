@@ -12,27 +12,28 @@ textarea {
   font-family: inherit;
   font-size: 0.9rem;
   line-height: 1.4;
-  border: 2px solid var(--violet-100);
+  border: 2px solid var(--border-soft);
   border-radius: var(--radius-sm);
   padding: 12px 16px;
-  background: #ffffff;
+  background: var(--bg-input);
+  color: var(--text);
   transition: all 0.2s ease;
 }
 
 input[type="text"]:hover,
 textarea:hover {
-  border-color: var(--violet-300);
+  border-color: var(--violet-500);
 }
 
 /* zamiast .col-issue / .col-expected → target po kolejności kolumn */
 .audit-table td:nth-child(5) textarea {
   min-height: 140px;
-  background: #faf9ff;
+  background: var(--bg-input-alt);
 }
 
 .audit-table td:nth-child(6) textarea {
   min-height: 140px;
-  background: #faf9ff;
+  background: var(--bg-input-alt);
 }
 
 /* kod (HTML current / expected) */
@@ -41,7 +42,7 @@ textarea:hover {
   min-height: 160px;
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 0.8rem;
-  background: #f6f4ff;
+  background: var(--bg-input-alt);
 }
 
 /* textarea fill cell */
@@ -95,13 +96,14 @@ textarea:focus {
 }
 
 .status-option:has(input:checked) {
-  background: #ffffff;
-  color: var(--violet-900);
+  background: var(--bg-card);
+  color: var(--violet-500);
   box-shadow: 0 4px 10px rgba(123, 92, 214, 0.15);
+  border: 1px solid var(--violet-500);
 }
 
 .status-option:hover:not(:has(input:checked)) {
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--bg-soft);
 }
 
 /* ======================
@@ -250,11 +252,11 @@ textarea:focus {
 
 .badge-popup {
   position: absolute;
-  background: white;
+  background: var(--bg-card);
   padding: 1rem;
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-  border: 2px solid var(--violet-300);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  border: 2px solid var(--violet-500);
   z-index: 10001;
   min-width: 180px;
   display: flex;
@@ -354,7 +356,7 @@ button:focus {
 .audit-filters {
   margin: 2rem 0;
   padding: 1.5rem;
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 18px;
   box-shadow: 0 8px 24px rgba(91, 63, 163, 0.1);
   position: relative;
@@ -412,10 +414,10 @@ button:focus {
 }
 
 .filter-group {
-  border: 2px solid var(--violet-100);
+  border: 2px solid var(--border-soft);
   border-radius: 20px;
   padding: 1rem;
-  background: #ffffff;
+  background: var(--bg-card);
   transition: all 0.2s ease;
 }
 
@@ -590,11 +592,11 @@ button:focus {
    ====================== */
 
 .summary-card {
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 24px;
   padding: 1.5rem;
-  box-shadow: 0 10px 30px rgba(123, 92, 214, 0.08);
-  border: 1px solid var(--violet-100);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border-soft);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -652,11 +654,11 @@ button:focus {
 }
 
 .area-card {
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 20px;
   padding: 1.25rem;
-  border: 1px solid var(--violet-100);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .area-card h4 {
@@ -678,7 +680,7 @@ button:focus {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: var(--violet-50);
+  background: var(--bg-soft);
   padding: 6px;
   border-radius: 10px;
   font-size: 0.8rem;
@@ -721,13 +723,13 @@ tr.saved {
 }
 
 .modal-content {
-  background: #ffffff;
+  background: var(--bg-card);
   max-width: 500px;
   width: 100%;
   padding: 2.5rem;
   border-radius: 32px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-  border: 4px solid var(--violet-300);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  border: 4px solid var(--violet-500);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -743,10 +745,10 @@ tr.saved {
   background: var(--bg-card);
   max-width: 400px;
   width: 100%;
-  padding: 2rem;
+  padding: 2.5rem;
   border-radius: 32px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-  border: 4px solid var(--violet-300);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  border: 4px solid var(--violet-500);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -827,15 +829,15 @@ tr.saved {
   height: 48px;
   padding: 0 20px;
   border-radius: 18px;
-  border: 2px solid var(--violet-200);
-  background: #ffffff;
+  border: 2px solid var(--border-soft);
+  background: var(--bg-input);
   font-family: inherit;
   font-weight: 700;
-  color: var(--violet-900);
+  color: var(--text);
   cursor: pointer;
   appearance: auto; /* Use auto for better native dropdown list styling */
   font-size: 1rem;
-  box-shadow: 0 4px 12px rgba(167, 151, 255, 0.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   transition: all 0.2s;
 }
 

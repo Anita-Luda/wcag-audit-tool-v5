@@ -185,17 +185,30 @@
 
   async function saveAsVersion(auditId) {
     try {
-      const suggestedName = `v_${new Date().toLocaleDateString().replace(/\./g, '-')}`;
-      const versionName = await window.kawaii?.prompt('Podaj nazwę wersji:', suggestedName);
-      if (!versionName) return;
+      let suggestedName = `v_${new Date().toLocaleDateString().replace(/\./g, '-')}`;
+      let versionName = null;
+      let confirmed = false;
 
-      // Check for existing versions
-      const resVersions = await fetch(`/api/audits/${auditId}/versions`);
-      const existingVersions = resVersions.ok ? await resVersions.json() : [];
+      while (!confirmed) {
+        versionName = await window.kawaii?.prompt('Podaj nazwę wersji:', suggestedName);
+        if (!versionName) return;
 
-      if (existingVersions.includes(versionName)) {
-        const confirmOverwrite = await window.kawaii?.confirm(`Wersja "${versionName}" już istnieje. Czy chcesz ją nadpisać?`);
-        if (!confirmOverwrite) return;
+        const resVersions = await fetch(`/api/audits/${auditId}/versions`);
+        const existingVersions = resVersions.ok ? await resVersions.json() : [];
+
+        if (existingVersions.includes(versionName)) {
+          const action = await window.kawaii?.confirm(
+            `Wersja "${versionName}" już istnieje. Co chcesz zrobić?`,
+            { confirmLabel: 'Nadpisz 💾', cancelLabel: 'Zmień nazwę ✏️' }
+          );
+          if (action) {
+            confirmed = true;
+          } else {
+            suggestedName = versionName; // Let user edit current choice
+          }
+        } else {
+          confirmed = true;
+        }
       }
 
       await fetch(`/api/audits/${auditId}/draft`, {

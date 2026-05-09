@@ -29,7 +29,10 @@
       });
     },
 
-    confirm(message) {
+    confirm(message, options = {}) {
+      const cancelLabel = options.cancelLabel || 'Anuluj';
+      const confirmLabel = options.confirmLabel || 'Tak ✨';
+
       return new Promise((resolve) => {
         const overlay = createOverlay();
         const modal = document.createElement('div');
@@ -39,8 +42,8 @@
             <p>${escapeHTML(message)}</p>
           </div>
           <div class="kawaii-modal-actions">
-            <button class="btn-secondary" id="kawaii-cancel">Anuluj</button>
-            <button class="btn-primary-kawaii" id="kawaii-confirm">Tak ✨</button>
+            <button class="btn-secondary" id="kawaii-cancel">${escapeHTML(cancelLabel)}</button>
+            <button class="btn-primary-kawaii" id="kawaii-confirm">${escapeHTML(confirmLabel)}</button>
           </div>
         `;
         overlay.appendChild(modal);

@@ -23,7 +23,10 @@
   /* BACKGROUNDS */
   --bg-main: #fdfbff;
   --bg-card: #ffffff;
+  --bg-table: #ffffff;
   --bg-soft: #f8f6ff;
+  --bg-input: #ffffff;
+  --bg-input-alt: #faf9ff;
 
   /* BORDERS */
   --border-soft: #e9e5f5;
@@ -66,8 +69,11 @@
   --mint-100: #1a2f2a;
 
   --bg-main: #0c081a;
-  --bg-card: #140e2d;
+  --bg-card: #181233;
+  --bg-table: #1c153d;
   --bg-soft: #1a1236;
+  --bg-input: #120b26;
+  --bg-input-alt: #1a1236;
 
   --border-soft: #2a1f4d;
   --border-strong: #4a3b7a;
@@ -77,7 +83,7 @@
 
   --focus-ring: #ff69b4;
 
-  --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
 }
 
 *,
@@ -193,7 +199,7 @@ button:hover {
 table {
   border-collapse: collapse;
   width: 100%;
-  background: white;
+  background: var(--bg-table);
   border-radius: var(--radius);
   overflow: hidden;
 }
