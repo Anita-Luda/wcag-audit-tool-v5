@@ -735,8 +735,41 @@ tr.saved {
 }
 
 @keyframes modalPop {
-  0% { transform: scale(0.9); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% { transform: scale(0.9) translateY(20px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.kawaii-modal {
+  background: var(--bg-card);
+  max-width: 400px;
+  width: 100%;
+  padding: 2rem;
+  border-radius: 32px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  border: 4px solid var(--violet-300);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.kawaii-modal-body p {
+  margin: 0 0 1rem;
+  font-weight: 700;
+  color: var(--violet-900);
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.kawaii-modal-body input {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.kawaii-modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
 }
 
 .modal-content h3 {

@@ -1,9 +1,9 @@
 {
   "meta": {
-    "appName": "Kawaii App Test",
+    "appName": "My Super App",
     "productType": "web",
     "auditStartedAt": "2026-05-07T18:42:16.470Z",
-    "auditLastModifiedAt": "2026-05-08T18:30:59.972Z"
+    "auditLastModifiedAt": "2026-05-09T15:39:03.270Z"
   },
   "criteria": {
     "wcag-1-1-1": {

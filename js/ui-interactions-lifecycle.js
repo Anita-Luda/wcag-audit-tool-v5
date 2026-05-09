@@ -67,10 +67,10 @@
     const input = document.getElementById('app-name');
     if (!btn || !input) return;
 
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const name = input.value.trim();
       if (!name) {
-        alert('Podaj nazwę aplikacji, aby stworzyć nowy audyt.');
+        window.kawaii?.alert('Podaj nazwę aplikacji, aby stworzyć nowy audyt.');
         return;
       }
       showCreateAuditDialog(name);
@@ -84,7 +84,7 @@
     btn.addEventListener('click', () => {
       const auditId = window.WCAG_AUDIT_APP.context.auditId;
       if (!auditId || auditId === 'default') {
-        alert('Najpierw wybierz lub utwórz projekt, aby zapisać wersję.');
+        window.kawaii?.alert('Najpierw wybierz lub utwórz projekt, aby zapisać wersję.');
         return;
       }
       saveAsVersion(auditId);
@@ -173,20 +173,30 @@
         body: JSON.stringify({ id, name, state })
       });
       if (res.status === 409) {
-        alert('Audyt o tym ID już istnieje.');
+        window.kawaii?.alert('Audyt o tym ID już istnieje.');
         return;
       }
       if (!res.ok) throw new Error('Failed to create audit');
       await initializeAuditSelector(id);
     } catch (e) {
-      alert('Błąd: ' + e.message);
+      window.kawaii?.alert('Błąd: ' + e.message);
     }
   }
 
   async function saveAsVersion(auditId) {
     try {
-      const versionName = prompt('Podaj nazwę wersji:', `v_${new Date().toLocaleDateString()}`);
+      const suggestedName = `v_${new Date().toLocaleDateString().replace(/\./g, '-')}`;
+      const versionName = await window.kawaii?.prompt('Podaj nazwę wersji:', suggestedName);
       if (!versionName) return;
+
+      // Check for existing versions
+      const resVersions = await fetch(`/api/audits/${auditId}/versions`);
+      const existingVersions = resVersions.ok ? await resVersions.json() : [];
+
+      if (existingVersions.includes(versionName)) {
+        const confirmOverwrite = await window.kawaii?.confirm(`Wersja "${versionName}" już istnieje. Czy chcesz ją nadpisać?`);
+        if (!confirmOverwrite) return;
+      }
 
       await fetch(`/api/audits/${auditId}/draft`, {
         method: 'POST',
@@ -200,10 +210,10 @@
         body: JSON.stringify({ name: versionName })
       });
 
-      alert(`Dodano wersję ${versionName} do audytu ${auditId}`);
+      window.kawaii?.alert(`Dodano wersję ${versionName} do audytu ${auditId}`);
       await initializeAuditSelector(auditId);
     } catch (e) {
-      alert('Błąd wersji: ' + e.message);
+      window.kawaii?.alert('Błąd wersji: ' + e.message);
     }
   }
 

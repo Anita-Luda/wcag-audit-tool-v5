@@ -251,7 +251,7 @@ main {
    ====================== */
 
 .audit-table thead th {
-  background: linear-gradient(180deg, #f0ebff 0%, #e9e3ff 100%);
+  background: linear-gradient(180deg, var(--violet-100) 0%, var(--violet-300) 100%);
   color: var(--violet-900);
   font-weight: 600;
   font-size: 0.85rem;
@@ -381,7 +381,7 @@ main {
    ====================== */
 
 .audit-summary {
-  background: linear-gradient(180deg, #f7f6fb 0%, #ede8ff 100%);
+  background: linear-gradient(180deg, var(--bg-main) 0%, var(--violet-100) 100%);
   padding: 4rem 2rem;
   border-top: 4px solid var(--violet-100);
   display: flex;
