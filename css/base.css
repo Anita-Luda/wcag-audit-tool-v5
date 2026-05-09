@@ -27,6 +27,12 @@
   --bg-soft: #f8f6ff;
   --bg-input: #ffffff;
   --bg-input-alt: #faf9ff;
+  --bg-secondary-btn: #ffffff;
+  --text-secondary-btn: var(--violet-700);
+  --bg-selected: #ffffff;
+  --bg-stat-card: var(--violet-50);
+  --bg-header-btn: rgba(74, 59, 122, 0.15);
+  --text-header-btn: var(--violet-900);
 
   /* BORDERS */
   --border-soft: #e9e5f5;
@@ -74,6 +80,12 @@
   --bg-soft: #1a1236;
   --bg-input: #120b26;
   --bg-input-alt: #1a1236;
+  --bg-secondary-btn: var(--violet-100);
+  --text-secondary-btn: var(--violet-900);
+  --bg-selected: var(--violet-300);
+  --bg-stat-card: var(--violet-100);
+  --bg-header-btn: rgba(255, 255, 255, 0.1);
+  --text-header-btn: #ffffff;
 
   --border-soft: #2a1f4d;
   --border-strong: #4a3b7a;

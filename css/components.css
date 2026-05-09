@@ -614,7 +614,7 @@ button:focus {
   align-items: center;
   padding: 1rem;
   border-radius: 18px;
-  background: var(--violet-50);
+  background: var(--bg-stat-card);
   transition: transform 0.2s;
 }
 
@@ -624,10 +624,10 @@ button:focus {
 .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--violet-900); }
 .stat-label { font-size: 0.7rem; font-weight: 700; color: var(--violet-400); text-transform: uppercase; }
 
-.stat-pass { background: #e8fff3; }
-.stat-fail { background: #fff1f2; }
-.stat-na { background: #f1f5f9; }
-.stat-nt { background: #fdf4ff; }
+.stat-pass { background: var(--mint-100); color: var(--mint-600); }
+.stat-fail { background: var(--pink-100); color: var(--pink-500); }
+.stat-na { background: var(--violet-100); color: var(--violet-700); }
+.stat-nt { background: var(--violet-50); color: var(--violet-500); }
 
 .summary-compliance {
   display: flex;
@@ -804,7 +804,7 @@ tr.saved {
 }
 
 .modal-option:has(input:checked) {
-  background: #ffffff;
+  background: var(--bg-selected);
   border-color: var(--violet-500);
   box-shadow: 0 4px 12px rgba(167, 151, 255, 0.15);
 }
@@ -864,14 +864,14 @@ tr.saved {
 }
 
 .btn-secondary {
-  background: #ffffff;
-  color: var(--violet-700);
+  background: var(--bg-secondary-btn);
+  color: var(--text-secondary-btn);
   border: 2px solid var(--violet-300);
   box-shadow: none;
 }
 
 .btn-secondary:hover {
-  background: var(--violet-100);
+  filter: brightness(0.95);
 }
 
 .btn-primary-kawaii {
