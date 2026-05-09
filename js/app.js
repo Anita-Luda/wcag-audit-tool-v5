@@ -56,6 +56,26 @@ async function bootstrapApp() {
   // 4. Bind global interactions
   bindGlobalUI();
   syncMetadataUI();
+  initTheme();
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('kawaii-theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeButton(saved);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('kawaii-theme', next);
+  updateThemeButton(next);
+}
+
+function updateThemeButton(theme) {
+  const btn = document.getElementById('theme-toggle-btn');
+  if (btn) btn.textContent = theme === 'light' ? '🌙' : '☀️';
 }
 
 /* =========================================================
@@ -132,6 +152,7 @@ function bindGlobalUI() {
     window.updateMetaState('appName', appNameInput.value);
   });
 
+  document.getElementById('theme-toggle-btn')?.addEventListener('click', () => toggleTheme());
   document.getElementById('export-html-btn')?.addEventListener('click', () => window.exportAuditHTML?.());
   document.getElementById('export-csv-btn')?.addEventListener('click', () => window.exportAuditCSV?.());
   document.getElementById('export-pdf-btn')?.addEventListener('click', () => window.exportAuditPDF?.());

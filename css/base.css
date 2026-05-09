@@ -23,7 +23,10 @@
   /* BACKGROUNDS */
   --bg-main: #fdfbff;
   --bg-card: #ffffff;
+  --bg-table: #ffffff;
   --bg-soft: #f8f6ff;
+  --bg-input: #ffffff;
+  --bg-input-alt: #faf9ff;
 
   /* BORDERS */
   --border-soft: #e9e5f5;
@@ -45,6 +48,42 @@
   --radius-sm: 12px;
 
   --shadow: 0 8px 30px rgba(167, 151, 255, 0.15);
+}
+
+[data-theme="dark"] {
+  /* Witchy Vampire Kawaii Purple Dark Mode */
+  --violet-900: #e0d4ff;
+  --violet-800: #b194ff;
+  --violet-700: #9b6dff;
+  --violet-500: #7b5cd6;
+  --violet-300: #4a3b7a;
+  --violet-100: #2a1f4d;
+  --violet-50: #120b26;
+
+  --pink-500: #ff69b4;
+  --pink-300: #8b008b;
+  --pink-100: #301934;
+
+  --mint-600: #00fa9a;
+  --mint-500: #20b2aa;
+  --mint-100: #1a2f2a;
+
+  --bg-main: #0c081a;
+  --bg-card: #181233;
+  --bg-table: #1c153d;
+  --bg-soft: #1a1236;
+  --bg-input: #120b26;
+  --bg-input-alt: #1a1236;
+
+  --border-soft: #2a1f4d;
+  --border-strong: #4a3b7a;
+
+  --text: #e0d4ff;
+  --text-muted: #a797ff;
+
+  --focus-ring: #ff69b4;
+
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
 }
 
 *,
@@ -160,7 +199,7 @@ button:hover {
 table {
   border-collapse: collapse;
   width: 100%;
-  background: white;
+  background: var(--bg-table);
   border-radius: var(--radius);
   overflow: hidden;
 }

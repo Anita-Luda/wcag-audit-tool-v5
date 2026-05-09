@@ -1,26 +1,12 @@
 {
   "meta": {
-    "appName": "My Super App",
+    "appName": "Test App (2026-05-09)",
     "productType": "web",
-    "auditStartedAt": "2026-05-07T18:42:16.470Z",
-    "auditLastModifiedAt": "2026-05-09T15:39:03.270Z"
+    "auditStartedAt": "2026-05-09T17:19:05.873Z",
+    "auditLastModifiedAt": "2026-05-09T17:19:05.873Z"
   },
   "criteria": {
-    "wcag-1-1-1": {
-      "issueDescription": "Test change in view mode",
-      "_areaFlat": "development",
-      "_priorityFlat": "",
-      "status": "fail",
-      "expectedBehavior": "",
-      "htmlCurrent": "",
-      "htmlExpected": "",
-      "areas": [
-        "development",
-        "design"
-      ],
-      "priorities": [],
-      "failureDetail": ""
-    },
+    "wcag-1-1-1": {},
     "wcag-1-2-1": {},
     "wcag-1-2-2": {},
     "wcag-1-2-3": {},
@@ -124,13 +110,10 @@
     "en-13-5": {}
   },
   "filters": {
-    "level": {}
-  },
-  "context": {
-    "auditId": "default",
-    "mode": "edit",
-    "version": "draft",
-    "isNew": false,
-    "unlockedRows": {}
+    "level": {},
+    "status": {},
+    "failure": {},
+    "area": {},
+    "priority": {}
   }
 }
