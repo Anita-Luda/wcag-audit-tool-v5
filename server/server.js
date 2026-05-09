@@ -211,9 +211,13 @@ function listVersions(id) {
   if (!fs.existsSync(dir)) return [];
 
   return fs.readdirSync(dir)
-    .filter(f => /^v\d+\.json$/.test(f))
+    .filter(f => f.endsWith('.json') && f !== 'draft.json' && f !== 'meta.json')
     .map(f => f.replace('.json', ''))
-    .sort((a, b) => parseInt(a.slice(1)) - parseInt(b.slice(1)));
+    .sort((a, b) => {
+        const statA = fs.statSync(path.join(dir, a + '.json'));
+        const statB = fs.statSync(path.join(dir, b + '.json'));
+        return statB.mtimeMs - statA.mtimeMs; // Newest first
+    });
 }
 
 app.get('/api/audits/:id/versions', (req, res) => {
@@ -229,11 +233,18 @@ app.post('/api/audits/:id/versions', (req, res) => {
   try {
     const id = req.params.id;
     const dir = auditPath(id);
+    const body = req.body || {};
 
     ensureAudit(id);
 
     const versions = listVersions(id);
-    const next = `v${versions.length + 1}`;
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+
+    // Use name from body if provided, else generic vN-date
+    const next = body.name
+      ? body.name.replace(/[^a-zA-Z0-9-_ ]/g, '_')
+      : `v${versions.length + 1}-${dateStr}`;
 
     const draft = safeRead(draftFile(id));
 

@@ -12,12 +12,10 @@
   window.renderAuditTables = function (definitions, state, context = {}) {
 
     if (!definitions?.groups || !definitions?.criteria) {
-      console.error('❌ Missing WCAG definitions');
       return;
     }
 
     if (!state) {
-      console.error('❌ Missing audit state');
       return;
     }
 
@@ -187,8 +185,8 @@
 
       <td class="col-actions">
         ${rowMode === 'edit'
-          ? '<button type="button" class="save-row" title="Zapisz i zablokuj">💾</button>'
-          : '<button type="button" class="unlock-row" title="Odblokuj do edycji">🔓</button>'
+          ? '<button type="button" class="save-row btn-action-kawaii" title="Zapisz i zablokuj">Zapisz 💾</button>'
+          : '<button type="button" class="unlock-row btn-action-kawaii" title="Odblokuj do edycji">Edytuj 🔓</button>'
         }
       </td>
     `;
@@ -211,20 +209,17 @@
     tr.dataset.failure =
       rowState.failureDetail || '';
 
-    tr.dataset.area =
-      normalizeSingle(
-        rowState.areas ||
-        def.area ||
-        def.team ||
-        'mixed'
-      );
+    tr.dataset.areas =
+      normalizeArray(
+        rowState.areas,
+        def.area || def.team || 'mixed'
+      ).join(',');
 
-    tr.dataset.priority =
-      normalizeSingle(
-        rowState.priorities ||
-        def.priority ||
-        'medium'
-      );
+    tr.dataset.priorities =
+      normalizeArray(
+        rowState.priorities,
+        def.priority || 'medium'
+      ).join(',');
   }
 
   /* =========================================================
@@ -342,7 +337,7 @@
      ========================================================= */
 
   function renderBadgeTrigger({ type, values = [], mode }) {
-    const selected = Array.isArray(values) ? values : [values];
+    const selected = (Array.isArray(values) ? values : [values]).filter(v => v);
     const isPriority = type === 'priority';
     const icons = { critical: '🔴', high: '🟠', medium: '🟡' };
 
@@ -386,8 +381,11 @@
 
             rowState.status = input.value;
 
+            const isUnlocked = window.WCAG_AUDIT_APP.context.unlockedRows?.has(id);
+            const mode = (window.WCAG_AUDIT_APP.context.mode === 'edit' || isUnlocked) ? 'edit' : 'view';
+
             failureContainer.innerHTML =
-              renderFailureGroup(id, rowState, 'edit');
+              renderFailureGroup(id, rowState, mode);
           }
 
           bindFailureEvents(row, id);
@@ -447,7 +445,8 @@
       });
 
     row.querySelector('.unlock-row')
-      ?.addEventListener('click', () => {
+      ?.addEventListener('click', (e) => {
+        e.stopPropagation();
         if (!window.WCAG_AUDIT_APP.context.unlockedRows) {
            window.WCAG_AUDIT_APP.context.unlockedRows = new Set();
         }
@@ -462,9 +461,22 @@
       priority: ['critical', 'high', 'medium']
     };
 
+    const def = window.WCAG_AUDIT_APP.definitions.criteria.find(c => c.id === criterionId);
     const rowState = window.WCAG_AUDIT_APP?.state?.criteria?.[criterionId] || {};
     const key = type === 'area' ? 'areas' : 'priorities';
-    const currentValues = normalizeArray(rowState[key], type === 'priority' ? 'medium' : []);
+
+    // Crucial: Get current values from state, or fallback to definitions if state is empty
+    let currentValues = [];
+    if (rowState[key] && Array.isArray(rowState[key]) && rowState[key].length > 0) {
+      currentValues = rowState[key];
+    } else {
+      // Fallback logic matching renderRow
+      if (type === 'area') {
+        currentValues = normalizeArray(def?.area || def?.team || ['mixed']);
+      } else {
+        currentValues = normalizeArray(def?.priority || 'medium');
+      }
+    }
 
     const overlay = document.createElement('div');
     overlay.className = 'popup-overlay';
@@ -472,20 +484,28 @@
     const rect = trigger.getBoundingClientRect();
     const popup = document.createElement('div');
     popup.className = 'badge-popup';
-    popup.style.top = `${rect.bottom + window.scrollY}px`;
-    popup.style.left = `${rect.left + window.scrollX}px`;
+
+    // Position adjustments to keep it on screen
+    let top = rect.bottom + window.scrollY;
+    let left = rect.left + window.scrollX;
+
+    popup.style.top = `${top}px`;
+    popup.style.left = `${left}px`;
+
+    const inputType = type === 'priority' ? 'radio' : 'checkbox';
+    const inputName = `popup-${type}-${criterionId}`;
 
     popup.innerHTML = `
       <div class="popup-options">
         ${options[type].map(opt => `
           <label class="popup-option">
-            <input type="checkbox" value="${opt}" ${currentValues.includes(opt) ? 'checked' : ''}>
+            <input type="${inputType}" name="${inputName}" value="${opt}" ${currentValues.includes(opt) ? 'checked' : ''}>
             <span>${escapeHTML(opt)}</span>
           </label>
         `).join('')}
       </div>
       <div class="popup-actions">
-        <button class="popup-close">Gotowe</button>
+        <button class="popup-close">Gotowe ✨</button>
       </div>
     `;
 
@@ -502,17 +522,16 @@
 
     popup.querySelectorAll('input').forEach(input => {
       input.onchange = () => {
-        const values = Array.from(popup.querySelectorAll('input:checked')).map(i => i.value);
+        let values;
+        if (inputType === 'radio') {
+          values = [input.value];
+        } else {
+          values = Array.from(popup.querySelectorAll('input:checked')).map(i => i.value);
+        }
+
         window.updateRowState?.(criterionId, key, values);
         updateRowDatasets(row, criterionId);
         window.triggerAutosave?.();
-
-        // Update the trigger view immediately
-        const list = trigger.querySelector('.badge-list');
-        if (list) {
-          list.innerHTML = renderBadgeTrigger({ type, values, mode: 'edit' })
-            .match(/<div class="badge-list">([\s\S]*)<\/div>/)[1];
-        }
       };
     });
   }
@@ -549,11 +568,59 @@
     row.dataset.status =
       normalizeStatus(rowState.status);
 
-    row.dataset.area =
-      normalizeSingle(rowState.areas);
+    const def = window.WCAG_AUDIT_APP.definitions.criteria.find(c => c.id === id);
 
-    row.dataset.priority =
-      normalizeSingle(rowState.priorities);
+    row.dataset.areas =
+      normalizeArray(rowState.areas, def?.area || def?.team || 'mixed').join(',');
+
+    row.dataset.priorities =
+      normalizeArray(rowState.priorities, def?.priority || 'medium').join(',');
+
+    // Update level display if it was missing or corrupted
+    const levelCell = row.querySelector('.col-level');
+    if (levelCell) {
+       const def = window.WCAG_AUDIT_APP.definitions.criteria.find(c => c.id === id);
+       if (def) {
+          levelCell.textContent = def.group === '5' ? 'EN' : (def.level || '');
+       }
+    }
+
+    // Refresh badges properly
+    const areaCol = row.querySelector('.col-area');
+    if (areaCol) {
+      const def = window.WCAG_AUDIT_APP.definitions.criteria.find(c => c.id === id);
+      const isUnlocked = window.WCAG_AUDIT_APP.context.unlockedRows?.has(id);
+      const mode = (window.WCAG_AUDIT_APP.context.mode === 'edit' || isUnlocked) ? 'edit' : 'view';
+
+      areaCol.innerHTML = renderBadgeTrigger({
+        type: 'area',
+        values: normalizeArray(rowState.areas, def.area || def.team || []),
+        mode
+      });
+    }
+
+    const priorityCol = row.querySelector('.col-priority');
+    if (priorityCol) {
+      const def = window.WCAG_AUDIT_APP.definitions.criteria.find(c => c.id === id);
+      const isUnlocked = window.WCAG_AUDIT_APP.context.unlockedRows?.has(id);
+      const mode = (window.WCAG_AUDIT_APP.context.mode === 'edit' || isUnlocked) ? 'edit' : 'view';
+
+      priorityCol.innerHTML = renderBadgeTrigger({
+        type: 'priority',
+        values: normalizeArray(rowState.priorities, def.priority || 'medium'),
+        mode
+      });
+    }
+
+    // Re-bind events for the new trigger buttons if needed
+    row.querySelectorAll('.badge-trigger').forEach(trigger => {
+        trigger.addEventListener('click', () => {
+          const isUnlocked = window.WCAG_AUDIT_APP.context.unlockedRows?.has(id);
+          const mode = (window.WCAG_AUDIT_APP.context.mode === 'edit' || isUnlocked) ? 'edit' : 'view';
+          if (mode === 'view') return;
+          showBadgePopup(trigger, id, trigger.dataset.type, row);
+        });
+    });
 
     window.applyGlobalFilters?.();
   }
@@ -578,13 +645,13 @@
 
   function normalizeArray(value, fallback = []) {
 
-    if (Array.isArray(value)) {
+    if (Array.isArray(value) && value.length > 0) {
       return value;
     }
 
-    if (!value) {
+    if (!value || (Array.isArray(value) && value.length === 0)) {
       return Array.isArray(fallback)
-        ? fallback
+        ? (fallback.length > 0 ? fallback : [])
         : [fallback];
     }
 

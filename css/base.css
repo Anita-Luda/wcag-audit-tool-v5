@@ -10,11 +10,13 @@
   --violet-500: #a797ff;
   --violet-300: #d4ccff;
   --violet-100: #f0edff;
+  --violet-50: #f8f7ff;
 
   --pink-500: #ff97d5;
   --pink-300: #ffc2e8;
   --pink-100: #fff0f9;
 
+  --mint-600: #10b981;
   --mint-500: #97ffd4;
   --mint-100: #f0fff9;
 
@@ -178,8 +180,12 @@ td {
   vertical-align: top;
 }
 
+tr {
+  transition: background-color 0.2s ease;
+}
+
 tr:hover {
-  background: #faf9ff;
+  background-color: var(--violet-50) !important;
 }
 
 /* STATUS COLORS (spójne z summary.js i exportem) */

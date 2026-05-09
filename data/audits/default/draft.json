@@ -1,25 +1,25 @@
 {
   "meta": {
-    "appName": "",
+    "appName": "Kawaii App Test",
     "productType": "web",
     "auditStartedAt": "2026-05-07T18:42:16.470Z",
-    "auditLastModifiedAt": "2026-05-07T18:42:16.470Z"
+    "auditLastModifiedAt": "2026-05-08T18:30:59.972Z"
   },
   "criteria": {
     "wcag-1-1-1": {
-      "issueDescription": "vgfxgsdgsgd",
-      "_areaFlat": "content",
-      "_priorityFlat": "critical",
+      "issueDescription": "Test change in view mode",
+      "_areaFlat": "development",
+      "_priorityFlat": "",
       "status": "fail",
       "expectedBehavior": "",
       "htmlCurrent": "",
       "htmlExpected": "",
       "areas": [
-        "content"
+        "development",
+        "design"
       ],
-      "priorities": [
-        "critical"
-      ]
+      "priorities": [],
+      "failureDetail": ""
     },
     "wcag-1-2-1": {},
     "wcag-1-2-2": {},
@@ -123,11 +123,14 @@
     "en-13-4": {},
     "en-13-5": {}
   },
-  "filters": {},
+  "filters": {
+    "level": {}
+  },
   "context": {
     "auditId": "default",
     "mode": "edit",
     "version": "draft",
-    "isNew": true
+    "isNew": false,
+    "unlockedRows": {}
   }
 }

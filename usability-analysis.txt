@@ -1,0 +1,23 @@
+# Analiza Użytkowa i Roadmapa WCAG Audit Pro
+
+## 1. UX Review (Stan Obecny)
+- **Estetyka**: Motyw "Kawaii Violet" nadaje narzędziu unikalny charakter, czyniąc żmudny proces audytowania przyjemniejszym wizualnie.
+- **Interakcje**: System badge-popup dla obszarów i priorytetów jest znacznie szybszy niż standardowe selecty lub checkbox-listy.
+- **Czytelność**: Zastosowanie fontu Quicksand i dużych odstępów poprawia komfort pracy długodystansowej.
+- **Podsumowanie**: Nowe, graficzne podsumowanie w stopce daje natychmiastowy wgląd w stan dostępności projektu.
+
+## 2. Sugerowane Poprawki (UX Quick Wins)
+- **System Toast**: Zamiana `alert()` na estetyczne powiadomienia w rogu ekranu, które nie blokują interakcji.
+- **Keyboard Navigation**: Usprawnienie przechodzenia między polami tekstowymi za pomocą klawisza Tab (obecnie działa, ale focus ring mógłby być bardziej "kawaii").
+- **Drag & Drop Screenshotów**: Możliwość wklejenia lub przeciągnięcia zrzutu ekranu bezpośrednio do pola "Kod - teraz", który automatycznie zamieniałby się w link lub Base64.
+- **Tooltipy**: Dodanie opisowych tooltipów dla ikon (np. wyjaśnienie co oznacza dany status).
+
+## 3. Nowe Funkcje (Roadmapa)
+- **Słownik Błędów**: Możliwość zdefiniowania własnych, powtarzalnych opisów błędów, które można wybierać z listy (autouzupełnianie).
+- **Tryb Dark Mode**: Fioletowy Dark Mode dla osób pracujących wieczorami.
+- **Generowanie Raportu PDF z Wykresami**: Dodanie wykresów kołowych i słupkowych do eksportowanego raportu.
+- **Multi-user Sync**: Podstawowa blokada wiersza, gdy inny użytkownik go edytuje (wymaga WebSockets).
+- **Checklista EN 301 549**: Rozszerzenie definicji o pełną normę europejską dla aplikacji mobilnych i dokumentów.
+
+## 4. Podsumowanie Analizy
+Narzędzie ewoluowało z prostego arkusza w dojrzałą aplikację webową. Głównym atutem jest połączenie profesjonalnych wymagań (WCAG 2.2) z przyjaznym interfejsem, co redukuje barierę wejścia dla nowych audytorów. Kolejnym krokiem powinno być skupienie się na automatyzacji powtarzalnych wpisów (słownik).

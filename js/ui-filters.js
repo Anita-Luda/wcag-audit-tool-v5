@@ -24,10 +24,19 @@
         input.addEventListener('click', onFilterClick);
       });
 
+    document.getElementById('criteria-search')
+      ?.addEventListener('input', () => {
+        window.applyGlobalFilters?.();
+      });
+
     document.getElementById('clear-filters-btn-inline')
       ?.addEventListener('click', () => {
         const filters = getFilters();
         Object.keys(filters).forEach(k => filters[k] = {});
+
+        const searchInput = document.getElementById('criteria-search');
+        if (searchInput) searchInput.value = '';
+
         window.applyGlobalFilters?.();
       });
   }
@@ -101,13 +110,20 @@
 
   window.applyGlobalFilters = function () {
     const filters = getFilters();
+    const searchVal = document.getElementById('criteria-search')?.value?.toLowerCase() || '';
 
     document
       .querySelectorAll('.audit-table tbody tr')
       .forEach(tr => {
         const row = extractRowData(tr);
+        const name = tr.querySelector('strong')?.textContent?.toLowerCase() || '';
+        const number = tr.querySelector('.col-number')?.textContent?.toLowerCase() || '';
 
-        tr.hidden = !matchesAllFilters(
+        const matchesSearch = !searchVal ||
+          name.includes(searchVal) ||
+          number.includes(searchVal);
+
+        tr.hidden = !matchesSearch || !matchesAllFilters(
           row,
           filters
         );
@@ -128,12 +144,14 @@
 
       areas: normalizeArray(
         tr.dataset.areas ||
-        tr.dataset.area
+        tr.dataset.area ||
+        ''
       ),
 
       priorities: normalizeArray(
         tr.dataset.priorities ||
-        tr.dataset.priority
+        tr.dataset.priority ||
+        ''
       )
     };
   }
@@ -280,8 +298,10 @@
       return v.map(normalizeValue);
     }
 
+    // Handle string with comma-separated values (from data-areas/data-priorities)
     return String(v)
       .split(',')
+      .map(v => v.trim())
       .map(normalizeValue)
       .filter(Boolean);
   }
