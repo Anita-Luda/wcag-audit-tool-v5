@@ -196,10 +196,10 @@
 .btn-export {
   height: 38px;
   padding: 0 16px;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-header-btn);
   border: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(5px);
-  color: #fff;
+  color: var(--text-header-btn);
   font-size: 0.8rem;
   box-shadow: none;
   display: flex;
@@ -213,8 +213,15 @@
   width: 44px;
   padding: 0;
   border-radius: 50%;
-  background: var(--pink-500);
+  background: linear-gradient(135deg, #2b1055, #7597de); /* Night sky gradient */
   border: 2px solid white;
+  color: #ffce52; /* Yellow moon/sun */
+  box-shadow: 0 0 15px rgba(255, 206, 82, 0.3);
+}
+
+[data-theme="dark"] #theme-toggle-btn {
+  background: linear-gradient(135deg, #ff97d5, #ffc2e8); /* Soft kawaii sun sky */
+  color: #ff69b4;
 }
 
 .btn-export:hover {
