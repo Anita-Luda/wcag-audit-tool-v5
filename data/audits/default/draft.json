@@ -3,7 +3,7 @@
     "appName": "Verification App",
     "productType": "web",
     "auditStartedAt": "2026-05-07T18:42:16.470Z",
-    "auditLastModifiedAt": "2026-05-09T20:01:44.037Z"
+    "auditLastModifiedAt": "2026-05-09T20:55:36.376Z"
   },
   "criteria": {
     "wcag-1-1-1": {

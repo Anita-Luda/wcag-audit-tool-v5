@@ -71,7 +71,7 @@
 .meta-field label {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--violet-500);
+  color: var(--violet-700);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -121,10 +121,11 @@
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 0.8rem;
+  color: var(--violet-900);
 }
 
-.chip-label { font-weight: 700; color: var(--violet-700); }
-.chip-value { font-weight: 600; }
+.chip-label { font-weight: 700; color: var(--violet-800); }
+.chip-value { font-weight: 700; }
 
 .meta-toggles {
   display: flex;
@@ -165,8 +166,8 @@
 }
 
 .toggle-options label:has(input:checked) {
-  background: #ffffff;
-  color: var(--violet-700);
+  background: var(--bg-selected);
+  color: var(--violet-900);
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 

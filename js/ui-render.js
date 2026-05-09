@@ -394,6 +394,7 @@
 
           window.triggerAutosave?.();
           window.updateAuditSummary?.();
+          window.updateProgressBar?.();
         });
       });
 

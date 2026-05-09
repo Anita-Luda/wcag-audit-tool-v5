@@ -82,7 +82,7 @@
   --bg-input-alt: #1a1236;
   --bg-secondary-btn: var(--violet-100);
   --text-secondary-btn: var(--violet-900);
-  --bg-selected: var(--violet-300);
+  --bg-selected: var(--violet-500);
   --bg-stat-card: var(--violet-100);
   --bg-header-btn: rgba(255, 255, 255, 0.1);
   --text-header-btn: #ffffff;
@@ -157,7 +157,8 @@ select {
   height: 36px;
   border: 1px solid var(--border-soft);
   padding: 0 8px;
-  background: white;
+  background: var(--bg-input);
+  color: var(--text);
 }
 
 textarea {
