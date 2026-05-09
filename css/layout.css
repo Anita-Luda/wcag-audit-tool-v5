@@ -201,6 +201,19 @@
   color: #fff;
   font-size: 0.8rem;
   box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#theme-toggle-btn {
+  font-size: 1.2rem;
+  width: 44px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--pink-500);
+  border: 2px solid white;
 }
 
 .btn-export:hover {

@@ -70,7 +70,7 @@
     btn.addEventListener('click', async () => {
       const name = input.value.trim();
       if (!name) {
-        window.kawaii?.alert('Podaj nazwę aplikacji, aby stworzyć nowy audyt.');
+        await window.kawaii?.alert('Podaj nazwę aplikacji, aby stworzyć nowy audyt.');
         return;
       }
       showCreateAuditDialog(name);
@@ -81,13 +81,13 @@
     const btn = document.getElementById('save-version-btn');
     if (!btn) return;
 
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const auditId = window.WCAG_AUDIT_APP.context.auditId;
       if (!auditId || auditId === 'default') {
-        window.kawaii?.alert('Najpierw wybierz lub utwórz projekt, aby zapisać wersję.');
+        await window.kawaii?.alert('Najpierw wybierz lub utwórz projekt, aby zapisać wersję.');
         return;
       }
-      saveAsVersion(auditId);
+      await saveAsVersion(auditId);
     });
   }
 
@@ -173,13 +173,13 @@
         body: JSON.stringify({ id, name, state })
       });
       if (res.status === 409) {
-        window.kawaii?.alert('Audyt o tym ID już istnieje.');
+        await window.kawaii?.alert('Audyt o tym ID już istnieje.');
         return;
       }
       if (!res.ok) throw new Error('Failed to create audit');
       await initializeAuditSelector(id);
     } catch (e) {
-      window.kawaii?.alert('Błąd: ' + e.message);
+      await window.kawaii?.alert('Błąd: ' + e.message);
     }
   }
 
@@ -210,10 +210,10 @@
         body: JSON.stringify({ name: versionName })
       });
 
-      window.kawaii?.alert(`Dodano wersję ${versionName} do audytu ${auditId}`);
+      await window.kawaii?.alert(`Dodano wersję ${versionName} do audytu ${auditId}`);
       await initializeAuditSelector(auditId);
     } catch (e) {
-      window.kawaii?.alert('Błąd wersji: ' + e.message);
+      await window.kawaii?.alert('Błąd wersji: ' + e.message);
     }
   }
 
