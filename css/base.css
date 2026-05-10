@@ -13,6 +13,7 @@
   --violet-50: #f8f7ff;
 
   --pink-500: #ff97d5;
+  --pink-400: #ffaadb;
   --pink-300: #ffc2e8;
   --pink-100: #fff0f9;
 
@@ -32,7 +33,11 @@
   --bg-selected: #ffffff;
   --bg-stat-card: var(--violet-50);
   --bg-header-btn: rgba(74, 59, 122, 0.15);
-  --text-header-btn: var(--violet-900);
+  --text-header-btn: #ffffff;
+
+  --progress-text: var(--violet-900);
+  --progress-border: var(--violet-100);
+  --progress-bg-track: rgba(167, 151, 255, 0.2);
 
   /* BORDERS */
   --border-soft: #e9e5f5;
@@ -86,6 +91,10 @@
   --bg-stat-card: var(--violet-100);
   --bg-header-btn: rgba(255, 255, 255, 0.1);
   --text-header-btn: #ffffff;
+
+  --progress-text: #ffffff;
+  --progress-border: #ffffff;
+  --progress-bg-track: rgba(255, 255, 255, 0.3);
 
   --border-soft: #2a1f4d;
   --border-strong: #4a3b7a;

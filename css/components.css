@@ -405,10 +405,11 @@ button:focus {
 .btn-clear-filters {
   background: var(--pink-100);
   color: var(--pink-500);
-  border: 1px solid var(--pink-300);
+  border: 2px solid var(--pink-300);
   font-size: 0.8rem;
   padding: 6px 14px;
   border-radius: 12px;
+  font-weight: 700;
 }
 
 .btn-clear-filters:hover {
@@ -543,15 +544,15 @@ button:focus {
   font-size: 0.9rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: #ffffff;
+  color: var(--progress-text);
 }
 
 .progress-bar-bg {
   height: 12px;
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--progress-bg-track);
   border-radius: 6px;
   overflow: hidden;
-  border: 2px solid #ffffff;
+  border: 2px solid var(--progress-border);
 }
 
 #progress-bar-fill {
@@ -808,8 +809,16 @@ tr.saved {
   border: 2px solid transparent;
 }
 
+[data-theme="dark"] .modal-option {
+  background: rgba(18, 11, 38, 0.4);
+}
+
 .modal-option:hover {
   background: var(--violet-200);
+}
+
+[data-theme="dark"] .modal-option:hover {
+  background: rgba(18, 11, 38, 0.6);
 }
 
 .modal-option:has(input:checked) {
