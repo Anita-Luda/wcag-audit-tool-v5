@@ -149,37 +149,54 @@
       const targetAuditId = overlay.querySelector('#modal-audit-target').value;
       close();
 
-      const now = new Date();
-      const dateStr = now.toISOString().split('T')[0];
-      const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-      const newAuditId = `${slug}-${dateStr}`;
-      const fullName = `${name} (${dateStr})`;
-
-      if (action === 'empty') {
-        await createAudit(newAuditId, fullName, null);
-      } else if (action === 'save-new') {
-        await createAudit(newAuditId, fullName, window.WCAG_AUDIT_APP.state);
-      } else if (action === 'save-version') {
+      if (action === 'save-version') {
         await saveAsVersion(targetAuditId);
+      } else {
+        await handleCreateFlow(name, action === 'save-new' ? window.WCAG_AUDIT_APP.state : null);
       }
     };
   }
 
-  async function createAudit(id, name, state) {
-    try {
-      const res = await fetch('/api/audits', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, name, state })
-      });
-      if (res.status === 409) {
-        await window.kawaii?.alert('Audyt o tym ID już istnieje.');
+  async function handleCreateFlow(initialName, state) {
+    let currentName = initialName;
+    let confirmed = false;
+
+    while (!confirmed) {
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0];
+      const slug = currentName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+      const newAuditId = `${slug}-${dateStr}`;
+      const fullName = `${currentName} (${dateStr})`;
+
+      try {
+        const res = await fetch('/api/audits', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: newAuditId, name: fullName, state })
+        });
+
+        if (res.status === 409) {
+          const action = await window.kawaii?.confirm(
+            `Audyt o ID "${newAuditId}" już istnieje. Co chcesz zrobić?`,
+            { confirmLabel: 'Zmień nazwę ✏️', cancelLabel: 'Anuluj ❌' }
+          );
+          if (action) {
+            const newNameInput = await window.kawaii?.prompt('Podaj nową nazwę aplikacji:', currentName);
+            if (!newNameInput) return; // User cancelled
+            currentName = newNameInput;
+          } else {
+            return; // User cancelled
+          }
+        } else if (!res.ok) {
+          throw new Error('Failed to create audit');
+        } else {
+          confirmed = true;
+          await initializeAuditSelector(newAuditId);
+        }
+      } catch (e) {
+        await window.kawaii?.alert('Błąd: ' + e.message);
         return;
       }
-      if (!res.ok) throw new Error('Failed to create audit');
-      await initializeAuditSelector(id);
-    } catch (e) {
-      await window.kawaii?.alert('Błąd: ' + e.message);
     }
   }
 

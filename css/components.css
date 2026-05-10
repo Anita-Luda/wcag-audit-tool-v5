@@ -862,7 +862,7 @@ tr.saved {
 .modal-select:focus {
   outline: none;
   border-color: var(--violet-500);
-  background: #fff;
+  background: var(--bg-input);
 }
 
 .modal-actions {

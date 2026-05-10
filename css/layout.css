@@ -10,8 +10,8 @@
   background: linear-gradient(135deg, var(--violet-700) 0%, var(--violet-500) 50%, var(--pink-400) 100%);
   padding: 1.5rem 2rem 5rem;
   color: #ffffff;
-  border-bottom-left-radius: 50px;
-  border-bottom-right-radius: 50px;
+  margin: 2rem;
+  border-radius: 50px;
   box-shadow: 0 15px 40px rgba(123, 92, 214, 0.3);
 }
 
@@ -92,7 +92,7 @@
 .meta-field select:focus,
 .meta-field input:focus {
   border-color: var(--violet-400);
-  background: #fff;
+  background: var(--bg-input);
   outline: none;
 }
 
