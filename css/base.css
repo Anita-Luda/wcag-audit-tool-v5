@@ -36,8 +36,8 @@
   --text-header-btn: #ffffff;
 
   --progress-text: var(--violet-900);
-  --progress-border: var(--violet-100);
-  --progress-bg-track: rgba(167, 151, 255, 0.2);
+  --progress-border: var(--violet-300);
+  --progress-bg-track: rgba(167, 151, 255, 0.1);
 
   /* BORDERS */
   --border-soft: #e9e5f5;
@@ -72,6 +72,7 @@
   --violet-50: #120b26;
 
   --pink-500: #ff69b4;
+  --pink-400: #9b3d7a;
   --pink-300: #8b008b;
   --pink-100: #301934;
 

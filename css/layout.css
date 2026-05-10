@@ -200,7 +200,7 @@
   background: var(--bg-header-btn);
   border: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(5px);
-  color: var(--text-header-btn);
+  color: #ffffff !important;
   font-size: 0.8rem;
   box-shadow: none;
   display: flex;
