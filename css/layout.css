@@ -7,7 +7,7 @@
    ====================== */
 
 .app-header {
-  background: linear-gradient(135deg, var(--violet-700) 0%, var(--violet-500) 50%, var(--pink-400) 100%);
+  background: var(--bg-header-gradient);
   padding: 1.5rem 2rem 5rem;
   color: #ffffff;
   margin: 2rem;

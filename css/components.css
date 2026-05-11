@@ -403,7 +403,7 @@ button:focus {
 }
 
 .btn-clear-filters {
-  background: var(--pink-100);
+  background: var(--pink-100) !important;
   color: var(--pink-500);
   border: 2px solid var(--pink-300);
   font-size: 0.8rem;
@@ -879,7 +879,7 @@ tr.saved {
 }
 
 .btn-secondary {
-  background: var(--bg-secondary-btn);
+  background: var(--bg-secondary-btn) !important;
   color: var(--violet-700);
   border: 2px solid var(--violet-300);
   box-shadow: none;
