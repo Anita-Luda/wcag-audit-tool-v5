@@ -59,6 +59,11 @@
   --radius-sm: 12px;
 
   --shadow: 0 8px 30px rgba(167, 151, 255, 0.15);
+  --shadow-strong: 0 20px 60px rgba(74, 59, 122, 0.2);
+  --shadow-kawaii: 0 4px 15px rgba(167, 151, 255, 0.4);
+  --overlay-bg: rgba(74, 59, 122, 0.4);
+  --failure-bg: rgba(255, 214, 235, 0.3);
+  --bg-modal-option: var(--violet-100);
 }
 
 [data-theme="dark"] {
@@ -106,6 +111,11 @@
   --focus-ring: #ff69b4;
 
   --shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  --shadow-strong: 0 20px 60px rgba(0, 0, 0, 0.7);
+  --shadow-kawaii: 0 4px 15px rgba(0, 0, 0, 0.5);
+  --overlay-bg: rgba(12, 8, 26, 0.8);
+  --failure-bg: rgba(48, 25, 52, 0.6);
+  --bg-modal-option: rgba(18, 11, 38, 0.4);
 }
 
 *,
@@ -254,7 +264,7 @@ tr:hover {
 .ok { color: var(--ok); font-weight: 600; }
 .fail { color: var(--fail); font-weight: 600; }
 .na { color: var(--neutral); }
-.nt { color: #999; }
+.nt { color: var(--text-muted); }
 
 /* MODE HELPERS */
 .is-web .web-only {

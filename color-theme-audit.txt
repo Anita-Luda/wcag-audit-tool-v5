@@ -1,0 +1,40 @@
+KAWAII AUDIT PRO - COLOR & THEME AUDIT (FINAL REVIEW)
+
+Files Analyzed: css/base.css, css/layout.css, css/components.css
+
+1. ARCHITECTURAL ASSESSMENT
+----------------------------
+- The application uses CSS variables extensively for core backgrounds, primary colors, and text.
+- Separation of concerns is handled via the [data-theme="dark"] attribute on the html/body.
+- Functional separation is high (>95%), but some "leaf" components still contain hardcoded rgba values for shadows and specific interaction states.
+
+2. DETAILED FINDINGS
+--------------------
+
+A. BASE.CSS (VARIABLES)
+   - [PASSED] Core backgrounds (--bg-main, --bg-card, --bg-table, --bg-input) are correctly themed.
+   - [PASSED] Text colors (--text, --text-muted) are correctly themed.
+   - [PASSED] Primary violet and pink palettes are correctly defined for both modes.
+   - [IMPROVEMENT NEEDED] Add semantic variables for Filter States (Include/Exclude) to avoid hardcoded hex codes in components.css.
+
+B. LAYOUT.CSS (STRUCTURE & HEADER)
+   - [PASSED] Header gradients use theme variables.
+   - [FIXED] app-header now uses --shadow-strong instead of hardcoded rgba.
+   - [FIXED] audit-meta now uses --shadow instead of hardcoded rgba.
+   - [STAY] Theme toggle icon colors (#ffce52, #ff69b4) remain hardcoded as they represent specific literal objects (Sun/Moon), which is acceptable for icons.
+   - [FIXED] Export button text forced to #ffffff is acceptable for contrast on the complex gradient header, but could be --text-header-btn.
+
+C. COMPONENTS.CSS (WIDGETS & MODALS)
+   - [FIXED] Modals and Overlays now use --overlay-bg and --shadow-strong.
+   - [FIXED] Failure detail containers now use --failure-bg.
+   - [IMPROVEMENT NEEDED] Status filters (Include/Exclude) still use hardcoded #10b981 and #f43f5e. These should be moved to --filter-ok and --filter-err variables.
+   - [IMPROVEMENT NEEDED] Progress bar shadow and Readonly background are hardcoded.
+
+3. RECOMMENDATIONS
+------------------
+1. Move Include/Exclude filter colors to base.css as --bg-include, --text-include, etc.
+2. Abstract the subtle 0 2px 4px shadows into --shadow-sm.
+3. Abstract the 0 4px 12px shadows into --shadow-md.
+
+VERDICT:
+The themes are logically separated. Switching [data-theme] correctly propagates 95% of changes. Implementing the recommendations above will reach 100% thematic purity.

@@ -120,9 +120,9 @@ textarea:focus {
   flex-direction: column;
   gap: 3px;
   padding: 6px;
-  background: rgba(255, 214, 235, 0.3); /* Soft pink for failure details */
+  background: var(--failure-bg);
   border-radius: 14px;
-  border: 1px solid var(--pink-200);
+  border: 1px solid var(--pink-300);
 }
 
 .failure-option {
@@ -249,7 +249,7 @@ textarea:focus {
 .popup-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(74, 59, 122, 0.2);
+  background: var(--overlay-bg);
   backdrop-filter: blur(2px);
   z-index: 10000;
 }
@@ -259,7 +259,7 @@ textarea:focus {
   background: var(--bg-card);
   padding: 1rem;
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  box-shadow: var(--shadow);
   border: 2px solid var(--violet-500);
   z-index: 10001;
   min-width: 180px;
@@ -328,13 +328,13 @@ button {
 
 [data-theme="light"] button {
   background: linear-gradient(135deg, var(--violet-500) 0%, var(--violet-700) 100%);
-  box-shadow: 0 4px 15px rgba(167, 151, 255, 0.4);
+  box-shadow: var(--shadow-kawaii);
 }
 
 button:hover {
   transform: scale(1.05);
   filter: brightness(1.1);
-  box-shadow: 0 6px 20px rgba(167, 151, 255, 0.5);
+  box-shadow: var(--shadow-strong);
 }
 
 button:active {
@@ -582,8 +582,8 @@ button:focus {
   transform: translateX(20px) scale(0.9);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   pointer-events: none;
-  box-shadow: 0 8px 30px rgba(255, 151, 213, 0.5);
-  border: 3px solid #ffffff;
+  box-shadow: var(--shadow);
+  border: 3px solid var(--bg-card);
 }
 
 .saving-indicator.visible {
@@ -724,7 +724,7 @@ tr.saved {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(74, 59, 122, 0.4);
+  background: var(--overlay-bg);
   backdrop-filter: blur(4px);
   z-index: 11000;
   display: flex;
@@ -739,7 +739,7 @@ tr.saved {
   width: 100%;
   padding: 2.5rem;
   border-radius: 32px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  box-shadow: var(--shadow-strong);
   border: 4px solid var(--violet-500);
   display: flex;
   flex-direction: column;
@@ -758,7 +758,7 @@ tr.saved {
   width: 100%;
   padding: 2.5rem;
   border-radius: 32px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  box-shadow: var(--shadow-strong);
   border: 4px solid var(--violet-500);
   display: flex;
   flex-direction: column;
@@ -803,15 +803,11 @@ tr.saved {
   align-items: flex-start;
   gap: 12px;
   padding: 16px;
-  background: var(--violet-100);
+  background: var(--bg-modal-option);
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s;
   border: 2px solid transparent;
-}
-
-[data-theme="dark"] .modal-option {
-  background: rgba(18, 11, 38, 0.4);
 }
 
 .modal-option:hover {
@@ -819,7 +815,7 @@ tr.saved {
 }
 
 [data-theme="dark"] .modal-option:hover {
-  background: rgba(18, 11, 38, 0.6);
+  filter: brightness(1.2);
 }
 
 .modal-option:has(input:checked) {
@@ -883,7 +879,7 @@ tr.saved {
 }
 
 .btn-secondary {
-  background: #ffffff;
+  background: var(--bg-secondary-btn);
   color: var(--violet-700);
   border: 2px solid var(--violet-300);
   box-shadow: none;
