@@ -13,6 +13,7 @@
   --violet-50: #f8f7ff;
 
   --pink-500: #ff97d5;
+  --pink-400: #ffaadb;
   --pink-300: #ffc2e8;
   --pink-100: #fff0f9;
 
@@ -32,7 +33,11 @@
   --bg-selected: #ffffff;
   --bg-stat-card: var(--violet-50);
   --bg-header-btn: rgba(74, 59, 122, 0.15);
-  --text-header-btn: var(--violet-900);
+  --text-header-btn: #ffffff;
+
+  --progress-text: var(--violet-900);
+  --progress-border: var(--violet-300);
+  --progress-bg-track: rgba(167, 151, 255, 0.1);
 
   /* BORDERS */
   --border-soft: #e9e5f5;
@@ -54,6 +59,14 @@
   --radius-sm: 12px;
 
   --shadow: 0 8px 30px rgba(167, 151, 255, 0.15);
+  --shadow-strong: 0 20px 60px rgba(74, 59, 122, 0.2);
+  --shadow-kawaii: 0 4px 15px rgba(167, 151, 255, 0.4);
+  --overlay-bg: rgba(74, 59, 122, 0.4);
+  --failure-bg: rgba(255, 214, 235, 0.3);
+  --bg-modal-option: var(--violet-100);
+  --bg-header-gradient: linear-gradient(135deg, var(--violet-700) 0%, var(--violet-500) 50%, var(--pink-400) 100%);
+  --bg-body-gradient: radial-gradient(circle at top right, var(--pink-100), transparent),
+                      radial-gradient(circle at bottom left, var(--violet-100), transparent);
 }
 
 [data-theme="dark"] {
@@ -67,6 +80,7 @@
   --violet-50: #120b26;
 
   --pink-500: #ff69b4;
+  --pink-400: #9b3d7a;
   --pink-300: #8b008b;
   --pink-100: #301934;
 
@@ -87,6 +101,10 @@
   --bg-header-btn: rgba(255, 255, 255, 0.1);
   --text-header-btn: #ffffff;
 
+  --progress-text: #ffffff;
+  --progress-border: #ffffff;
+  --progress-bg-track: rgba(255, 255, 255, 0.3);
+
   --border-soft: #2a1f4d;
   --border-strong: #4a3b7a;
 
@@ -96,6 +114,13 @@
   --focus-ring: #ff69b4;
 
   --shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  --shadow-strong: 0 20px 60px rgba(0, 0, 0, 0.7);
+  --shadow-kawaii: 0 4px 15px rgba(0, 0, 0, 0.5);
+  --overlay-bg: rgba(12, 8, 26, 0.8);
+  --failure-bg: rgba(48, 25, 52, 0.6);
+  --bg-modal-option: rgba(18, 11, 38, 0.4);
+  --bg-header-gradient: linear-gradient(135deg, #2a1f4d 0%, #1c153d 50%, #301934 100%);
+  --bg-body-gradient: none;
 }
 
 *,
@@ -107,9 +132,7 @@
 body {
   margin: 0;
   font-family: "Quicksand", "Inter", system-ui, -apple-system, sans-serif;
-  background: radial-gradient(circle at top right, var(--pink-100), transparent),
-              radial-gradient(circle at bottom left, var(--violet-100), transparent),
-              var(--bg-main);
+  background: var(--bg-body-gradient), var(--bg-main);
   color: var(--text);
   line-height: 1.6;
 }
@@ -244,7 +267,7 @@ tr:hover {
 .ok { color: var(--ok); font-weight: 600; }
 .fail { color: var(--fail); font-weight: 600; }
 .na { color: var(--neutral); }
-.nt { color: #999; }
+.nt { color: var(--text-muted); }
 
 /* MODE HELPERS */
 .is-web .web-only {
